@@ -1,0 +1,70 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@/*": [
+        "*"
+      ],
+      "@common/*": [
+        "common/*"
+      ],
+      "@hooks/*": [
+        "common/hooks/*"
+      ],
+      "@components/*": [
+        "common/components/*"
+      ],
+      "@types/*": [
+        "common/types/*"
+      ],
+      "@features/*": [
+        "features/*"
+      ],
+      "@auth/*": [
+        "features/auth/*"
+      ],
+      "@onboarding/*": [
+        "features/onboarding/*"
+      ],
+      "@noti/*": [
+        "features/noti/*"
+      ],
+      "@hi/*": [
+        "features/hi/*"
+      ],
+      "@home/*": [
+        "features/home/*"
+      ],
+      "@chat/*": [
+        "features/chat/*"
+      ],
+      "@my/*": [
+        "features/my/*"
+      ],
+      "@api/*": [
+        "api/*"
+      ],
+      "@assets/*": [
+        "assets/*"
+      ],
+      "@fonts/*": [
+        "assets/fonts/*"
+      ],
+      "@icons/*": [
+        "assets/icons/*"
+      ],
+      "@images/*": [
+        "assets/images/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
+}

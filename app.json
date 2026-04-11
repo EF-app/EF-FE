@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "EF",
+    "slug": "ef-app",
+    "scheme": "ef-app-scheme",
+    "version": "1.0.0",
+    "experiments": {
+      "tsconfigPaths": true,
+      "typedRoutes": true
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icons/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icons/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "bundleIdentifier": "com.nokcha.ef",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.nokcha.ef",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/icons/favicon.png"
+    },
+    "plugins": ["expo-router"]
+  }
+}
