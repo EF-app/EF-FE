@@ -1,6 +1,9 @@
 // app/index.tsx
 import { StyleSheet, Text, View } from "react-native";
 
+// 화면 컴포넌트 안에서
+//<Smile color="#9686BF" size={40} strokeWidth={2} />;
+
 export default function Home() {
   return (
     <View style={styles.container}>
