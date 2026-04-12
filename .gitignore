@@ -14,6 +14,9 @@ expo-env.d.ts
 .vscode/
 *.code-workspace
 
+# Claude
+.claude/
+
 # Native
 .kotlin/
 *.orig.*
