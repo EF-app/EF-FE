@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>녹차 – 매칭</title>
+<style>
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-dEb.woff2') format('woff2');font-weight:800}
+
+:root{
+  --bg:#F5F3F1;--purple:#9686BF;--pl:rgba(150,134,191,.10);--pm:rgba(150,134,191,.24);
+  --card:#fff;--div:#EAE7E3;
+  --t1:#1C1A1F;--t2:#6B6670;--t3:#ADA8B2;
+  --green:#5BB98C;--amber:#C4885A;--red:#D4655A;--blue:#6482B4;
+  --sh:0 2px 14px rgba(150,134,191,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'NSN','Apple SD Gothic Neo',sans-serif;background:#DEDAD5}
+
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:36px 0 64px}
+.phone{
+  width:min(390px,100vw);
+  height:min(844px,calc(100dvh - 72px));
+  background:var(--bg);           /* ── 전체 배경 통일 */
+  border-radius:clamp(0px,50px,50px);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+@media(min-width:430px){
+  .phone{box-shadow:0 40px 100px rgba(0,0,0,.24),0 0 0 10px #181818,0 0 0 11px #2C2C2C}
+}
+@media(max-width:429px){
+  body{padding:0}
+  .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
+}
+
+/* ── Status Bar ── */
+.status{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 4px;font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+.status-r{display:flex;align-items:center;gap:5px}
+.di{width:120px;height:32px;background:#0D0D0D;border-radius:18px;margin:4px auto 0;flex-shrink:0}
+
+/* ── Top Bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 6px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;border-radius:10px;background:var(--purple);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(150,134,191,.35)}
+.logo-txt{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.counter-pill{padding:5px 11px;background:var(--card);border-radius:20px;font-size:11.5px;font-weight:700;color:var(--t3);box-shadow:var(--sh)}
+.icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);transition:all .16s;flex-shrink:0}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn svg{width:16px;height:16px;fill:none;stroke:var(--t2);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Card Stage — 카드 영역 축소 ── */
+.stage{
+  flex:1;                         /* 줄어든 만큼 버튼이 더 차지 */
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  padding:2px 14px 4px;
+  background:var(--bg);           /* 배경 통일 */
+}
+
+.card-behind{
+  position:absolute;border-radius:22px;
+  background:var(--card);
+  pointer-events:none;transition:transform .3s ease,opacity .3s ease;
+}
+.card-behind.b1{width:calc(100% - 40px);height:calc(100% - 20px);transform:translateY(7px) scale(.96);opacity:.5;z-index:1}
+.card-behind.b2{width:calc(100% - 58px);height:calc(100% - 36px);transform:translateY(14px) scale(.91);opacity:.25;z-index:0}
+
+/* ── Swipe Card — shadow/glow 완전 제거 ── */
+.swipe-card{
+  position:relative;z-index:10;
+  width:100%;height:100%;
+  border-radius:22px;
+  background:var(--card);
+  box-shadow:none;                /* ← 그림자 없애기 */
+  overflow:hidden;
+  cursor:grab;user-select:none;
+  display:flex;flex-direction:column;
+  will-change:transform;
+  touch-action:pan-y;
+}
+.swipe-card.swiping{cursor:grabbing;touch-action:none}
+
+/* ── Photo ── */
+.card-photo{
+  flex-shrink:0;height:50%;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.photo-bg{position:absolute;inset:0}
+.photo-emoji{position:relative;z-index:1;font-size:82px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.14))}
+.photo-gradient-overlay{
+  position:absolute;bottom:0;left:0;right:0;height:110px;
+  background:linear-gradient(to top,var(--card) 0%,transparent 100%);
+  z-index:2;pointer-events:none;
+}
+.match-tag{
+  position:absolute;top:12px;left:12px;z-index:10;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:20px;
+  font-size:11px;font-weight:800;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.tag-interest{background:rgba(150,134,191,.88);color:#fff}
+.tag-ideal{background:rgba(91,185,140,.88);color:#fff}
+.tag-attraction{background:rgba(196,136,90,.88);color:#fff}
+.tag-random{background:rgba(100,130,180,.88);color:#fff}
+.score-badge{
+  position:absolute;top:12px;right:12px;z-index:10;
+  background:rgba(0,0,0,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-radius:13px;padding:4px 10px;font-size:12px;font-weight:800;color:#fff;
+}
+.stamp{position:absolute;z-index:20;font-size:18px;font-weight:800;letter-spacing:.06em;padding:6px 14px;border-radius:10px;border:3px solid;opacity:0;pointer-events:none;transition:opacity .08s}
+.stamp-like{top:26px;left:18px;color:#5BB98C;border-color:#5BB98C;transform:rotate(-14deg)}
+.stamp-nope{top:26px;right:18px;color:var(--red);border-color:var(--red);transform:rotate(14deg)}
+
+/* Card Info */
+.card-body{flex:1;overflow-y:auto;padding:10px 16px 12px;-ms-overflow-style:none;scrollbar-width:none;background:var(--card)}
+.card-body::-webkit-scrollbar{display:none}
+.name-row{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.cname{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.cage{font-size:15px;font-weight:700;color:var(--t2)}
+.cmeta{font-size:11.5px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.score-bar{flex:1;height:4px;border-radius:2px;background:var(--div);overflow:hidden}
+.score-fill{height:100%;border-radius:2px;transition:width .9s cubic-bezier(.22,1,.36,1)}
+.fill-interest{background:linear-gradient(90deg,var(--purple),#C0B0E8)}
+.fill-ideal{background:linear-gradient(90deg,var(--green),#8CD9B0)}
+.fill-attraction{background:linear-gradient(90deg,var(--amber),#D9B080)}
+.fill-random{background:linear-gradient(90deg,var(--blue),#96A8D0)}
+.score-num{font-size:12px;font-weight:800;flex-shrink:0}
+.ctags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.ctag{padding:3px 9px;border-radius:13px;font-size:11px;font-weight:700}
+.ctag-interest{background:var(--pl);color:var(--purple);border:1px solid var(--pm)}
+.ctag-ideal{background:rgba(91,185,140,.1);color:var(--green);border:1px solid rgba(91,185,140,.2)}
+.ctag-attraction{background:rgba(196,136,90,.1);color:var(--amber);border:1px solid rgba(196,136,90,.2)}
+.ctag-random{background:rgba(100,130,180,.1);color:var(--blue);border:1px solid rgba(100,130,180,.2)}
+.cbio{font-size:12.5px;color:var(--t2);line-height:1.65;word-break:keep-all}
+
+/* Heart pop */
+@keyframes heartPop{0%{opacity:0;transform:translate(-50%,-50%) scale(0) rotate(-15deg)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(-15deg)}70%{transform:translate(-50%,-50%) scale(.95) rotate(-15deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1) rotate(-15deg)}}
+.heart-pop{position:absolute;top:50%;left:50%;font-size:72px;z-index:30;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(0) rotate(-15deg)}
+.heart-pop.boom{animation:heartPop .65s ease forwards}
+
+/* ── UNDO BAR — flex item, 카드/버튼 절대 안 가림 ── */
+.undo-bar{
+  flex-shrink:0;overflow:hidden;
+  max-height:0;opacity:0;
+  padding:0 14px;
+  transition:max-height .28s cubic-bezier(.22,1,.36,1),opacity .22s,padding .28s;
+  background:var(--bg);           /* 배경 통일 */
+}
+.undo-bar.show{max-height:52px;opacity:1;padding:4px 14px}
+.undo-inner{display:flex;align-items:center;justify-content:space-between;background:rgba(28,26,31,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;padding:9px 10px 9px 16px}
+.undo-txt{font-size:12.5px;font-weight:700;color:rgba(255,255,255,.82)}
+.undo-name{color:#fff;font-weight:800}
+.undo-btn{background:var(--purple);border:none;border-radius:12px;padding:6px 14px;font-family:'NSN','Apple SD Gothic Neo',sans-serif;font-size:12px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(150,134,191,.4);transition:all .14s;flex-shrink:0}
+.undo-btn:active{transform:scale(.93)}
+
+/* ── 스와이프 힌트 ── */
+.swipe-hint{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 22px 0;flex-shrink:0;
+  background:var(--bg);           /* 배경 통일 */
+}
+.hint-txt{font-size:11px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:3px}
+
+/* ── ACTIONS — 버튼 영역 확대 ── */
+.actions{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;
+  padding:10px 20px 22px;         /* 상하 패딩 늘려서 버튼 영역 확보 */
+  flex-shrink:0;
+  background:var(--bg);           /* 카드영역과 배경 동일 — 구분선 없음 */
+}
+
+/* ─── 패스 / 좋아요 — 평소: 테두리만, 누를 때: fill ─── */
+.act-icon{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.act-icon-btn{
+  width:58px;height:58px;
+  border-radius:50%;border:none;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+  cursor:pointer;
+  position:relative;
+  transition:transform .14s;
+  -webkit-tap-highlight-color:transparent;
+}
+/* 테두리 링 */
+.act-icon-btn::after{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:2px solid;
+  transition:opacity .14s;
+}
+.act-pass-btn::after{border-color:var(--red)}
+.act-like-btn::after{border-color:var(--purple)}
+
+/* 누를 때: fill + 테두리 사라짐 */
+.act-pass-btn:active,
+.act-pass-btn.pressed{background:var(--red);transform:scale(.87)}
+.act-pass-btn:active::after,
+.act-pass-btn.pressed::after{opacity:0}
+
+.act-like-btn:active,
+.act-like-btn.pressed{background:var(--purple);transform:scale(.87)}
+.act-like-btn:active::after,
+.act-like-btn.pressed::after{opacity:0}
+
+/* 아이콘 색 */
+.act-pass-btn svg{width:22px;height:22px;stroke:var(--red);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .14s}
+.act-like-btn svg{width:22px;height:22px;fill:var(--purple);transition:fill .14s}
+
+/* 누를 때 아이콘 흰색 */
+.act-pass-btn:active svg,.act-pass-btn.pressed svg{stroke:#fff}
+.act-like-btn:active svg,.act-like-btn.pressed svg{fill:#fff}
+
+.act-label{font-size:10.5px;font-weight:700;color:var(--t3)}
+
+/* ─── 메시지 — 포인트 pill, 제일 크게 ─── */
+.act-msg-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:190px}
+.act-msg{
+  width:100%;height:58px;
+  border-radius:30px;border:none;
+  background:linear-gradient(135deg,var(--purple),#C4B5E8);
+  box-shadow:0 6px 20px rgba(150,134,191,.36);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em;
+  transition:transform .16s,box-shadow .16s;
+}
+.act-msg svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.act-msg:active{transform:scale(.96);box-shadow:0 3px 10px rgba(150,134,191,.28)}
+.act-msg-label{font-size:10.5px;font-weight:700;color:var(--purple)}
+
+/* ── EMPTY STATE ── */
+.empty-state{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;text-align:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.empty-state.show{opacity:1;pointer-events:all}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.empty-emoji{font-size:52px;margin-bottom:18px;animation:float 3s ease-in-out infinite}
+.empty-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:8px}
+.empty-sub{font-size:13px;color:var(--t3);line-height:1.7;margin-bottom:24px;word-break:keep-all}
+.empty-refresh-btn{padding:13px 28px;border-radius:16px;background:var(--purple);border:none;font-family:'NSN','Apple SD Gothic Neo',sans-serif;font-size:14px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 8px 22px rgba(150,134,191,.36);transition:all .16s}
+.empty-refresh-btn:active{transform:scale(.97)}
+
+/* ── CHAT MODAL ── */
+.chat-overlay{position:absolute;inset:0;z-index:100;background:rgba(28,26,31,.48);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+.chat-overlay.open{opacity:1;pointer-events:all}
+.chat-sheet{background:var(--bg);border-radius:26px 26px 0 0;display:flex;flex-direction:column;max-height:80%;transform:translateY(100%);transition:transform .34s cubic-bezier(.22,1,.36,1)}
+.chat-overlay.open .chat-sheet{transform:translateY(0)}
+.chat-handle{width:36px;height:4px;background:var(--div);border-radius:2px;margin:12px auto 0;flex-shrink:0}
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 18px 12px;border-bottom:1px solid var(--div);flex-shrink:0}
+.chat-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.chat-name{font-size:15.5px;font-weight:800;color:var(--t1);letter-spacing:-.02em}
+.chat-online{font-size:11.5px;color:var(--green);margin-top:1px}
+.chat-x{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--div);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t2);flex-shrink:0}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:9px;-ms-overflow-style:none;scrollbar-width:none}
+.chat-msgs::-webkit-scrollbar{display:none}
+.bubble{max-width:78%;padding:10px 14px;border-radius:18px;font-size:13.5px;line-height:1.55;word-break:keep-all}
+.bubble.them{background:var(--card);color:var(--t1);align-self:flex-start;border-radius:4px 18px 18px 18px;box-shadow:var(--sh)}
+.bubble.me{background:var(--purple);color:#fff;align-self:flex-end;border-radius:18px 18px 4px 18px}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px 24px;border-top:1px solid var(--div);flex-shrink:0}
+.chat-inp{flex:1;padding:10px 14px;border-radius:22px;border:1.5px solid var(--div);background:var(--card);font-family:'NSN','Apple SD Gothic Neo',sans-serif;font-size:13.5px;color:var(--t1);outline:none;transition:border-color .2s;resize:none}
+.chat-inp:focus{border-color:var(--purple)}
+.chat-inp::placeholder{color:var(--t3)}
+.send-btn{width:40px;height:40px;border-radius:50%;background:var(--purple);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(150,134,191,.35);transition:all .16s;align-self:flex-end;flex-shrink:0}
+.send-btn:active{transform:scale(.9)}
+.send-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{animation:spin .5s ease}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status -->
+  <div class="status">
+    <span>9:41</span>
+    <div class="di" style="position:absolute;left:50%;transform:translateX(-50%);top:10px"></div>
+    <div class="status-r">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--t1)"><rect x="0" y="8" width="2.5" height="8" rx="1"/><rect x="4.5" y="5.5" width="2.5" height="10.5" rx="1"/><rect x="9" y="3" width="2.5" height="13" rx="1"/><rect x="13.5" y="0" width="2.5" height="16" rx="1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t1)" stroke-width="1.4"><path d="M1 5.5a9.5 9.5 0 0 1 14 0"/><path d="M3.5 8a6.5 6.5 0 0 1 9 0"/><path d="M6 10.5a3.5 3.5 0 0 1 4 0"/><circle cx="8" cy="13" r="1" fill="var(--t1)" stroke="none"/></svg>
+      <svg width="20" height="11" viewBox="0 0 22 12" fill="none" stroke="var(--t1)" stroke-width="1.2"><rect x=".6" y=".6" width="17.8" height="10.8" rx="2.4"/><rect x="1.8" y="1.8" width="13" height="8.4" rx="1.5" fill="var(--t1)" stroke="none"/><path d="M19.5 4v4" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div class="logo-txt">녹<span style="color:var(--purple)">차</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="counter-pill" id="counterPill">16명 남음</div>
+      <button class="icon-btn" onclick="doRefresh()" title="새로고침">
+        <svg viewBox="0 0 24 24" id="refreshIcon"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stage (카드 영역) -->
+  <div class="stage" id="stage">
+    <div class="card-behind b2" id="cardB2"></div>
+    <div class="card-behind b1" id="cardB1"></div>
+
+    <div class="swipe-card" id="swipeCard">
+      <div class="heart-pop" id="heartPop">💜</div>
+      <div class="stamp stamp-like" id="stampLike">LIKE 💜</div>
+      <div class="stamp stamp-nope" id="stampNope">PASS</div>
+
+      <div class="card-photo">
+        <div class="photo-bg" id="photoBg"></div>
+        <div class="photo-emoji" id="photoEmoji">🌸</div>
+        <div class="photo-gradient-overlay"></div>
+        <div class="match-tag" id="matchTag">🔮 관심사 매칭</div>
+        <div class="score-badge" id="scoreBadge">78%</div>
+      </div>
+
+      <div class="card-body" id="cardBody">
+        <div class="name-row">
+          <div class="cname" id="cname">지수</div>
+          <div class="cage" id="cage">26세</div>
+        </div>
+        <div class="cmeta">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="cloc">서울 마포구</span><span>·</span><span id="cmbti">INFP</span>
+        </div>
+        <div class="score-row">
+          <div class="score-bar"><div class="score-fill" id="scoreFill" style="width:78%"></div></div>
+          <div class="score-num" id="scoreNum" style="color:var(--purple)">78%</div>
+        </div>
+        <div class="ctags" id="ctags"></div>
+        <div class="cbio" id="cbio"></div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-emoji">🌿</div>
+      <div class="empty-title">오늘 매칭이 모두 끝났어요</div>
+      <div class="empty-sub">새로고침하면 패스하지 않은<br>프로필을 다시 볼 수 있어요</div>
+      <button class="empty-refresh-btn" onclick="doRefresh()">다시 보기</button>
+    </div>
+  </div>
+
+  <!-- 패스 취소 바 — flex item -->
+  <div class="undo-bar" id="undoBar">
+    <div class="undo-inner">
+      <span class="undo-txt"><span class="undo-name" id="undoName"></span>님을 패스했어요</span>
+      <button class="undo-btn" onclick="doUndo()">되돌리기</button>
+    </div>
+  </div>
+
+  <!-- 스와이프 힌트 -->
+  <div class="swipe-hint">
+    <div class="hint-txt">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      패스
+    </div>
+    <div class="hint-txt" style="font-size:10.5px;font-weight:400">어디서든 스와이프 가능해요</div>
+    <div class="hint-txt">
+      좋아요
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+
+  <!-- Actions (버튼 영역 — 카드와 배경 통일, 구분선 없음) -->
+  <div class="actions">
+
+    <!-- 패스 -->
+    <div class="act-icon">
+      <button class="act-icon-btn act-pass-btn" id="btnPass" onclick="doPass()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span class="act-label">패스</span>
+    </div>
+
+    <!-- 메시지 — 포인트 -->
+    <div class="act-msg-wrap">
+      <button class="act-msg" onclick="openChat()">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        메시지 보내기
+      </button>
+      <span class="act-msg-label">대화 시작하기</span>
+    </div>
+
+    <!-- 좋아요 -->
+    <div class="act-icon">
+      <button class="act-icon-btn act-like-btn" id="btnLike" onclick="doLike()">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <span class="act-label">좋아요</span>
+    </div>
+  </div>
+
+  <!-- Chat Modal -->
+  <div class="chat-overlay" id="chatOverlay" onclick="closeChatOutside(event)">
+    <div class="chat-sheet">
+      <div class="chat-handle"></div>
+      <div class="chat-head">
+        <div class="chat-av" id="chatAv">🌸</div>
+        <div>
+          <div class="chat-name" id="chatName">지수</div>
+          <div class="chat-online">방금 접속 · 활성</div>
+        </div>
+        <button class="chat-x" onclick="closeChat()">✕</button>
+      </div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="chat-input-row">
+        <input class="chat-inp" id="chatInp" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="send-btn" onclick="sendMsg()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALL = [
+  { id:1,  type:'interest',   name:'지수', age:26, loc:'서울 마포구',  mbti:'INFP', emoji:'🌸', grad:'linear-gradient(145deg,#C5BAE0,#9686BF)', tags:['홈카페','전시회','인디음악','클라이밍','드로잉'],  bio:'서울에서 디자이너로 일하고 있어요. 주말엔 홈카페 만들거나 전시회 가는 걸 좋아해요 :)', match:78 },
+  { id:2,  type:'interest',   name:'하준', age:28, loc:'서울 성수동',  mbti:'INFJ', emoji:'🌿', grad:'linear-gradient(145deg,#A8D5BA,#5BB98C)',  tags:['독서','카페투어','필름사진','재테크','캠핑'],        bio:'책 읽고 커피 마시는 게 최고의 주말이에요. 같이 필름 찍으러 다니실 분 있나요?', match:75 },
+  { id:3,  type:'interest',   name:'소연', age:25, loc:'경기 판교',    mbti:'ISFP', emoji:'🌺', grad:'linear-gradient(145deg,#F0D5C0,#C4885A)',  tags:['캠핑','맛집탐방','요가','드로잉','피크닉'],           bio:'자연이랑 사람이랑 같이 있을 때 가장 행복해요. 같이 캠핑 가실 분 구해요!', match:76 },
+  { id:4,  type:'interest',   name:'민준', age:29, loc:'서울 강남',    mbti:'ENTP', emoji:'⚡', grad:'linear-gradient(145deg,#B8D4F0,#6499D4)',  tags:['독서','국내여행','K-POP','웹툰','재테크'],            bio:'다양한 관심사를 가진 사람이에요. 새로운 것 배우는 게 즐거워요! 함께 성장해요.', match:75 },
+  { id:5,  type:'interest',   name:'하늘', age:27, loc:'서울 홍대',    mbti:'INFP', emoji:'🌙', grad:'linear-gradient(145deg,#D5B8F0,#9E6DCF)',  tags:['뮤지컬','필름사진','카공','명상','반려식물'],          bio:'뮤지컬 보고 울기 선수예요. 감수성 풍부하고 혼자도 잘 놀아요 😊', match:77 },
+  { id:6,  type:'ideal',      name:'준서', age:30, loc:'서울 용산',    mbti:'ENTJ', emoji:'🦁', grad:'linear-gradient(145deg,#F0E0C0,#D4A060)',  tags:['러닝','커리어개발','와인','스키','독서'],              bio:'목표 있게 살아가는 걸 좋아해요. 함께 성장할 수 있는 분을 원해요. 주말엔 러닝!', match:91 },
+  { id:7,  type:'ideal',      name:'아린', age:24, loc:'서울 연남동',  mbti:'INFJ', emoji:'🌌', grad:'linear-gradient(145deg,#B8C8F0,#6B87D4)',  tags:['드로잉','고양이','차','필사','향수'],                  bio:'조용하지만 깊은 대화를 좋아해요. 취향 잘 맞는 분 만나고 싶어요.', match:88 },
+  { id:8,  type:'ideal',      name:'태양', age:27, loc:'인천 송도',    mbti:'INTJ', emoji:'🦅', grad:'linear-gradient(145deg,#3A4A6A,#6A9ACA)',  tags:['연극','인디음악','필름사진','재테크','캠핑'],          bio:'독특한 취향의 소유자예요. 같은 공간에서 각자의 시간을 즐기는 걸 좋아해요.', match:85 },
+  { id:9,  type:'ideal',      name:'나연', age:26, loc:'서울 마포구',  mbti:'ISFJ', emoji:'🛡️',grad:'linear-gradient(145deg,#E8D8F0,#B090D0)',  tags:['요리','홈카페','뜨개질','산책','영화'],                 bio:'집에서 조용히 뜨개질하거나 요리하는 게 행복이에요. 따뜻한 대화 좋아요 🍵', match:83 },
+  { id:10, type:'attraction', name:'서준', age:27, loc:'서울 이태원',  mbti:'ESTP', emoji:'⚡', grad:'linear-gradient(145deg,#F0C8C0,#D46060)',  tags:['헬스','클라이밍','맥주','드라이브','볼링'],            bio:'에너지 넘치고 즉흥적인 편이에요. 재미있는 거 같이 해요! 어디든 잘 따라가요.', match:62 },
+  { id:11, type:'attraction', name:'유나', age:26, loc:'서울 신촌',    mbti:'ENFJ', emoji:'🌟', grad:'linear-gradient(145deg,#F8F0B8,#D4C040)',  tags:['춤','K-POP','칵테일','페스티벌','코인노래방'],         bio:'밝고 명랑한 성격이에요. 함께 있으면 즐거운 시간 보장해요 🎉', match:58 },
+  { id:12, type:'attraction', name:'우진', age:29, loc:'서울 건대',    mbti:'ISTP', emoji:'🔧', grad:'linear-gradient(145deg,#C8E0C8,#6A9A6A)',  tags:['자전거','요리','보드게임','캠핑','드라이브'],           bio:'말수는 적지만 행동파예요. 맛있는 거 같이 먹으면 다 통해요. 요리 잘해요!', match:60 },
+  { id:13, type:'attraction', name:'채원', age:25, loc:'서울 상수',    mbti:'ENFP', emoji:'🦋', grad:'linear-gradient(145deg,#F0D0E8,#C870A8)',  tags:['춤','SNS','페스티벌','맛집탐방','여행'],               bio:'새로운 것에 호기심이 많아요. 낯선 곳 여행하고 춤추는 게 취미예요 💃', match:55 },
+  { id:14, type:'random',     name:'채린', age:25, loc:'서울 합정',    mbti:'ESFP', emoji:'🎉', grad:'linear-gradient(145deg,#F8D0E8,#E07AAE)',  tags:['코인노래방','쇼핑','브런치','SNS','방탈출'],            bio:'활기차고 트렌디한 편이에요. 새로운 장소 탐방하는 것 좋아해요! 같이 가요~', match:48 },
+  { id:15, type:'random',     name:'도현', age:31, loc:'서울 강동',    mbti:'ISTJ', emoji:'📋', grad:'linear-gradient(145deg,#D8D8E8,#8890B8)',  tags:['독서','주식','등산','골프','신문읽기'],                 bio:'차분하고 안정적인 성격이에요. 서로 다른 매력이 끌릴 수도 있지 않을까요?', match:45 },
+  { id:16, type:'random',     name:'지우', age:28, loc:'서울 종로',    mbti:'ESFJ', emoji:'🌈', grad:'linear-gradient(145deg,#D0F0D0,#60B060)',  tags:['봉사활동','플로깅','친환경','요리','피크닉'],           bio:'지구를 사랑하는 사람이에요. 함께 플로깅하고 건강한 음식 나눠먹어요 🌱', match:43 },
+];
+
+const TYPE_META = {
+  interest:   { label:'🔮 관심사 매칭', cls:'tag-interest',   fillCls:'fill-interest',   color:'var(--purple)' },
+  ideal:      { label:'💜 이상형 매칭', cls:'tag-ideal',      fillCls:'fill-ideal',      color:'var(--green)'  },
+  attraction: { label:'✨ 끌림 매칭',   cls:'tag-attraction', fillCls:'fill-attraction', color:'var(--amber)'  },
+  random:     { label:'🌟 우연한 만남', cls:'tag-random',     fillCls:'fill-random',     color:'var(--blue)'   },
+};
+
+let queue=[], passedIds=new Set(), likedIds=new Set();
+let curQIdx=0, lastPassed=null, undoTimer=null;
+let isDragging=false, startX=0, touchStartY=0, curDX=0, swipeMode=null;
+const THRESHOLD=80;
+
+function buildQueue(){
+  const avail=ALL.filter(p=>!passedIds.has(p.id));
+  for(let i=avail.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[avail[i],avail[j]]=[avail[j],avail[i]];}
+  queue=avail.map(p=>p.id); curQIdx=0;
+}
+function cur(){ return curQIdx<queue.length ? ALL.find(p=>p.id===queue[curQIdx]) : null; }
+function nxt(){ return curQIdx+1<queue.length ? ALL.find(p=>p.id===queue[curQIdx+1]) : null; }
+function nxt2(){ return curQIdx+2<queue.length ? ALL.find(p=>p.id===queue[curQIdx+2]) : null; }
+
+function render(){
+  const p=cur(), card=document.getElementById('swipeCard'), empty=document.getElementById('emptyState');
+  document.getElementById('counterPill').textContent=(queue.length-curQIdx)>0?`${queue.length-curQIdx}명 남음`:'0명 남음';
+  if(!p){
+    card.style.opacity='0'; card.style.pointerEvents='none';
+    document.getElementById('cardB1').style.opacity='0';
+    document.getElementById('cardB2').style.opacity='0';
+    empty.classList.add('show'); return;
+  }
+  empty.classList.remove('show');
+  card.style.opacity='1'; card.style.pointerEvents='';
+  card.style.transform=''; card.style.transition='';
+  document.getElementById('stampLike').style.opacity='0';
+  document.getElementById('stampNope').style.opacity='0';
+
+  const m=TYPE_META[p.type];
+  document.getElementById('photoBg').style.background=p.grad;
+  document.getElementById('photoEmoji').textContent=p.emoji;
+  const tag=document.getElementById('matchTag');
+  tag.className=`match-tag ${m.cls}`; tag.textContent=m.label;
+  document.getElementById('scoreBadge').textContent=p.match+'%';
+  document.getElementById('cname').textContent=p.name;
+  document.getElementById('cage').textContent=p.age+'세';
+  document.getElementById('cloc').textContent=p.loc;
+  document.getElementById('cmbti').textContent=p.mbti;
+  const fill=document.getElementById('scoreFill');
+  fill.className=`score-fill ${m.fillCls}`; fill.style.width='0%';
+  setTimeout(()=>fill.style.width=p.match+'%',50);
+  document.getElementById('scoreNum').textContent=p.match+'%';
+  document.getElementById('scoreNum').style.color=m.color;
+  const tagsEl=document.getElementById('ctags'); tagsEl.innerHTML='';
+  p.tags.forEach(t=>{const s=document.createElement('span');s.className=`ctag ctag-${p.type}`;s.textContent='#'+t;tagsEl.appendChild(s);});
+  document.getElementById('cbio').textContent=p.bio;
+  document.getElementById('cardBody').scrollTop=0;
+  document.getElementById('cardB1').style.opacity=nxt()?'1':'0';
+  document.getElementById('cardB2').style.opacity=nxt2()?'1':'0';
+}
+
+function doPass(){
+  const p=cur(); if(!p)return;
+  passedIds.add(p.id);
+  lastPassed={id:p.id,qIdx:curQIdx};
+  const card=document.getElementById('swipeCard');
+  card.style.transition='transform .38s ease,opacity .38s ease';
+  card.style.transform='translateX(-130%) rotate(-28deg)';
+  document.getElementById('stampNope').style.opacity='1';
+  showUndo(p.name);
+  setTimeout(()=>{curQIdx++;render();},390);
+}
+function doLike(){
+  const p=cur(); if(!p)return;
+  likedIds.add(p.id); lastPassed=null;
+  const card=document.getElementById('swipeCard');
+  card.style.transition='transform .38s ease,opacity .38s ease';
+  card.style.transform='translateX(130%) rotate(28deg)';
+  document.getElementById('stampLike').style.opacity='1';
+  showHeart();
+  setTimeout(()=>{curQIdx++;render();},390);
+}
+function showHeart(){const el=document.getElementById('heartPop');el.classList.remove('boom');void el.offsetWidth;el.classList.add('boom');}
+
+function showUndo(name){
+  clearTimeout(undoTimer);
+  document.getElementById('undoName').textContent=name;
+  document.getElementById('undoBar').classList.add('show');
+  undoTimer=setTimeout(hideUndo,5000);
+}
+function hideUndo(){
+  clearTimeout(undoTimer);
+  document.getElementById('undoBar').classList.remove('show');
+  setTimeout(()=>{lastPassed=null;},300);
+}
+function doUndo(){
+  if(!lastPassed)return;
+  const {id,qIdx}=lastPassed; lastPassed=null; hideUndo();
+  passedIds.delete(id); curQIdx=qIdx;
+  const card=document.getElementById('swipeCard');
+  card.style.transition='none';
+  card.style.transform='translateX(-60px) rotate(-8deg)';
+  card.style.opacity='0';
+  setTimeout(()=>{render();card.style.transition='transform .35s cubic-bezier(.22,1,.36,1),opacity .25s';card.style.transform='';card.style.opacity='1';},30);
+}
+
+function doRefresh(){
+  document.getElementById('refreshIcon').classList.add('spinning');
+  setTimeout(()=>document.getElementById('refreshIcon').classList.remove('spinning'),500);
+  buildQueue();
+  const card=document.getElementById('swipeCard');
+  card.style.transition='opacity .2s'; card.style.opacity='0';
+  setTimeout(()=>{render();card.style.opacity='1';},220);
+}
+
+/* ── SWIPE — 카드 전체 (card-body 포함) ── */
+const swipeCard=document.getElementById('swipeCard');
+
+function dragStart(x,y){
+  if(!cur())return false;
+  isDragging=true; startX=x; touchStartY=y; curDX=0; swipeMode=null;
+  swipeCard.style.transition='none';
+  return true;
+}
+function dragMove(x,y){
+  if(!isDragging)return;
+  const dx=x-startX, dy=y-touchStartY;
+  if(swipeMode===null){
+    if(Math.abs(dx)>8||Math.abs(dy)>8) swipeMode=Math.abs(dx)>=Math.abs(dy)?'h':'v';
+    return;
+  }
+  if(swipeMode!=='h')return;
+  curDX=dx;
+  swipeCard.style.transform=`translateX(${dx}px) rotate(${dx*0.07}deg)`;
+  document.getElementById('stampLike').style.opacity=Math.min(1,Math.max(0,dx/THRESHOLD));
+  document.getElementById('stampNope').style.opacity=Math.min(1,Math.max(0,-dx/THRESHOLD));
+}
+function dragEnd(){
+  if(!isDragging)return;
+  isDragging=false; swipeCard.classList.remove('swiping');
+  document.getElementById('stampLike').style.opacity='0';
+  document.getElementById('stampNope').style.opacity='0';
+  if(swipeMode==='h'){
+    if(curDX>THRESHOLD) doLike();
+    else if(curDX<-THRESHOLD) doPass();
+    else{swipeCard.style.transition='transform .32s cubic-bezier(.22,1,.36,1)';swipeCard.style.transform='';}
+  } else {
+    swipeCard.style.transition='transform .32s cubic-bezier(.22,1,.36,1)';
+    swipeCard.style.transform='';
+  }
+  curDX=0; swipeMode=null;
+}
+
+swipeCard.addEventListener('pointerdown',e=>{
+  if(!dragStart(e.clientX,e.clientY))return;
+  swipeCard.setPointerCapture(e.pointerId);
+  swipeCard.classList.add('swiping');
+});
+swipeCard.addEventListener('pointermove',e=>{if(!isDragging)return;dragMove(e.clientX,e.clientY);});
+swipeCard.addEventListener('pointerup',()=>dragEnd());
+swipeCard.addEventListener('pointercancel',()=>{isDragging=false;swipeCard.classList.remove('swiping');swipeCard.style.transition='transform .32s cubic-bezier(.22,1,.36,1)';swipeCard.style.transform='';});
+
+swipeCard.addEventListener('touchstart',e=>{dragStart(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+swipeCard.addEventListener('touchmove',e=>{
+  if(!isDragging)return;
+  dragMove(e.touches[0].clientX,e.touches[0].clientY);
+  if(swipeMode==='h')e.preventDefault();
+},{passive:false});
+swipeCard.addEventListener('touchend',()=>dragEnd());
+swipeCard.addEventListener('touchcancel',()=>dragEnd());
+
+/* ── 버튼 터치 효과 ── */
+['btnPass','btnLike'].forEach(id=>{
+  const b=document.getElementById(id);
+  b.addEventListener('touchstart',()=>b.classList.add('pressed'),{passive:true});
+  b.addEventListener('touchend',()=>setTimeout(()=>b.classList.remove('pressed'),200),{passive:true});
+  b.addEventListener('touchcancel',()=>b.classList.remove('pressed'),{passive:true});
+});
+
+/* ── CHAT ── */
+const REPLIES=['맞아요, 저도 그거 엄청 좋아해요! 😊','우리 취향이 잘 맞는 것 같네요 🌿','한번 만나봐요! 어디 가고 싶은 데 있어요?','저도 관심 있어요! 같이 해봐요 💜','오 신기하다, 저도요! 취향 비슷한 것 같아요 😄'];
+function openChat(){
+  const p=cur(); if(!p)return;
+  const av=document.getElementById('chatAv');
+  av.textContent=p.emoji; av.style.background=p.grad;
+  document.getElementById('chatName').textContent=p.name;
+  const msgs=document.getElementById('chatMsgs');
+  msgs.innerHTML=`<div class="bubble them">안녕하세요! 녹차에서 처음 뵙네요 😊</div><div class="bubble them">프로필 보고 취향이 비슷할 것 같아서 연락해봤어요!</div>`;
+  document.getElementById('chatOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('chatInp').focus(),340);
+}
+function closeChat(){document.getElementById('chatOverlay').classList.remove('open');}
+function closeChatOutside(e){if(e.target===document.getElementById('chatOverlay'))closeChat();}
+function sendMsg(){
+  const inp=document.getElementById('chatInp'), val=inp.value.trim(); if(!val)return;
+  const msgs=document.getElementById('chatMsgs');
+  const b=document.createElement('div'); b.className='bubble me'; b.textContent=val;
+  msgs.appendChild(b); inp.value=''; msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{const r=document.createElement('div');r.className='bubble them';r.textContent=REPLIES[Math.floor(Math.random()*REPLIES.length)];msgs.appendChild(r);msgs.scrollTop=msgs.scrollHeight;},900+Math.random()*700);
+}
+
+buildQueue();
+render();
+</script>
+</body>
+</html>

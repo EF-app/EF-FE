@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>홈</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquareNeo@1.0/nanumsquareneo.min.css" />
+<style>
+  :root {
+    --purple: #9686BF;
+    --purple-light: #EDE9F7;
+    --purple-soft: #F7F4FC;
+    --purple-deep: #6E5FA0;
+    --yellow-bg: #FFF8E1;
+    --text: #2B2640;
+    --text-sub: #9B96B0;
+    --white: #ffffff;
+    --bg: #FBFAFD;
+    --divider: #F0ECF7;
+    --shadow: 0 6px 20px rgba(150, 134, 191, 0.08);
+    --shadow-sm: 0 3px 10px rgba(150, 134, 191, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    font-family: 'NanumSquareNeo', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    overflow-x: hidden;
+  }
+
+  button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    padding-bottom: 110px;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    padding: 20px 24px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--purple-deep);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.03em;
+  }
+  .logo-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 0 4px var(--purple-light);
+  }
+  .header-icons { display: flex; gap: 12px; }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 13px;
+    background: var(--white);
+    display: grid; place-items: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+  .icon-btn svg { width: 19px; height: 19px; stroke: var(--purple-deep); }
+
+  /* ===== Greeting ===== */
+  .greeting {
+    padding: 10px 24px 6px;
+  }
+  .greeting h1 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .greeting h1 .accent { color: var(--purple); font-weight: 800; }
+  .greeting p {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 400;
+  }
+
+  /* ===== Section divider (separates balance & plane) ===== */
+  .section-gap {
+    height: 10px;
+    margin-top: 34px;
+    background: var(--divider);
+    opacity: 0.55;
+  }
+
+  /* ===== Section title ===== */
+  .section-title {
+    padding: 26px 24px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-title h2 {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+  .section-title h2 .emoji { font-size: 17px; }
+  .section-title .more {
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 500;
+  }
+
+  /* ===== Balance Game Card (toned down) ===== */
+  .balance-wrap { padding: 0 24px; }
+  .balance-card {
+    background: var(--white);
+    border: 1px solid var(--purple-light);
+    border-radius: 22px;
+    padding: 20px;
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+  .balance-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple-soft);
+    color: var(--purple-deep);
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .balance-tag .dot-live {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--purple);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  .balance-q {
+    margin-top: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .balance-options {
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .balance-opt {
+    flex: 1;
+    background: var(--purple-soft);
+    color: var(--text);
+    padding: 14px 8px;
+    border-radius: 14px;
+    font-size: 13px;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+    border: 1.5px solid transparent;
+  }
+  .balance-opt .opt-emoji { font-size: 18px; display:block; margin-bottom: 4px; }
+  .balance-opt .opt-label { font-weight: 600; display: block; }
+  .balance-opt .opt-pct { display:block; font-size: 10px; color: var(--text-sub); font-weight: 500; margin-top: 3px; }
+  .balance-opt:active { transform: scale(0.97); border-color: var(--purple); }
+  .vs {
+    align-self: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--purple);
+    width: 22px;
+    text-align: center;
+  }
+
+  .balance-foot {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 500;
+  }
+  .balance-foot .comments {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .balance-foot .comments svg { width: 14px; height: 14px; stroke: var(--text-sub); }
+  .balance-foot .hot { color: var(--purple); font-weight: 600; }
+
+  /* ===== Apply Banner ===== */
+  .apply-banner {
+    margin-top: 12px;
+    background: var(--white);
+    border: 1.5px dashed #DCD4EE;
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .apply-banner .txt {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .apply-banner .txt span {
+    display: block;
+    font-size: 11px;
+    color: var(--text-sub);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .apply-btn {
+    background: var(--purple);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 13px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: transform 0.15s;
+  }
+  .apply-btn:active { transform: scale(0.94); }
+
+  /* ===== Paper Plane intro ===== */
+  .plane-intro {
+    margin: 0 24px;
+    background: var(--yellow-bg);
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .plane-icon {
+    width: 44px; height: 44px;
+    background: var(--white);
+    border-radius: 14px;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(200, 170, 50, 0.15);
+  }
+  .plane-icon svg { width: 22px; height: 22px; }
+  .plane-intro-txt h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .plane-intro-txt p {
+    font-size: 11px;
+    color: #9b8a5c;
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
+  /* ===== Paper Plane list (horizontal scroll) ===== */
+  .plane-list-wrap {
+    margin-top: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 24px;
+  }
+  .plane-list-wrap::-webkit-scrollbar { display: none; }
+  .plane-list {
+    display: flex;
+    gap: 12px;
+    /* Left padding aligns with other sections (24px) */
+    padding: 4px 24px 20px 24px;
+  }
+  .plane-card {
+    flex: 0 0 230px;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--divider);
+    position: relative;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    min-height: 195px;
+    transition: transform 0.2s;
+  }
+  .plane-card:active { transform: translateY(-2px); }
+
+  .plane-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--purple-soft);
+    display: grid; place-items: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .plane-user {
+    flex: 1;
+    min-width: 0;
+  }
+  .plane-user .name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .plane-user .time {
+    font-size: 10px;
+    color: var(--text-sub);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+  .plane-mark {
+    font-size: 15px;
+    opacity: 0.4;
+  }
+
+  .plane-content {
+    flex: 1;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #4a4560;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: keep-all;
+  }
+
+  .plane-card-foot {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .like-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-sub);
+    padding: 5px 9px;
+    border-radius: 16px;
+    transition: all 0.2s;
+  }
+  .like-btn.liked { color: #E84C7A; background: #FFF0F5; }
+  .like-btn svg { width: 13px; height: 13px; }
+  .like-btn.liked svg { fill: #E84C7A; stroke: #E84C7A; }
+  .chat-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: grid; place-items: center;
+    box-shadow: 0 3px 8px rgba(150, 134, 191, 0.3);
+    transition: transform 0.15s;
+  }
+  .chat-btn:active { transform: scale(0.9); }
+  .chat-btn svg { width: 14px; height: 14px; stroke: white; }
+
+  /* ===== Floating Send Button ===== */
+  .fab {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--purple);
+    color: white;
+    padding: 13px 22px;
+    border-radius: 28px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 22px rgba(150, 134, 191, 0.4);
+    z-index: 20;
+    transition: transform 0.2s;
+  }
+  .fab:active { transform: translateX(-50%) scale(0.95); }
+  .fab svg { width: 16px; height: 16px; }
+
+  /* Responsive */
+  @media (max-width: 360px) {
+    .balance-q { font-size: 15px; }
+    .plane-card { flex-basis: 215px; }
+    .greeting h1 { font-size: 20px; }
+  }
+  @media (min-width: 481px) {
+    .app { box-shadow: 0 0 60px rgba(150, 134, 191, 0.12); }
+  }
+
+  /* entrance */
+  .fade-up { animation: fadeUp 0.55s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform:none;} }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-dot"></span>
+        <span>paperly</span>
+      </div>
+      <div class="header-icons">
+        <button class="icon-btn" aria-label="검색">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="알림">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Greeting -->
+    <section class="greeting fade-up">
+      <h1>안녕하세요 :)<br><span class="accent">오늘의 밸런스</span>에 참여해볼까요?</h1>
+      <p>당신의 선택이 궁금해요</p>
+    </section>
+
+    <!-- ===== Balance Game Section ===== -->
+    <div class="section-title">
+      <h2><span class="emoji">⚖️</span> 오늘의 밸런스게임</h2>
+      <span class="more">더보기 ›</span>
+    </div>
+
+    <div class="balance-wrap fade-up">
+      <div class="balance-card">
+        <div class="balance-tag"><span class="dot-live"></span> LIVE · 2,431명 참여중</div>
+        <p class="balance-q">평생 여름만 있는 나라 vs<br>평생 겨울만 있는 나라</p>
+        <div class="balance-options">
+          <button class="balance-opt">
+            <span class="opt-emoji">🌴</span>
+            <span class="opt-label">여름 나라</span>
+            <span class="opt-pct">54%</span>
+          </button>
+          <div class="vs">VS</div>
+          <button class="balance-opt">
+            <span class="opt-emoji">❄️</span>
+            <span class="opt-label">겨울 나라</span>
+            <span class="opt-pct">46%</span>
+          </button>
+        </div>
+        <div class="balance-foot">
+          <div class="comments">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            댓글 328개
+          </div>
+          <span class="hot">🔥 오늘의 HOT</span>
+        </div>
+      </div>
+
+      <div class="apply-banner">
+        <div class="txt">
+          나도 밸런스 주제 올려보기
+          <span>선정되면 메인에 등장해요!</span>
+        </div>
+        <button class="apply-btn">신청하기</button>
+      </div>
+    </div>
+
+    <!-- Section Divider -->
+    <div class="section-gap"></div>
+
+    <!-- ===== Paper Plane Section ===== -->
+    <div class="section-title">
+      <h2><span class="emoji">✈️</span> 종이비행기</h2>
+      <span class="more">전체보기 ›</span>
+    </div>
+
+    <div class="plane-intro fade-up">
+      <div class="plane-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9686BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+      </div>
+      <div class="plane-intro-txt">
+        <h3>종이비행기를 날려보세요</h3>
+        <p>마음을 담은 글이 누군가에게 닿아요</p>
+      </div>
+    </div>
+
+    <!-- Paper Plane List -->
+    <div class="plane-list-wrap">
+      <div class="plane-list">
+
+        <article class="plane-card">
+          <div class="plane-card-head">
+            <div class="avatar">🌙</div>
+            <div class="plane-user">
+              <div class="name">달빛여행자</div>
+              <div class="time">3분 전</div>
+            </div>
+            <div class="plane-mark">✈️</div>
+          </div>
+          <p class="plane-content">오늘 하루도 수고했어요. 내일은 분명 더 좋은 일이 기다리고 있을 거예요. 우리 같이 힘내봐요!</p>
+          <div class="plane-card-foot">
+            <button class="like-btn liked" onclick="toggleLike(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span class="cnt">124</span>
+            </button>
+            <button class="chat-btn" aria-label="채팅">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </article>
+
+        <article class="plane-card">
+          <div class="plane-card-head">
+            <div class="avatar">🍓</div>
+            <div class="plane-user">
+              <div class="name">딸기우유</div>
+              <div class="time">12분 전</div>
+            </div>
+            <div class="plane-mark">✈️</div>
+          </div>
+          <p class="plane-content">요즘 새로운 취미를 찾고 있어요. 혹시 비슷한 분 계신가요? 같이 이야기 나눠봐요 :)</p>
+          <div class="plane-card-foot">
+            <button class="like-btn" onclick="toggleLike(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span class="cnt">87</span>
+            </button>
+            <button class="chat-btn" aria-label="채팅">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </article>
+
+        <article class="plane-card">
+          <div class="plane-card-head">
+            <div class="avatar">🌿</div>
+            <div class="plane-user">
+              <div class="name">초록초록</div>
+              <div class="time">28분 전</div>
+            </div>
+            <div class="plane-mark">✈️</div>
+          </div>
+          <p class="plane-content">창 밖으로 봄이 왔어요. 벚꽃이 피기 시작했는데 올해는 누구랑 같이 보러 갈까 고민 중이에요.</p>
+          <div class="plane-card-foot">
+            <button class="like-btn" onclick="toggleLike(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span class="cnt">56</span>
+            </button>
+            <button class="chat-btn" aria-label="채팅">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </article>
+
+        <article class="plane-card">
+          <div class="plane-card-head">
+            <div class="avatar">☕</div>
+            <div class="plane-user">
+              <div class="name">카페라떼</div>
+              <div class="time">1시간 전</div>
+            </div>
+            <div class="plane-mark">✈️</div>
+          </div>
+          <p class="plane-content">따뜻한 커피 한 잔과 함께 보내는 오후. 이 순간이 누군가에게도 작은 위로가 되길 바라며 🤍</p>
+          <div class="plane-card-foot">
+            <button class="like-btn" onclick="toggleLike(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span class="cnt">42</span>
+            </button>
+            <button class="chat-btn" aria-label="채팅">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- Floating Send Button -->
+    <button class="fab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+      종이비행기 날리기
+    </button>
+
+  </div>
+
+  <script>
+    function toggleLike(btn) {
+      const cnt = btn.querySelector('.cnt');
+      let n = parseInt(cnt.textContent);
+      btn.classList.toggle('liked');
+      cnt.textContent = btn.classList.contains('liked') ? n + 1 : n - 1;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>밸런스 게임 댓글 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEAE7;
+    --primary: #9686BF;
+    --primary-tint: rgba(150,134,191,0.10);
+    --primary-mid: rgba(150,134,191,0.20);
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+    --danger: #BF9696;
+    --danger-tint: rgba(191,150,150,0.12);
+  }
+
+  html { height: 100%; }
+
+  body {
+    font-family: 'Nanum Square Neo', sans-serif;
+    background: #16141a;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 0 40px;
+    min-height: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Phone shell ── */
+  .phone-shell {
+    width: 390px;
+    background: var(--bg);
+    border-radius: 48px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.65);
+    display: flex;
+    flex-direction: column;
+    height: 844px;
+    position: relative;
+  }
+
+  /* ── Dynamic island ── */
+  .dynamic-island {
+    position: absolute; top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #000; border-radius: 20px; z-index: 20;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: var(--bg);
+    padding: 56px 24px 0;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .status-time { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+  .status-icons { display: flex; align-items: center; gap: 6px; }
+
+  /* ── Top nav ── */
+  .top-nav {
+    background: var(--bg);
+    padding: 12px 20px 10px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--divider);
+    flex-shrink: 0;
+  }
+  .nav-back {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--surface-2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.15s;
+  }
+  .nav-back:active { background: #D6D3CF; }
+  .nav-title { font-size: 15px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.3px; }
+
+  /* ── Scrollable area ── */
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* ── Balance game summary (top) ── */
+  .game-summary {
+    background: var(--surface);
+    margin: 14px 16px 0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 3px 14px rgba(150,134,191,0.13);
+  }
+
+  .game-vs-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 16px 14px;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 투표 배경 채우기 */
+  .game-fill-left, .game-fill-right {
+    position: absolute; top: 0; bottom: 0;
+    pointer-events: none; z-index: 0;
+  }
+  .game-fill-left  { left: 0;  width: 62%; background: rgba(150,134,191,0.13); }
+  .game-fill-right { right: 0; width: 38%; background: rgba(150,134,191,0.07); }
+
+  .game-side-text {
+    font-size: 12.5px; font-weight: 700;
+    color: var(--text-primary); line-height: 1.5;
+    word-break: keep-all; position: relative; z-index: 1;
+  }
+  .game-side-text.right { text-align: right; }
+
+  .vs-pill {
+    font-size: 14px; font-weight: 800; color: var(--primary);
+    background: var(--primary-tint); border-radius: 10px;
+    padding: 5px 8px; flex-shrink: 0; z-index: 1;
+  }
+  .game-pcts {
+    display: flex; justify-content: space-between;
+    padding: 0 14px 4px;
+    font-size: 10.5px; font-weight: 800; color: var(--primary);
+  }
+  .game-bar-track {
+    height: 3px; background: var(--surface-2); margin: 0 14px;
+  }
+  .game-bar-fill {
+    height: 100%; width: 62%;
+    background: linear-gradient(to right, var(--primary), #b8a8d8);
+  }
+  .game-meta {
+    padding: 8px 14px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .game-comment-count {
+    font-size: 11.5px; font-weight: 700; color: var(--text-muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .game-vote-label {
+    font-size: 10.5px; font-weight: 700; color: var(--primary);
+    background: var(--primary-tint); border-radius: 12px; padding: 3px 10px;
+  }
+
+  /* ── 댓글 목록 ── */
+  .comment-section {
+    padding: 16px 16px 0;
+  }
+  .comment-section-title {
+    font-size: 12px; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 0.4px;
+    text-transform: uppercase; margin-bottom: 14px;
+    padding-left: 2px;
+  }
+
+  /* ── 댓글 아이템 ── */
+  .comment-item {
+    margin-bottom: 14px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .comment-row {
+    display: flex; align-items: flex-start; gap: 9px;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .av-purple { background: var(--primary-tint); color: var(--primary); }
+  .av-green  { background: rgba(139,191,168,0.15); color: #6aad94; }
+  .av-amber  { background: rgba(196,136,90,0.12); color: #b07840; }
+  .av-pink   { background: rgba(191,150,170,0.14); color: #a8607a; }
+  .av-blue   { background: rgba(100,150,210,0.12); color: #5580b0; }
+
+  .comment-body { flex: 1; min-width: 0; }
+  .comment-nick {
+    font-size: 11.5px; font-weight: 800; color: var(--primary);
+    margin-bottom: 2px; display: flex; align-items: center; gap: 6px;
+  }
+  .nick-me {
+    font-size: 9px; font-weight: 700; color: var(--primary);
+    background: var(--primary-tint); border-radius: 8px; padding: 1px 6px;
+  }
+  .comment-text {
+    font-size: 13px; font-weight: 400; color: var(--text-primary);
+    line-height: 1.55; word-break: keep-all;
+  }
+  .comment-text.deleted {
+    font-size: 12px; color: var(--text-muted); font-style: italic;
+  }
+  .comment-time {
+    font-size: 10px; font-weight: 400; color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* 좋아요 / 답글 / 삭제 버튼 */
+  .comment-actions {
+    display: flex; align-items: center; gap: 8px; margin-top: 6px;
+  }
+  .action-btn {
+    background: none; border: none; cursor: pointer; padding: 3px 0;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 3px;
+    transition: color 0.15s;
+  }
+  .action-btn:hover { color: var(--primary); }
+  .action-btn.liked { color: var(--primary); }
+  .action-btn.delete-btn:hover { color: var(--danger); }
+  .action-sep { font-size: 10px; color: var(--divider); }
+
+  /* 대댓글 묶음 */
+  .replies-wrap {
+    margin-left: 38px; margin-top: 10px;
+    border-left: 2px solid var(--divider);
+    padding-left: 12px;
+  }
+  .reply-item {
+    margin-bottom: 10px;
+    animation: fadeUp 0.25s ease both;
+  }
+  .reply-row {
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .reply-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* 대댓글 입력창 */
+  .reply-input-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px;
+    animation: fadeUp 0.2s ease both;
+  }
+  .reply-input {
+    flex: 1; background: var(--bg);
+    border: 1.5px solid var(--primary-mid);
+    border-radius: 20px; padding: 7px 14px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 12.5px; font-weight: 400; color: var(--text-primary);
+    outline: none; transition: border-color 0.18s;
+  }
+  .reply-input:focus { border-color: var(--primary); }
+  .reply-input::placeholder { color: var(--text-muted); }
+  .reply-send-btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--primary); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: opacity 0.15s, transform 0.12s;
+  }
+  .reply-send-btn:active { transform: scale(0.92); }
+  .reply-cancel-btn {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    padding: 0 2px; transition: color 0.15s;
+  }
+  .reply-cancel-btn:hover { color: var(--danger); }
+
+  /* ── 하단 댓글 입력창 ── */
+  .input-bar {
+    flex-shrink: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--divider);
+    padding: 10px 16px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .input-bar-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--primary-tint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: var(--primary);
+    flex-shrink: 0;
+  }
+  .comment-input {
+    flex: 1; background: var(--bg);
+    border: 1.5px solid transparent;
+    border-radius: 22px; padding: 10px 16px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 13.5px; font-weight: 400; color: var(--text-primary);
+    outline: none; transition: border-color 0.18s;
+    resize: none; height: 42px; overflow: hidden;
+  }
+  .comment-input:focus { border-color: var(--primary); }
+  .comment-input::placeholder { color: var(--text-muted); }
+
+  .send-btn {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #E8E5E1; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.2s, transform 0.12s;
+  }
+  .send-btn.active { background: var(--primary); }
+  .send-btn.active:active { transform: scale(0.92); }
+
+  /* 대댓글 대상 표시 (입력창 위) */
+  .reply-target-bar {
+    display: none;
+    background: var(--primary-tint);
+    padding: 6px 16px;
+    border-top: 1px solid var(--divider);
+    align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .reply-target-bar.show { display: flex; }
+  .reply-target-text {
+    font-size: 12px; font-weight: 700; color: var(--primary);
+  }
+  .reply-target-cancel {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    padding: 2px 4px; transition: color 0.15s;
+  }
+  .reply-target-cancel:hover { color: var(--danger); }
+
+  /* @태그 스타일 */
+  .at-tag { color: var(--primary); font-weight: 700; }
+
+  /* ── 애니메이션 ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 삭제 확인 토스트 */
+  .toast {
+    position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: rgba(28,26,31,0.85); color: #fff;
+    padding: 9px 18px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+    opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none; z-index: 30;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="phone-shell">
+  <div class="dynamic-island"></div>
+  <div class="toast" id="toast">삭제되었습니다</div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12">
+        <rect x="0"    y="3"   width="3" height="9"    rx="1" fill="#1C1A1F" opacity=".3"/>
+        <rect x="4.5"  y="2"   width="3" height="10"   rx="1" fill="#1C1A1F" opacity=".5"/>
+        <rect x="9"    y="0.5" width="3" height="11.5" rx="1" fill="#1C1A1F" opacity=".75"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="#1C1A1F"/>
+      </svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1C5.3 1 2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A1F"/>
+        <path d="M8 6C9.5 6 10.8 6.6 11.8 7.6L13.2 6.2C11.8 4.8 9.9 4 8 4C6.1 4 4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A1F" opacity=".6"/>
+        <circle cx="8" cy="10.5" r="1.5" fill="#1C1A1F"/>
+      </svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13">
+        <rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke="#1C1A1F" stroke-opacity=".3"/>
+        <rect x="2"   y="2"   width="18" height="9"  rx="2"   fill="#1C1A1F"/>
+        <path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A1F" opacity=".35"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Top nav -->
+  <div class="top-nav">
+    <button class="nav-back" onclick="history.back()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+        <path d="M10 13L5.5 8L10 3" stroke="#1C1A1F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <span class="nav-title">밸런스 게임 댓글</span>
+  </div>
+
+  <!-- Scroll area -->
+  <div class="scroll-area" id="scroll-area">
+
+    <!-- 게임 요약 카드 -->
+    <div class="game-summary">
+      <div class="game-vs-row">
+        <div class="game-fill-left"></div>
+        <div class="game-fill-right"></div>
+        <span class="game-side-text">출근길 지하철<br>개찰구 앞에서<br>교통카드<br>놓고온 거 인지함</span>
+        <span class="vs-pill">VS</span>
+        <span class="game-side-text right">퇴근길 지하철<br>개찰구 앞에서<br>이어폰<br>두고온 거 인지함</span>
+      </div>
+      <div class="game-bar-track"><div class="game-bar-fill"></div></div>
+      <div class="game-pcts"><span>62%</span><span>38%</span></div>
+      <div class="game-meta">
+        <span class="game-comment-count">
+          <svg width="13" height="12" fill="none" viewBox="0 0 13 12">
+            <path d="M1 1h11v8H7.5L5 11V9H1V1Z" stroke="#ADA8B2" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+          댓글 <span id="comment-total">14</span>개
+        </span>
+        <span class="game-vote-label">투표 완료</span>
+      </div>
+    </div>
+
+    <!-- 댓글 섹션 -->
+    <div class="comment-section">
+      <p class="comment-section-title">댓글</p>
+      <div id="comment-list"></div>
+    </div>
+  </div>
+
+  <!-- 대댓글 대상 표시 바 -->
+  <div class="reply-target-bar" id="reply-target-bar">
+    <span class="reply-target-text" id="reply-target-text"></span>
+    <button class="reply-target-cancel" onclick="cancelReply()">✕ 취소</button>
+  </div>
+
+  <!-- 하단 입력창 -->
+  <div class="input-bar">
+    <div class="input-bar-avatar" id="my-avatar">나</div>
+    <textarea class="comment-input" id="main-input"
+      placeholder="댓글을 남겨보세요..."
+      rows="1"
+      oninput="onMainInput(this)"></textarea>
+    <button class="send-btn" id="send-btn" onclick="submitComment()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+        <path d="M2 8L14 8M14 8L9 3M14 8L9 13" stroke="#ADA8B2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" id="send-arrow"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+const MY_ID = 'me';
+
+/* ── 닉네임 풀 (댓글/대댓글마다 랜덤으로 다른 닉네임) ── */
+const NICK_POOL = [
+  { nick: '졸린고양이🐱', letter: '고', cls: 'av-purple' },
+  { nick: '수달친구🦦',   letter: '수', cls: 'av-blue'   },
+  { nick: '하품판다🐼',   letter: '판', cls: 'av-green'  },
+  { nick: '뽀글이🐑',    letter: '뽀', cls: 'av-pink'   },
+  { nick: '민들레🌻',    letter: '민', cls: 'av-amber'  },
+  { nick: '찻잎냄새🍃',  letter: '찻', cls: 'av-green'  },
+  { nick: '토끼귀🐰',    letter: '토', cls: 'av-pink'   },
+  { nick: '별빛수집가✨', letter: '별', cls: 'av-purple' },
+  { nick: '구름조각🌤️', letter: '구', cls: 'av-blue'   },
+  { nick: '새벽감성🌙',  letter: '새', cls: 'av-purple' },
+];
+
+/* ── 매 댓글/대댓글 전송 때마다 랜덤 닉네임 뽑기 ── */
+function pickMyNick() {
+  return NICK_POOL[Math.floor(Math.random() * NICK_POOL.length)];
+}
+
+/* ── 댓글 데이터 (오래된 것이 앞, 최신이 뒤 → 화면상 아래쪽) ── */
+let comments = [
+  {
+    id: 1, userId: 'u1', nick: '차茶123', letter: '차', cls: 'av-purple',
+    text: '이거 무조건 닥 전 아님? ㅋㅋㅋ 교통카드는 진짜 망한거잖아',
+    time: '5분 전', likes: 12, liked: false, deleted: false,
+    replies: [
+      { id: 11, userId: 'u2', nick: '녹차러버', letter: '녹', cls: 'av-green',
+        text: '맞아ㅋㅋ 이어폰은 그냥 음악 못 듣는 거고', time: '4분 전',
+        likes: 4, liked: false, deleted: false },
+      { id: 12, userId: 'u5', nick: '수달친구🦦', letter: '수', cls: 'av-blue',
+        text: '그래도 이어폰 없는 출근길은 지옥이야...', time: '4분 전',
+        likes: 2, liked: false, deleted: false },
+    ]
+  },
+  {
+    id: 2, userId: 'u2', nick: '녹차러버', letter: '녹', cls: 'av-green',
+    text: '교통카드가 훨씬 치명적이지… 게이트 안 열려서 뒤에 줄 서있던 사람들 눈빛',
+    time: '3분 전', likes: 8, liked: false, deleted: false,
+    replies: []
+  },
+  {
+    id: 3, userId: 'u3', nick: '빵먹는곰🐻', letter: '빵', cls: 'av-amber',
+    text: '나는 둘 다 해봤는데 교통카드가 더 창피함 확실히',
+    time: '2분 전', likes: 5, liked: false, deleted: false,
+    replies: [
+      { id: 31, userId: 'u4', nick: '뽀글이🐑', letter: '뽀', cls: 'av-pink',
+        text: 'ㅋㅋㅋ 경험자 말씀이시군요', time: '1분 전',
+        likes: 1, liked: false, deleted: false },
+    ]
+  },
+  {
+    id: 4, userId: 'u6', nick: '하품하는팬더🐼', letter: '하', cls: 'av-green',
+    text: '이어폰 두고온 건 그냥 조용히 출근하면 되잖아요',
+    time: '1분 전', likes: 3, liked: false, deleted: false,
+    replies: []
+  },
+];
+
+let nextId       = 100;
+let replyTarget  = null; /* { commentId, nick } — 대댓글 대상 */
+
+/* ── 렌더 ── */
+function render() {
+  const list = document.getElementById('comment-list');
+  list.innerHTML = '';
+
+  let total = 0;
+  /* 오래된 순 → 화면 위쪽, 최신 → 아래쪽 */
+  comments.forEach(c => {
+    total++;
+    c.replies.forEach(() => total++);
+    list.appendChild(buildComment(c));
+  });
+  document.getElementById('comment-total').textContent = total;
+}
+
+function buildComment(c) {
+  const wrap = document.createElement('div');
+  wrap.className = 'comment-item';
+  wrap.id = 'comment-' + c.id;
+
+  const isMe      = c.userId === MY_ID;
+  const isDeleted = c.deleted;
+
+  wrap.innerHTML = `
+    <div class="comment-row">
+      <div class="avatar ${c.cls}">${c.letter}</div>
+      <div class="comment-body">
+        <div class="comment-nick">
+          ${escHtml(c.nick)}
+          ${isMe ? '<span class="nick-me">나</span>' : ''}
+        </div>
+        <p class="comment-text${isDeleted ? ' deleted' : ''}">
+          ${isDeleted ? '삭제된 댓글입니다.' : escHtml(c.text)}
+        </p>
+        <p class="comment-time">${c.time}</p>
+        ${!isDeleted ? `
+        <div class="comment-actions">
+          <button class="action-btn${c.liked ? ' liked' : ''}" onclick="toggleLike('comment',${c.id})">
+            <svg width="12" height="11" fill="${c.liked ? 'var(--primary)' : 'none'}" viewBox="0 0 12 11">
+              <path d="M6 10S1 6.8 1 3.8C1 2.2 2.2 1 3.6 1c.8 0 1.7.5 2.4 1.4C6.7 1.5 7.6 1 8.4 1 9.8 1 11 2.2 11 3.8 11 6.8 6 10 6 10Z"
+                stroke="var(--primary)" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+            ${c.likes}
+          </button>
+          <span class="action-sep">·</span>
+          <button class="action-btn" onclick="setReplyTarget(${c.id},'${c.nick.replace(/'/g,"\\'")}')">답글</button>
+          ${isMe ? `<span class="action-sep">·</span>
+          <button class="action-btn delete-btn" onclick="deleteComment(${c.id})">삭제</button>` : ''}
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+
+  if (c.replies.length > 0) {
+    const repliesWrap = document.createElement('div');
+    repliesWrap.className = 'replies-wrap';
+    c.replies.forEach(r => repliesWrap.appendChild(buildReply(r, c.id)));
+    wrap.appendChild(repliesWrap);
+  }
+
+  return wrap;
+}
+
+function buildReply(r, parentId) {
+  const wrap = document.createElement('div');
+  wrap.className = 'reply-item';
+  wrap.id = 'reply-' + r.id;
+
+  const isMe      = r.userId === MY_ID;
+  const isDeleted = r.deleted;
+
+  wrap.innerHTML = `
+    <div class="reply-row">
+      <div class="reply-avatar ${r.cls}">${r.letter}</div>
+      <div class="comment-body">
+        <div class="comment-nick" style="font-size:11px;">
+          ${escHtml(r.nick)}
+          ${isMe ? '<span class="nick-me">나</span>' : ''}
+        </div>
+        <p class="comment-text${isDeleted ? ' deleted' : ''}" style="font-size:12.5px;">
+          ${isDeleted ? '삭제된 댓글입니다.' : renderText(r.text)}
+        </p>
+        <p class="comment-time">${r.time}</p>
+        ${!isDeleted ? `
+        <div class="comment-actions">
+          <button class="action-btn${r.liked ? ' liked' : ''}" onclick="toggleLike('reply',${r.id},${parentId})">
+            <svg width="12" height="11" fill="${r.liked ? 'var(--primary)' : 'none'}" viewBox="0 0 12 11">
+              <path d="M6 10S1 6.8 1 3.8C1 2.2 2.2 1 3.6 1c.8 0 1.7.5 2.4 1.4C6.7 1.5 7.6 1 8.4 1 9.8 1 11 2.2 11 3.8 11 6.8 6 10 6 10Z"
+                stroke="var(--primary)" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+            ${r.likes}
+          </button>
+          ${isMe ? `<span class="action-sep">·</span>
+          <button class="action-btn delete-btn" onclick="deleteReply(${r.id},${parentId})">삭제</button>` : ''}
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+  return wrap;
+}
+
+/* @태그 렌더: @닉네임 → 보라색 */
+function renderText(text) {
+  return escHtml(text).replace(/@([^\s]+)/g, '<span class="at-tag">@$1</span>');
+}
+
+/* ── 대댓글 대상 설정 → 하단 입력창 포커스 ── */
+function setReplyTarget(commentId, nick) {
+  replyTarget = { commentId, nick };
+  const bar  = document.getElementById('reply-target-bar');
+  const text = document.getElementById('reply-target-text');
+  bar.classList.add('show');
+  text.textContent = '↩ @' + nick + ' 에게 답글 달기';
+  const input = document.getElementById('main-input');
+  input.placeholder = '@' + nick + ' 에게 답글...';
+  input.focus();
+}
+
+function cancelReply() {
+  replyTarget = null;
+  document.getElementById('reply-target-bar').classList.remove('show');
+  const input = document.getElementById('main-input');
+  input.placeholder = '댓글을 남겨보세요...';
+  input.value = '';
+  onMainInput(input);
+}
+
+/* ── 좋아요 ── */
+function toggleLike(type, id, parentId) {
+  if (type === 'comment') {
+    const c = comments.find(x => x.id === id);
+    if (!c) return;
+    c.liked = !c.liked;
+    c.likes += c.liked ? 1 : -1;
+  } else {
+    const p = comments.find(x => x.id === parentId);
+    if (!p) return;
+    const r = p.replies.find(x => x.id === id);
+    if (!r) return;
+    r.liked = !r.liked;
+    r.likes += r.liked ? 1 : -1;
+  }
+  render();
+}
+
+/* ── 댓글 삭제 ── */
+function deleteComment(id) {
+  if (!confirm('댓글을 삭제할까요?')) return;
+  const c = comments.find(x => x.id === id);
+  if (!c) return;
+  if (c.replies.length > 0) {
+    c.deleted = true;
+  } else {
+    comments = comments.filter(x => x.id !== id);
+  }
+  showToast('댓글이 삭제되었습니다');
+  render();
+}
+
+/* ── 대댓글 삭제 ── */
+function deleteReply(replyId, parentId) {
+  if (!confirm('답글을 삭제할까요?')) return;
+  const p = comments.find(x => x.id === parentId);
+  if (!p) return;
+  const r = p.replies.find(x => x.id === replyId);
+  if (r) r.deleted = true;
+  showToast('답글이 삭제되었습니다');
+  render();
+}
+
+/* ── 전송 ── */
+function submitComment() {
+  const input = document.getElementById('main-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  const myNick = pickMyNick();   /* 매번 새 닉네임 */
+
+  if (replyTarget) {
+    /* 대댓글 */
+    const p = comments.find(x => x.id === replyTarget.commentId);
+    if (p) {
+      const fullText = '@' + replyTarget.nick + ' ' + text;
+      p.replies.push({
+        id: nextId++, userId: MY_ID,
+        nick: myNick.nick, letter: myNick.letter, cls: myNick.cls,
+        text: fullText, time: '방금 전', likes: 0, liked: false, deleted: false,
+      });
+    }
+    cancelReply();
+  } else {
+    /* 일반 댓글 — 맨 아래(최신)에 추가 */
+    comments.push({
+      id: nextId++, userId: MY_ID,
+      nick: myNick.nick, letter: myNick.letter, cls: myNick.cls,
+      text, time: '방금 전', likes: 0, liked: false, deleted: false,
+      replies: [],
+    });
+  }
+
+  input.value = '';
+  onMainInput(input);
+  render();
+
+  /* 스크롤 맨 아래로 */
+  setTimeout(() => {
+    const sa = document.getElementById('scroll-area');
+    sa.scrollTop = sa.scrollHeight;
+  }, 50);
+}
+
+/* ── 전송 버튼 활성화 ── */
+function onMainInput(el) {
+  const btn   = document.getElementById('send-btn');
+  const arrow = document.getElementById('send-arrow');
+  if (el.value.trim()) {
+    btn.classList.add('active');
+    arrow.setAttribute('stroke', 'white');
+  } else {
+    btn.classList.remove('active');
+    arrow.setAttribute('stroke', '#ADA8B2');
+  }
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+}
+
+/* Enter 전송 */
+document.getElementById('main-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(); }
+});
+
+/* ── 토스트 ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* XSS */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+render();
+/* 초기 스크롤 아래로 */
+setTimeout(() => {
+  const sa = document.getElementById('scroll-area');
+  sa.scrollTop = sa.scrollHeight;
+}, 100);
+</script>
+</body>
+</html>

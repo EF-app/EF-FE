@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보안코드 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEAE7;
+    --primary: #9686BF;
+    --primary-tint: rgba(150,134,191,0.10);
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+    --danger: #BF9696;
+    --danger-bg: #F5ECEC;
+  }
+
+  html, body { width: 100%; min-height: 100vh; }
+
+  body {
+    font-family: 'Nanum Square Neo', sans-serif;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 12px 40px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Phone frame ── */
+  .phone-frame {
+    width: 100%;
+    max-width: 390px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    min-height: 800px;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    padding: 14px 24px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .status-time { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+  .status-icons { display: flex; align-items: center; gap: 6px; }
+
+  /* ── App header ── */
+  .app-header {
+    padding: 14px 24px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .app-name { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+
+  /* ── Content ── */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 44px 28px 0;
+  }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.4px; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 10px;
+    align-self: flex-start;
+    animation: fadeUp 0.4s ease 0.05s both;
+  }
+
+  .page-title {
+    font-size: 24px; font-weight: 400;
+    color: var(--text-primary); letter-spacing: -0.4px;
+    line-height: 1.3; margin-bottom: 40px;
+    align-self: flex-start;
+    animation: fadeUp 0.4s ease 0.10s both;
+  }
+
+  /* ── 코드 도트 ── */
+  .dots-row {
+    display: flex; gap: 20px;
+    justify-content: center;
+    margin-bottom: 12px;
+    animation: fadeUp 0.4s ease 0.14s both;
+  }
+
+  .dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    transition: background 0.18s, transform 0.15s;
+  }
+  .dot.filled { background: var(--primary); }
+  .dot.filled.new { animation: dotPop 0.2s ease; }
+  .dot.error { background: var(--danger); }
+
+  @keyframes dotPop {
+    0%   { transform: scale(0.7); }
+    60%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── 오류 메시지 ── */
+  .error-msg {
+    font-size: 12px; font-weight: 700;
+    color: var(--danger);
+    height: 18px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.2s, transform 0.2s;
+    margin-bottom: 40px;
+  }
+  .error-msg.show { opacity: 1; transform: translateY(0); }
+
+  /* ── 키패드 ── */
+  .keypad {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    animation: fadeUp 0.4s ease 0.18s both;
+    padding: 0 8px;
+  }
+
+  .key {
+    background: var(--surface);
+    border: none;
+    border-radius: 18px;
+    height: 68px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif;
+    transition: background 0.12s, transform 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .key:active { background: var(--surface-2); transform: scale(0.95); }
+
+  .key-num {
+    font-size: 22px; font-weight: 700;
+    color: var(--text-primary); line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .key-sub {
+    font-size: 8px; font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+  }
+
+  /* 기능키 (뒤로, 삭제) */
+  .key.func { background: transparent; }
+  .key.func:active { background: var(--surface-2); }
+
+  /* 빈 키 */
+  .key.empty { background: transparent; cursor: default; }
+  .key.empty:active { transform: none; }
+
+  /* ── 하단 링크 ── */
+  .bottom-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 28px 0 32px;
+    animation: fadeUp 0.4s ease 0.24s both;
+  }
+
+  .link-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 12.5px; font-weight: 400;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 2px 4px;
+    transition: color 0.15s;
+  }
+  .link-btn:hover { color: var(--primary); }
+
+  .support-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: none; border: 1px solid var(--divider);
+    border-radius: 20px; padding: 7px 14px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 11.5px; font-weight: 400;
+    color: var(--text-muted); cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .support-link:hover { color: var(--primary); border-color: var(--primary); }
+
+  /* ── 홈 인디케이터 ── */
+  .home-indicator {
+    width: 120px; height: 4px;
+    background: var(--text-primary);
+    border-radius: 3px;
+    margin: 0 auto 16px; opacity: 0.15;
+  }
+
+  /* ── 애니메이션 ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Shake 애니메이션 (틀렸을 때) ── */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-8px); }
+    40%      { transform: translateX(8px); }
+    60%      { transform: translateX(-6px); }
+    80%      { transform: translateX(6px); }
+  }
+  .dots-row.shake { animation: shake 0.35s ease; }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12">
+        <rect x="0"    y="3"   width="3" height="9"    rx="1" fill="#1C1A1F" opacity=".3"/>
+        <rect x="4.5"  y="2"   width="3" height="10"   rx="1" fill="#1C1A1F" opacity=".5"/>
+        <rect x="9"    y="0.5" width="3" height="11.5" rx="1" fill="#1C1A1F" opacity=".75"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="#1C1A1F"/>
+      </svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1C5.3 1 2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A1F"/>
+        <path d="M8 6C9.5 6 10.8 6.6 11.8 7.6L13.2 6.2C11.8 4.8 9.9 4 8 4C6.1 4 4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A1F" opacity=".6"/>
+        <circle cx="8" cy="10.5" r="1.5" fill="#1C1A1F"/>
+      </svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13">
+        <rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke="#1C1A1F" stroke-opacity=".3"/>
+        <rect x="2"   y="2"   width="18" height="9"  rx="2"   fill="#1C1A1F"/>
+        <path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A1F" opacity=".35"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="logo-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5L2.5 4.7v6.6L8 14.5l5.5-3.2V4.7L8 1.5Z" stroke="white" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" fill="white"/>
+      </svg>
+    </div>
+    <span class="app-name">녹차</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <p class="eyebrow">보안코드</p>
+    <h1 class="page-title">보안코드를<br>입력해 주세요</h1>
+
+    <!-- 도트 4개 -->
+    <div class="dots-row" id="dots-row">
+      <div class="dot" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+
+    <!-- 오류 메시지 -->
+    <p class="error-msg" id="error-msg">보안코드가 틀렸습니다</p>
+
+    <!-- 키패드 -->
+    <div class="keypad" id="keypad">
+      <!-- 1 -->
+      <button class="key" onclick="pressKey('1')">
+        <span class="key-num">1</span>
+      </button>
+      <!-- 2 -->
+      <button class="key" onclick="pressKey('2')">
+        <span class="key-num">2</span>
+        <span class="key-sub">ABC</span>
+      </button>
+      <!-- 3 -->
+      <button class="key" onclick="pressKey('3')">
+        <span class="key-num">3</span>
+        <span class="key-sub">DEF</span>
+      </button>
+      <!-- 4 -->
+      <button class="key" onclick="pressKey('4')">
+        <span class="key-num">4</span>
+        <span class="key-sub">GHI</span>
+      </button>
+      <!-- 5 -->
+      <button class="key" onclick="pressKey('5')">
+        <span class="key-num">5</span>
+        <span class="key-sub">JKL</span>
+      </button>
+      <!-- 6 -->
+      <button class="key" onclick="pressKey('6')">
+        <span class="key-num">6</span>
+        <span class="key-sub">MNO</span>
+      </button>
+      <!-- 7 -->
+      <button class="key" onclick="pressKey('7')">
+        <span class="key-num">7</span>
+        <span class="key-sub">PQRS</span>
+      </button>
+      <!-- 8 -->
+      <button class="key" onclick="pressKey('8')">
+        <span class="key-num">8</span>
+        <span class="key-sub">TUV</span>
+      </button>
+      <!-- 9 -->
+      <button class="key" onclick="pressKey('9')">
+        <span class="key-num">9</span>
+        <span class="key-sub">WXYZ</span>
+      </button>
+      <!-- ← 뒤로가기 -->
+      <button class="key func" onclick="goBack()">
+        <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+          <path d="M8 1L1 9L8 17" stroke="#1C1A1F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1 9H21" stroke="#1C1A1F" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <!-- 0 -->
+      <button class="key" onclick="pressKey('0')">
+        <span class="key-num">0</span>
+        <span class="key-sub">+</span>
+      </button>
+      <!-- ✕ 한 글자 삭제 -->
+      <button class="key func" onclick="deleteKey()">
+        <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+          <path d="M8 1H20C20.6 1 21 1.4 21 2V14C21 14.6 20.6 15 20 15H8L1 8L8 1Z" stroke="#1C1A1F" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M13 5.5L17 10.5M17 5.5L13 10.5" stroke="#1C1A1F" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 하단 링크 -->
+    <div class="bottom-links">
+      <button class="link-btn" onclick="goFindCode()">보안코드를 잊으셨나요?</button>
+      <a class="support-link"
+         href="mailto:support@nokcha.app?subject=보안코드%20문의&body=문의%20내용을%20입력해%20주세요.">
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+          <rect x="0.5" y="0.5" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.1"/>
+          <path d="M1 2L6.5 6L12 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+        </svg>
+        고객센터
+      </a>
+    </div>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  /* ──────────────────────────────────────
+     실제 서비스에서:
+     - 로그인 상태 확인 후 비로그인이면 이 화면 진입 차단
+     - CORRECT_CODE는 서버에서 유저별 암호화된 값과 비교
+  ────────────────────────────────────── */
+  const CORRECT_CODE = '1234'; /* 테스트용 더미 */
+  const MAX_FAIL = 5;
+
+  let input   = '';
+  let failCnt = 0;
+  let locked  = false;
+
+  const dotsRow = document.getElementById('dots-row');
+  const errorMsg = document.getElementById('error-msg');
+
+  /* ── 도트 업데이트 ── */
+  function updateDots(isError) {
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('d' + i);
+      d.classList.remove('filled', 'error', 'new');
+      if (isError) {
+        d.classList.add('error');
+      } else if (i < input.length) {
+        d.classList.add('filled');
+        if (i === input.length - 1) d.classList.add('new');
+      }
+    }
+  }
+
+  /* ── 숫자 누름 ── */
+  function pressKey(n) {
+    if (locked || input.length >= 4) return;
+    errorMsg.classList.remove('show');
+    input += n;
+    updateDots(false);
+    if (input.length === 4) setTimeout(verify, 120);
+  }
+
+  /* ── 한 글자 삭제 ── */
+  function deleteKey() {
+    if (locked) return;
+    input = input.slice(0, -1);
+    errorMsg.classList.remove('show');
+    updateDots(false);
+  }
+
+  /* ── 앱 뒤로가기 ── */
+  function goBack() {
+    history.back();
+  }
+
+  /* ── 보안코드 검증 ── */
+  function verify() {
+    /* 실제 서비스: await fetch('/api/verify-security-code', { body: {code: input} }) */
+    if (input === CORRECT_CODE) {
+      /* ✅ 성공 → 홈으로 */
+      /* window.location.href = 'home.html'; */
+      alert('✅ 보안코드 확인! 홈 화면으로 이동합니다.');
+      input = '';
+      updateDots(false);
+    } else {
+      /* ❌ 실패 */
+      failCnt++;
+      dotsRow.classList.remove('shake');
+      void dotsRow.offsetWidth; /* reflow for re-trigger */
+      dotsRow.classList.add('shake');
+      updateDots(true);
+
+      setTimeout(() => {
+        if (failCnt >= MAX_FAIL) {
+          locked = true;
+          errorMsg.textContent = '5회 실패로 잠겼습니다. 고객센터에 문의해 주세요.';
+          errorMsg.classList.add('show');
+          /* 키패드 비활성화 */
+          document.querySelectorAll('.key').forEach(k => {
+            k.style.opacity = '0.35';
+            k.style.pointerEvents = 'none';
+          });
+        } else {
+          errorMsg.textContent = '보안코드가 틀렸습니다  ' + failCnt + '/' + MAX_FAIL;
+          errorMsg.classList.add('show');
+          input = '';
+          updateDots(false);
+        }
+      }, 350);
+    }
+  }
+
+  /* ── 보안코드 찾기 ── */
+  function goFindCode() {
+    /* 핸드폰 번호 재인증 후 보안코드 재설정 흐름 */
+    /* window.location.href = 'reset_security_code.html'; */
+    alert('핸드폰 번호 인증을 통해 보안코드를 재설정할 수 있습니다.\n인증 화면으로 이동합니다.');
+  }
+</script>
+</body>
+</html>

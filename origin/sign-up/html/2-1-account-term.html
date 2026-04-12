@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EF 회원가입 약관동의</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F3F1;
+  --white:#FFFFFF;
+  --purple:#9686BF;
+  --purple-mid:#7E6BAD;
+  --purple-deep:#6A579A;
+  --purple-soft:rgba(150,134,191,0.10);
+  --purple-soft2:rgba(150,134,191,0.18);
+  --purple-border:rgba(150,134,191,0.22);
+  --purple-glow:rgba(150,134,191,0.22);
+  --divider:#EAE7E3;
+  --t1:#1C1A1F;
+  --t2:#6B6670;
+  --t3:#ADA8B2;
+}
+body{
+  background:#EDE9F5;
+  display:flex;justify-content:center;align-items:flex-start;
+  min-height:100vh;padding:2rem 1rem;
+  font-family:'Nanum Square Neo',sans-serif;
+}
+.phone{
+  width:375px;background:var(--bg);border-radius:48px;overflow:hidden;
+  box-shadow:0 40px 90px rgba(120,95,180,0.20),0 8px 24px rgba(120,95,180,0.10),
+    inset 0 0 0 1.5px rgba(255,255,255,0.8);
+}
+
+/* Status bar */
+.status-bar{
+  background:var(--bg);display:flex;justify-content:space-between;align-items:center;
+  padding:14px 28px 10px;border-radius:48px 48px 0 0;
+}
+.status-time{font-size:13px;font-weight:700;color:var(--t1);}
+.status-icons{display:flex;gap:6px;align-items:center;}
+
+/* Scroll body */
+.scroll-body{max-height:840px;overflow-y:auto;scrollbar-width:none;}
+.scroll-body::-webkit-scrollbar{display:none;}
+
+/* Page header */
+.page-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 22px 0;
+}
+.back-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--purple-soft);border:1px solid var(--purple-border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.page-logo{font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;}
+.page-logo span{color:var(--purple);}
+.step-badge{
+  font-size:10px;font-weight:800;color:var(--purple);
+  background:var(--purple-soft);border:1px solid var(--purple-border);
+  padding:4px 10px;border-radius:20px;
+}
+
+/* Title block */
+.title-block{padding:20px 22px 16px;}
+.title-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--purple-soft);border:1px solid var(--purple-border);
+  color:var(--purple-mid);font-size:10px;font-weight:800;
+  padding:4px 12px;border-radius:20px;margin-bottom:12px;letter-spacing:0.06em;
+}
+.page-title{
+  font-size:22px;font-weight:800;color:var(--t1);
+  letter-spacing:-0.04em;line-height:1.3;margin-bottom:6px;
+}
+.page-title em{font-style:normal;color:var(--purple);}
+.page-sub{font-size:12px;font-weight:400;color:var(--t2);line-height:1.7;}
+
+/* All agree */
+.all-agree-wrap{padding:0 20px 12px;}
+.all-agree-box{
+  background:var(--purple);
+  border-radius:16px;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;
+  box-shadow:0 6px 20px var(--purple-glow);
+  transition:all .18s;
+  user-select:none;
+}
+.all-agree-box:active{transform:scale(0.98);}
+.all-agree-box.checked{background:var(--purple-deep);}
+.all-check-icon{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,0.22);border:2px solid rgba(255,255,255,0.4);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .2s;
+}
+.all-check-icon.checked{background:rgba(255,255,255,0.95);border-color:transparent;}
+.all-agree-text{flex:1;}
+.all-agree-title{font-size:14px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:2px;}
+.all-agree-sub{font-size:11px;font-weight:400;color:rgba(255,255,255,0.7);}
+
+/* Section */
+.terms-section{padding:0 20px 16px;}
+.section-label{
+  font-size:11px;font-weight:800;color:var(--purple);letter-spacing:0.06em;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--purple-border),transparent);}
+
+/* Term item */
+.term-item{
+  background:var(--white);border-radius:16px;
+  border:1px solid var(--purple-border);
+  box-shadow:0 2px 12px var(--purple-glow);
+  margin-bottom:10px;overflow:hidden;
+}
+.term-header{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;cursor:pointer;user-select:none;
+}
+.term-check{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  border:2px solid var(--purple-border);background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.term-check.checked{background:var(--purple);border-color:var(--purple);}
+.term-info{flex:1;}
+.term-title{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;}
+.term-badge{
+  display:inline-block;font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:8px;margin-right:5px;vertical-align:middle;
+}
+.badge-required{background:var(--purple-soft2);color:var(--purple-mid);}
+.badge-optional{background:rgba(173,168,178,0.15);color:var(--t3);}
+.term-arrow{
+  font-size:14px;color:var(--t3);transition:transform .22s;flex-shrink:0;
+}
+.term-arrow.open{transform:rotate(180deg);}
+
+/* Term content scrollbox */
+.term-body{
+  display:none;border-top:1px solid var(--divider);
+}
+.term-body.open{display:block;}
+.term-scroll{
+  max-height:160px;overflow-y:auto;
+  padding:12px 16px;
+  scrollbar-width:thin;scrollbar-color:var(--purple-border) transparent;
+}
+.term-scroll::-webkit-scrollbar{width:4px;}
+.term-scroll::-webkit-scrollbar-thumb{background:var(--purple-border);border-radius:4px;}
+.term-scroll::-webkit-scrollbar-track{background:transparent;}
+.term-text{
+  font-size:11px;font-weight:400;color:var(--t2);line-height:1.8;
+  white-space:pre-wrap;word-break:keep-all;
+}
+.term-text strong{font-weight:800;color:var(--t1);}
+.term-text .highlight{color:var(--purple);font-weight:700;}
+.term-agree-row{
+  display:flex;align-items:center;justify-content:flex-end;
+  padding:10px 16px 12px;border-top:1px solid var(--divider);gap:8px;
+}
+.term-agree-btn{
+  font-size:11px;font-weight:800;
+  padding:6px 16px;border-radius:20px;border:none;cursor:pointer;
+  font-family:'Nanum Square Neo',sans-serif;transition:all .15s;
+}
+.btn-disagree{background:var(--bg);color:var(--t3);border:1px solid var(--divider);}
+.btn-agree-sm{background:var(--purple);color:#fff;box-shadow:0 3px 10px var(--purple-glow);}
+.btn-agree-sm:active{transform:scale(0.96);}
+
+/* Bottom CTA */
+.cta-area{padding:0 20px 28px;}
+.progress-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;
+}
+.progress-label{font-size:11px;font-weight:400;color:var(--t3);}
+.progress-label span{color:var(--purple);font-weight:800;}
+.progress-track{height:4px;background:var(--divider);border-radius:4px;margin-bottom:16px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--purple-deep),var(--purple));border-radius:4px;transition:width .4s ease;}
+.btn-next{
+  width:100%;padding:15px;
+  background:var(--purple);color:#fff;
+  font-family:'Nanum Square Neo',sans-serif;
+  font-size:15px;font-weight:800;
+  border:none;border-radius:16px;cursor:pointer;
+  letter-spacing:-0.02em;
+  box-shadow:0 8px 24px var(--purple-glow);
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;overflow:hidden;
+}
+.btn-next::after{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
+  animation:shimmer 2.4s infinite;
+}
+@keyframes shimmer{0%{left:-100%}100%{left:220%}}
+.btn-next:disabled{background:var(--t3);box-shadow:none;cursor:not-allowed;}
+.btn-next:disabled::after{display:none;}
+.btn-next:not(:disabled):active{transform:scale(0.97);}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .5s both;}
+.a1{animation-delay:.05s}.a2{animation-delay:.10s}.a3{animation-delay:.15s}
+.a4{animation-delay:.20s}.a5{animation-delay:.25s}.a6{animation-delay:.30s}
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+        <rect x="0" y="3" width="3" height="7" rx="1" fill="#9686BF" opacity=".35"/>
+        <rect x="4" y="2" width="3" height="8" rx="1" fill="#9686BF" opacity=".55"/>
+        <rect x="8" y="0" width="3" height="10" rx="1" fill="#9686BF"/>
+        <rect x="12" y="1" width="2" height="6" rx="1" fill="#9686BF" opacity=".25"/>
+      </svg>
+      <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
+        <path d="M7 2.5C9.5 2.5 11.7 3.7 13 5.5L11.5 7C10.6 5.6 8.9 4.7 7 4.7S3.4 5.6 2.5 7L1 5.5C2.3 3.7 4.5 2.5 7 2.5Z" fill="#9686BF" opacity=".4"/>
+        <path d="M7 5.5C8.7 5.5 10.2 6.3 11 7.6L9.4 9C8.9 8.1 8 7.5 7 7.5S5.1 8.1 4.6 9L3 7.6C3.8 6.3 5.3 5.5 7 5.5Z" fill="#9686BF" opacity=".7"/>
+        <circle cx="7" cy="11" r="1.5" fill="#9686BF"/>
+      </svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+        <rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="#9686BF" stroke-opacity=".3"/>
+        <rect x="2" y="2" width="17" height="8" rx="2" fill="#9686BF" opacity=".75"/>
+        <path d="M24 4.5V7.5C24.8 7.2 25 6.4 25 6s-.2-1.2-1-1.5Z" fill="#9686BF" opacity=".3"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="scroll-body">
+    <!-- Header -->
+    <div class="page-header anim a1">
+      <div class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="page-logo">이<span>프</span></span>
+      <div class="step-badge">1 / 3 단계</div>
+    </div>
+
+    <!-- Title -->
+    <div class="title-block anim a2">
+      <div class="title-pill">💜&nbsp;&nbsp;약관 동의</div>
+      <div class="page-title">안전한 공간을 위한<br><em>소중한 약속</em>이에요</div>
+      <div class="page-sub">아래 약관을 확인하고 동의해 주세요.<br>필수 항목에 동의하셔야 서비스를 이용할 수 있어요.</div>
+    </div>
+
+    <!-- All agree -->
+    <div class="all-agree-wrap anim a3">
+      <div class="all-agree-box" id="all-agree" onclick="toggleAll()">
+        <div class="all-check-icon" id="all-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="all-check-svg" style="display:none"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="all-agree-text">
+          <div class="all-agree-title">모두 동의하기 ✨</div>
+          <div class="all-agree-sub">필수 및 선택 약관을 모두 동의해요</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 필수 약관 -->
+    <div class="terms-section anim a4">
+      <div class="section-label">필수 동의</div>
+
+      <!-- 1. 서비스 이용약관 -->
+      <div class="term-item" id="term-1">
+        <div class="term-header" onclick="toggleTerm(1)">
+          <div class="term-check" id="check-1" onclick="event.stopPropagation();checkTerm(1)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-required">필수</span>
+            <span class="term-title">EF 서비스 이용약관</span>
+          </div>
+          <div class="term-arrow" id="arrow-1">▾</div>
+        </div>
+        <div class="term-body" id="body-1">
+          <div class="term-scroll">
+            <div class="term-text"><strong class="highlight">제 1 조 (목적)</strong>
+본 약관은 주식회사 EF(이하 '회사')이 운영하는 모바일 애플리케이션 'EF' 및 관련 서비스에서 제공하는 제반 서비스의 이용과 관련하여, 회사와 회원과의 권리, 의무 및 책임사항, 이용조건 및 절차 기타 필요한 기본적인 사항을 규정함을 목적으로 합니다.
+
+<strong class="highlight">제 2 조 (용어의 정의)</strong>
+• <strong>EF 서비스</strong>: 회사가 운영하는 여성 전용 회원 매칭 플랫폼
+• <strong>회원</strong>: 본 약관에 동의하고 본인인증 절차를 거쳐 이용 자격을 부여받은 자
+• <strong>우표(Stamp)</strong>: 서비스 내에서 매칭된 상대방의 프로필 정보를 일컫는 고유 명칭
+• <strong>파랑새</strong>: 인연을 탐색하고 전달하는 서비스 내 캐릭터 및 시스템 기능
+
+<strong class="highlight">제 4 조 (회원가입)</strong>
+본 서비스는 만 19세 이상의 생물학적 및 법적 여성에 한하여 가입 및 이용이 가능합니다. 성별 도용, 타인 명의 도용 등의 경우 사전 통지 없이 즉시 이용계약이 해지됩니다.
+
+<strong class="highlight">제 7 조 (금지행위)</strong>
+• 타 회원의 성적 지향, 신상정보 외부 유출 (아웃팅) 금지
+• 성별 및 신분 기망 행위 금지
+• 금전 요구, 로맨스 스캠 등 경제적 이득 취득 행위 금지
+• 욕설, 성희롱, 스토킹 등 반사회적 행위 금지
+
+<strong class="highlight">제 10 조 (환불 정책)</strong>
+결제 후 7일 이내 미사용 아이템에 한해 환불이 가능합니다. 단, 즉시 사용된 아이템이나 약관 위반으로 영구 정지된 경우 환불이 제한됩니다.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(1, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(1, true)">동의합니다</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 본인 여성 확인 -->
+      <div class="term-item" id="term-2">
+        <div class="term-header" onclick="toggleTerm(2)">
+          <div class="term-check" id="check-2" onclick="event.stopPropagation();checkTerm(2)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-required">필수</span>
+            <span class="term-title">생물학적 여성 확인 동의</span>
+          </div>
+          <div class="term-arrow" id="arrow-2">▾</div>
+        </div>
+        <div class="term-body" id="body-2">
+          <div class="term-scroll">
+            <div class="term-text">본인은 <strong>생물학적 여성</strong>임을 확인하며, 남성으로 판명될 경우 민·형사상 책임을 질 것에 동의합니다.
+
+본 서비스는 여성 전용 매칭 플랫폼으로, <strong class="highlight">생물학적 및 법적 여성에 한하여 가입 및 이용이 가능</strong>합니다.
+
+• 성별 도용이 적발될 경우 즉시 계정 영구 정지
+• 서비스 이용 방해 및 플랫폼 신뢰도 훼손에 대한 위약벌 청구 가능
+• 관련 법령에 따른 민·형사상 법적 조치 가능
+• 기기 식별번호 및 본인확인값(CI/DI) 영구 차단
+
+위 내용을 모두 확인하였으며, 본인이 생물학적 여성임을 서약합니다.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(2, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(2, true)">확인·동의합니다</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 개인정보 수집 이용 -->
+      <div class="term-item" id="term-3">
+        <div class="term-header" onclick="toggleTerm(3)">
+          <div class="term-check" id="check-3" onclick="event.stopPropagation();checkTerm(3)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-required">필수</span>
+            <span class="term-title">개인정보 수집 및 이용 동의</span>
+          </div>
+          <div class="term-arrow" id="arrow-3">▾</div>
+        </div>
+        <div class="term-body" id="body-3">
+          <div class="term-scroll">
+            <div class="term-text"><strong class="highlight">수집 항목 (필수)</strong>
+• 휴대폰 번호: 본인 인증 및 계정 보안
+• 본인확인값(CI/DI): 남성 가입자 차단, 중복 가입 방지
+• 기기 식별번호(ADID/IDFA): 부정 가입 차단 및 서비스 최적화
+• 주민등록번호 뒷자리 첫 번째 숫자: 성별 식별 부호
+• 서비스 이용 정보: 닉네임, 성별, 생년월일, 거주지역, 프로필 사진
+
+<strong class="highlight">수집 항목 (선택)</strong>
+MBTI, 키, 체형, 취미, 음주/흡연 여부, 직업, 학력 등
+
+<strong class="highlight">이용 목적</strong>
+• 회원 식별 및 연령 확인 (만 19세 이상)
+• 정교한 매칭 서비스 제공
+• 남성 및 부정 가입자 원천 차단
+• 불량 이용자 제재 및 분쟁 처리
+• 법적 의무 이행 및 수사 협조
+
+<strong class="highlight">보유 기간</strong>
+회원 탈퇴 시까지. 단, 부정 이용 기록은 탈퇴 후 1년간 별도 보관. 전자상거래법에 따른 계약 기록은 5년 보관.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(3, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(3, true)">동의합니다</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 민감정보 -->
+      <div class="term-item" id="term-4">
+        <div class="term-header" onclick="toggleTerm(4)">
+          <div class="term-check" id="check-4" onclick="event.stopPropagation();checkTerm(4)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-required">필수</span>
+            <span class="term-title">민감정보 수집 및 이용 동의</span>
+          </div>
+          <div class="term-arrow" id="arrow-4">▾</div>
+        </div>
+        <div class="term-body" id="body-4">
+          <div class="term-scroll">
+            <div class="term-text"><strong class="highlight">💜 이프(EF)는 당신의 정체성을 가장 소중한 비밀로 다룹니다.</strong>
+
+수집된 성향 정보는 오직 매칭 알고리즘 계산을 위해서만 사용되며, 그 누구에게도 당신의 실제 신상과 연결되어 공개되지 않습니다.
+
+<strong class="highlight">수집 항목</strong>
+• <strong>성적 지향(정체성)</strong>: 레즈비언/바이섹슈얼 등 여성 간 매칭 서비스 제공
+• <strong>연애 스타일 및 성향</strong>: 개인화된 매칭 알고리즘 적용
+
+<strong class="highlight">보안 및 보호</strong>
+• 일반 데이터와 분리된 별도 보안 영역에 암호화 저장
+• 관리자조차 개별 회원 정보 열람 불가
+• 탈퇴 시 복구 불가능한 방법으로 즉시 삭제
+
+<strong class="highlight">아웃팅 방지 약속</strong>
+"우리는 아웃팅을 범죄로 규정합니다."
+타인에 의한 정보 유출 시 약관 제7조 및 제9조에 따라 가해자에게 엄중한 법적 책임을 묻습니다.
+
+동의를 거부할 경우 서비스 이용(회원가입)이 불가능합니다.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(4, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(4, true)">동의합니다</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 개인정보 유출 금지 -->
+      <div class="term-item" id="term-5">
+        <div class="term-header" onclick="toggleTerm(5)">
+          <div class="term-check" id="check-5" onclick="event.stopPropagation();checkTerm(5)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-required">필수</span>
+            <span class="term-title">개인정보 유출 금지 동의</span>
+          </div>
+          <div class="term-arrow" id="arrow-5">▾</div>
+        </div>
+        <div class="term-body" id="body-5">
+          <div class="term-scroll">
+            <div class="term-text">본 서비스는 성적 지향과 프라이버시 보호가 무엇보다 중요한 여성 전용 매칭 플랫폼입니다.
+
+<strong class="highlight">금지 행위</strong>
+타 회원의 성적 지향, 실명, 사진, 연락처, 학력, 직장, SNS 계정 등 일체의 신상정보를 당사자의 동의 없이 외부로 노출하는 모든 행위 (인터넷 게시, SNS 공유, 메신저 전달, 구두 전달 포함)
+
+<strong class="highlight">즉각적 제재 (무관용 원칙)</strong>
+• 계정 즉시 영구 정지
+• 기기 식별번호 및 CI/DI 영구 차단
+
+<strong class="highlight">법적 책임</strong>
+• 손해배상: 피해 회원의 정신적 손해 및 회사 브랜드 이미지 실추에 대한 배상
+• 위약벌 부과: 실제 손해액과 별개로 약관 제9조에 의거한 위약벌 즉시 지급
+• 형사 고발: 수사기관에 접속 로그 및 신원 정보 제공하여 형사 처벌 적극 협조
+
+본인은 아웃팅 행위가 범죄임을 인지하고, 어떠한 법적 처벌과 불이익도 감수할 것을 확약합니다.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(5, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(5, true)">확인·동의합니다</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 선택 약관 -->
+    <div class="terms-section anim a5" style="padding-top:0;">
+      <div class="section-label">선택 동의</div>
+
+      <!-- 6. 위치기반 -->
+      <div class="term-item" id="term-6">
+        <div class="term-header" onclick="toggleTerm(6)">
+          <div class="term-check" id="check-6" onclick="event.stopPropagation();checkTerm(6)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-optional">선택</span>
+            <span class="term-title">위치기반 서비스 이용약관</span>
+          </div>
+          <div class="term-arrow" id="arrow-6">▾</div>
+        </div>
+        <div class="term-body" id="body-6">
+          <div class="term-scroll">
+            <div class="term-text"><strong class="highlight">서비스 내용</strong>
+• 내 주변 인연 추천: 현재 위치 기반으로 인근 회원 추천
+• 거리 정보 제공: 매칭 후보자와의 상대적 거리 표시
+• 위치 기반 맞춤형 콘텐츠 제공
+
+<strong class="highlight">프라이버시 보호</strong>
+• 상세 주소나 실시간 이동 경로는 절대 공개하지 않음
+• 약 OOm 오차 범위의 거리 데이터 또는 행정동 단위로만 제공
+• 수집된 위치 데이터는 강력한 보안 알고리즘으로 암호화 저장
+
+<strong class="highlight">동의 철회</strong>
+앱 내 [설정 > 위치 설정]에서 언제든지 철회 가능. 철회 시 거리 기반 추천 기능 이용이 제한될 수 있습니다.
+
+동의하지 않아도 기본 매칭 서비스 이용이 가능합니다.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(6, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(6, true)">동의합니다</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. 마케팅 -->
+      <div class="term-item" id="term-7">
+        <div class="term-header" onclick="toggleTerm(7)">
+          <div class="term-check" id="check-7" onclick="event.stopPropagation();checkTerm(7)"></div>
+          <div class="term-info">
+            <span class="term-badge badge-optional">선택</span>
+            <span class="term-title">마케팅 정보 수신 동의</span>
+          </div>
+          <div class="term-arrow" id="arrow-7">▾</div>
+        </div>
+        <div class="term-body" id="body-7">
+          <div class="term-scroll">
+            <div class="term-text">동의 시 아래와 같은 혜택 및 맞춤형 정보를 제공받으실 수 있습니다.
+
+<strong class="highlight">제공 혜택</strong>
+• 맞춤형 인연 매칭 알림: 높은 매칭률 상대방 출현 시 실시간 푸시 알림
+• 이벤트 및 프로모션 안내: 유료 아이템 할인권, 시즌 이벤트 소식
+• 개인화된 콘텐츠 추천: 선호 커뮤니티 게시글 및 인기 회원 추천
+
+<strong class="highlight">수신 방법 및 철회</strong>
+앱 내 [설정 > 알림 설정]에서 언제든지 수신 방법별로 변경하거나 철회 가능.
+
+야간(오후 9시 ~ 오전 8시)에는 광고성 정보를 발송하지 않습니다.
+
+동의하지 않아도 기본 매칭 서비스 이용이 가능합니다.</div>
+          </div>
+          <div class="term-agree-row">
+            <button class="term-agree-btn btn-disagree" onclick="checkTerm(7, false)">동의 안 함</button>
+            <button class="term-agree-btn btn-agree-sm" onclick="checkTerm(7, true)">동의합니다</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-area anim a6">
+      <div class="progress-row">
+        <span class="progress-label">필수 항목 <span id="req-count">0</span> / 5 완료</span>
+        <span class="progress-label" style="color:var(--t3);font-size:10px;">다음: 프로필 설정</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <button class="btn-next" id="btn-next" disabled onclick="handleNext()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        다음 단계로
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const REQUIRED = [1,2,3,4,5];
+const OPTIONAL = [6,7];
+const ALL = [...REQUIRED, ...OPTIONAL];
+const state = {};
+ALL.forEach(i => state[i] = false);
+
+function toggleTerm(n) {
+  const body = document.getElementById('body-'+n);
+  const arrow = document.getElementById('arrow-'+n);
+  const isOpen = body.classList.contains('open');
+  // close all
+  ALL.forEach(i => {
+    document.getElementById('body-'+i).classList.remove('open');
+    document.getElementById('arrow-'+i).classList.remove('open');
+  });
+  if (!isOpen) {
+    body.classList.add('open');
+    arrow.classList.add('open');
+  }
+}
+
+function checkTerm(n, val) {
+  if (val === undefined) {
+    state[n] = !state[n];
+  } else {
+    state[n] = val;
+    if (val) {
+      // close after agreeing
+      document.getElementById('body-'+n).classList.remove('open');
+      document.getElementById('arrow-'+n).classList.remove('open');
+    }
+  }
+  updateUI();
+}
+
+function toggleAll() {
+  const allChecked = ALL.every(i => state[i]);
+  ALL.forEach(i => state[i] = !allChecked);
+  updateUI();
+}
+
+function updateUI() {
+  // individual checks
+  ALL.forEach(i => {
+    const el = document.getElementById('check-'+i);
+    if (state[i]) {
+      el.classList.add('checked');
+      el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else {
+      el.classList.remove('checked');
+      el.innerHTML = '';
+    }
+  });
+
+  // all agree button
+  const allChecked = ALL.every(i => state[i]);
+  const allBox = document.getElementById('all-agree');
+  const allIcon = document.getElementById('all-icon');
+  const allSvg = document.getElementById('all-check-svg');
+  if (allChecked) {
+    allBox.classList.add('checked');
+    allIcon.classList.add('checked');
+    allIcon.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  } else {
+    allBox.classList.remove('checked');
+    allIcon.classList.remove('checked');
+    allIcon.innerHTML = '';
+  }
+
+  // progress
+  const reqDone = REQUIRED.filter(i => state[i]).length;
+  const pct = (reqDone / REQUIRED.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('req-count').textContent = reqDone;
+
+  // next button
+  const canProceed = REQUIRED.every(i => state[i]);
+  const btn = document.getElementById('btn-next');
+  btn.disabled = !canProceed;
+}
+
+function handleNext() {
+  alert('다음 단계로 이동합니다! 🎉');
+}
+
+updateUI();
+</script>
+</body>
+</html>

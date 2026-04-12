@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>채팅</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #F5F3F1;
+    --accent: #9686BF;
+    --accent-dark: #7B6AAD;
+    --accent-tint: rgba(150,134,191,0.13);
+    --accent-tint2: rgba(150,134,191,0.22);
+    --card: #FFFFFF;
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+    --shadow-sm: 0 2px 10px rgba(150,134,191,0.12);
+  }
+
+  body {
+    background: #1E1A2E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Nanum Square Neo', sans-serif;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #120F1E;
+    border-radius: 50px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 1px rgba(150,134,191,0.18),
+      0 40px 100px rgba(0,0,0,0.7),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .phone-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    width: 118px; height: 32px;
+    background: #120F1E;
+    border-radius: 18px;
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .di-camera { width: 9px; height: 9px; border-radius: 50%; background: #1e1b2e; border: 1.5px solid #2e2a40; }
+  .di-sensor  { width: 13px; height: 13px; border-radius: 50%; background: #1e1b2e; border: 1.5px solid #2e2a40; }
+
+  /* Status bar */
+  .statusbar {
+    height: 56px;
+    display: flex; align-items: flex-end;
+    padding: 0 26px 8px;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .statusbar-time { font-size: 15px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
+  .statusbar-icons { display: flex; align-items: center; gap: 5px; }
+  .statusbar-icons svg { color: var(--accent-dark); }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center;
+    padding: 6px 18px 12px;
+    gap: 11px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border-bottom: 1.5px solid var(--divider);
+  }
+  .header-back {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--accent-tint2);
+    border: 1px solid rgba(150,134,191,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .header-back:active { transform: scale(0.9); }
+  .header-info { flex: 1; }
+  .header-name { font-size: 17px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
+  .header-meta { font-size: 11.5px; font-weight: 400; color: var(--accent); margin-top: 1px; opacity: 0.85; }
+  .header-avatar {
+    width: 40px; height: 40px; border-radius: 14px;
+    background: var(--accent-tint2); border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    box-shadow: 0 2px 12px rgba(150,134,191,0.3);
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .header-avatar:active { transform: scale(0.9); }
+
+  /* Tag strip — full-width band */
+  .tag-strip {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 18px;
+    background: rgba(150,134,191,0.15);
+    border-bottom: 1.5px solid rgba(150,134,191,0.22);
+    flex-shrink: 0;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tag-strip::-webkit-scrollbar { display: none; }
+  .tag-pill {
+    background: rgba(150,134,191,0.28);
+    color: var(--accent-dark);
+    font-size: 11.5px; font-weight: 800;
+    padding: 4px 12px; border-radius: 20px;
+    white-space: nowrap; letter-spacing: -0.01em;
+    border: 1px solid rgba(150,134,191,0.38); flex-shrink: 0;
+  }
+
+  /* Chat area */
+  .chat-area {
+    flex: 1; overflow-y: auto;
+    padding: 14px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+    scrollbar-width: none; background: var(--bg);
+  }
+  .chat-area::-webkit-scrollbar { display: none; }
+
+  /* Topic intro — standalone centred card */
+  .chat-topic-card {
+    background: rgba(150,134,191,0.12);
+    border: 1px solid rgba(150,134,191,0.26);
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 12.5px; font-weight: 700;
+    color: var(--accent-dark);
+    line-height: 1.55; word-break: keep-all; text-align: center;
+    animation: fadeUp 0.3s ease both;
+    margin-bottom: 2px;
+  }
+
+  /* Messages */
+  .msg-row { display: flex; align-items: flex-end; gap: 8px; animation: fadeUp 0.35s ease both; }
+  .msg-row.mine { flex-direction: row-reverse; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg-row:nth-child(2){animation-delay:0.05s}
+  .msg-row:nth-child(3){animation-delay:0.10s}
+  .msg-row:nth-child(4){animation-delay:0.15s}
+  .msg-row:nth-child(5){animation-delay:0.20s}
+  .msg-row:nth-child(6){animation-delay:0.25s}
+
+  .msg-avatar {
+    width: 34px; height: 34px; border-radius: 12px;
+    background: var(--accent-tint2); border: 1.5px solid rgba(150,134,191,0.35);
+    display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+  }
+  .msg-bubble-wrap { display: flex; flex-direction: column; gap: 3px; max-width: 66%; }
+  .msg-row.mine .msg-bubble-wrap { align-items: flex-end; }
+
+  .msg-bubble {
+    padding: 10px 14px; border-radius: 18px;
+    font-size: 14px; font-weight: 700; line-height: 1.5; word-break: keep-all;
+  }
+  .msg-bubble.theirs {
+    background: var(--card); color: var(--text-primary);
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 8px rgba(150,134,191,0.1);
+  }
+  .msg-bubble.mine {
+    background: var(--accent); color: #fff;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0 4px 18px rgba(150,134,191,0.45);
+  }
+  .msg-time { font-size: 10.5px; font-weight: 400; color: var(--text-muted); padding: 0 3px; }
+
+  /* Date separator */
+  .date-sep { display: flex; align-items: center; gap: 10px; margin: 2px 0; animation: fadeUp 0.3s ease both; }
+  .date-sep::before, .date-sep::after { content:''; flex:1; height:1px; background: rgba(150,134,191,0.25); }
+  .date-sep span { font-size: 11px; font-weight: 400; color: var(--accent); white-space: nowrap; opacity: 0.7; }
+
+  /* ── Bottom dock ── */
+  .bottom-dock {
+    flex-shrink: 0;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+    border-top: 1.5px solid var(--divider);
+  }
+
+  /* Input bar — always on top */
+  .input-area { padding: 10px 14px; flex-shrink: 0; }
+  .input-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card);
+    border: 1.5px solid rgba(150,134,191,0.32);
+    border-radius: 24px;
+    padding: 5px 5px 5px 8px;
+    box-shadow: 0 2px 12px rgba(150,134,191,0.14);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-row:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(150,134,191,0.16);
+  }
+  .btn-plus {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: var(--accent-tint2); border: 1px solid rgba(150,134,191,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .btn-plus:active { transform: scale(0.88); }
+  .btn-plus svg { transition: transform 0.3s ease; }
+  .btn-plus.open { background: rgba(150,134,191,0.35); }
+  .btn-plus.open svg { transform: rotate(45deg); }
+
+  .input-field {
+    flex: 1; height: 36px; background: transparent; border: none;
+    padding: 0 4px;
+    font-family: 'Nanum Square Neo', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--text-primary); outline: none; min-width: 0;
+  }
+  .input-field::placeholder { color: var(--text-muted); font-weight: 400; }
+
+  .btn-send {
+    width: 38px; height: 38px; border-radius: 13px;
+    background: linear-gradient(140deg, #AA9AD0, var(--accent-dark));
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 3px 14px rgba(150,134,191,0.5);
+    transition: transform 0.15s;
+  }
+  .btn-send:active { transform: scale(0.88); }
+
+  /* Tray — opens below input */
+  .bottom-tray {
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+    opacity: 0;
+    background: rgba(150,134,191,0.07);
+    border-top: 1px solid var(--divider);
+  }
+  .bottom-tray.open { max-height: 210px; opacity: 1; }
+
+  .tray-inner { padding: 14px 16px 10px; }
+  .tray-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .tray-item { display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; animation: fadeUp 0.28s ease both; }
+  .tray-item:nth-child(1){animation-delay:0.04s}.tray-item:nth-child(2){animation-delay:0.08s}
+  .tray-item:nth-child(3){animation-delay:0.12s}.tray-item:nth-child(4){animation-delay:0.16s}
+  .tray-item:nth-child(5){animation-delay:0.20s}.tray-item:nth-child(6){animation-delay:0.24s}
+  .tray-item:nth-child(7){animation-delay:0.28s}
+
+  .tray-icon-box {
+    width: 58px; height: 58px; border-radius: 18px; background: var(--card);
+    box-shadow: 0 2px 10px rgba(150,134,191,0.14);
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+    border: 1.5px solid var(--divider); transition: transform 0.14s;
+  }
+  .tray-icon-box:active { transform: scale(0.9); }
+  .tray-icon-box.pur { background: var(--accent-tint2); border-color: rgba(150,134,191,0.3); }
+  .tray-label { font-size: 10.5px; font-weight: 700; color: var(--text-secondary); }
+
+  /* Keyboard simulation — opens below input */
+  .keyboard-sim {
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.32s cubic-bezier(0.4,0,0.2,1);
+    background: #DBD5EC; flex-shrink: 0;
+  }
+  .keyboard-sim.open { max-height: 260px; }
+  .keyboard-inner { padding: 9px 7px 6px; }
+  .kb-row { display: flex; gap: 5px; margin-bottom: 7px; justify-content: center; }
+  .kb-key {
+    height: 40px; flex: 1; background: #fff; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: var(--text-primary);
+    box-shadow: 0 1px 0 #b0a8c8; cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif; transition: transform 0.08s; min-width: 26px;
+  }
+  .kb-key:active { transform: scale(0.88); background: #EDE8F8; }
+  .kb-key.wide { flex: 1.6; font-size: 12px; }
+  .kb-key.space { flex: 4; }
+  .kb-key.dark { background: #C5BEDA; color: #3D3555; }
+  .kb-key.dark:active { background: #B5AECE; }
+
+  /* Home indicator */
+  .home-indicator { height: 28px; display: flex; align-items: center; justify-content: center; background: var(--bg); flex-shrink: 0; }
+  .home-bar { width: 120px; height: 4px; border-radius: 3px; background: var(--accent); opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-inner">
+
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="di-camera"></div>
+      <div class="di-sensor"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <span class="statusbar-time">9:41</span>
+      <div class="statusbar-icons">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".35"/></svg>
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="currentColor"><path d="M10 3.5C12.8 3.5 15.3 4.7 17 6.6L18.5 5.1C16.4 2.8 13.4 1.3 10 1.3S3.6 2.8 1.5 5.1L3 6.6C4.7 4.7 7.2 3.5 10 3.5Z" opacity=".35"/><path d="M10 6.5C11.9 6.5 13.6 7.3 14.8 8.6L16.3 7.1C14.7 5.4 12.5 4.3 10 4.3S5.3 5.4 3.7 7.1L5.2 8.6C6.4 7.3 8.1 6.5 10 6.5Z"/><circle cx="10" cy="12" r="2"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="0" width="21" height="12" rx="3.5" stroke="currentColor" stroke-width="1" fill="none" opacity=".35"/><rect x="22" y="4" width="3" height="4" rx="1" opacity=".4"/><rect x="1.5" y="1.5" width="16" height="9" rx="2" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9686BF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="header-info">
+        <div class="header-name">유니짜장</div>
+        <div class="header-meta">27세 · 서울 · 방금 접속</div>
+      </div>
+      <div class="header-avatar">👩</div>
+    </div>
+
+    <!-- Tag strip — full-width band immediately below header -->
+    <div class="tag-strip">
+      <span class="tag-pill">#여행</span>
+      <span class="tag-pill">#독서</span>
+      <span class="tag-pill">#카페</span>
+      <span class="tag-pill">#음식</span>
+    </div>
+
+    <!-- Chat area -->
+    <div class="chat-area" id="chatArea">
+
+      <!-- Topic intro — separate, centred, not in tag strip -->
+      <div class="chat-topic-card">
+        💬 [금요일 밤인데 너무 심심하다 ㅠㅠ]에 대한 채팅입니다.
+      </div>
+
+      <div class="date-sep"><span>오늘</span></div>
+
+      <div class="msg-row mine">
+        <div class="msg-bubble-wrap">
+          <div class="msg-bubble mine">안녕하세요 ㅎㅎ</div>
+          <div class="msg-time">오후 8:12</div>
+        </div>
+      </div>
+
+      <div class="msg-row">
+        <div class="msg-avatar">👩</div>
+        <div class="msg-bubble-wrap">
+          <div class="msg-bubble theirs">네 안녕하세요 ㅎㅎ</div>
+          <div class="msg-time">오후 8:13</div>
+        </div>
+      </div>
+
+      <div class="msg-row mine">
+        <div class="msg-bubble-wrap">
+          <div class="msg-bubble mine">저녁 뭐 드셨어요?</div>
+          <div class="msg-time">오후 9:45</div>
+        </div>
+      </div>
+
+      <div class="msg-row">
+        <div class="msg-avatar">👩</div>
+        <div class="msg-bubble-wrap">
+          <div class="msg-bubble theirs">카레 먹었어용 🍛</div>
+          <div class="msg-time">오전 12:32</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bottom dock: input → tray / keyboard below ── -->
+    <div class="bottom-dock">
+
+      <!-- INPUT BAR — fixed on top of dock -->
+      <div class="input-area">
+        <div class="input-row">
+          <button class="btn-plus" id="btnPlus" onclick="toggleTray()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9686BF" stroke-width="2.6" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <input
+            class="input-field"
+            id="msgInput"
+            placeholder="메시지를 입력하세요."
+            autocomplete="off"
+            onfocus="openKeyboard()"
+            onkeydown="handleKey(event)"
+          />
+          <button class="btn-send" onclick="sendMsg()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- TRAY — expands below input bar -->
+      <div class="bottom-tray" id="bottomTray">
+        <div class="tray-inner">
+          <div class="tray-grid">
+            <div class="tray-item" onclick="addMsg('사진을 전송했습니다.')">
+              <div class="tray-icon-box">📷</div>
+              <span class="tray-label">앨범</span>
+            </div>
+            <div class="tray-item" onclick="addMsg('카메라를 실행합니다.')">
+              <div class="tray-icon-box pur">📸</div>
+              <span class="tray-label">카메라</span>
+            </div>
+            <div class="tray-item" onclick="addMsg('메모를 첨부했습니다.')">
+              <div class="tray-icon-box">📝</div>
+              <span class="tray-label">메모</span>
+            </div>
+            <div class="tray-item" onclick="addMsg('위치를 공유했습니다.')">
+              <div class="tray-icon-box pur">📍</div>
+              <span class="tray-label">위치</span>
+            </div>
+            <div class="tray-item" onclick="addMsg('연락처를 공유했습니다.')">
+              <div class="tray-icon-box">👤</div>
+              <span class="tray-label">연락처</span>
+            </div>
+            <div class="tray-item" onclick="addMsg('파일을 전송했습니다.')">
+              <div class="tray-icon-box pur">📎</div>
+              <span class="tray-label">파일</span>
+            </div>
+            <div class="tray-item" onclick="addMsg('선물을 보냈습니다. 🎁')">
+              <div class="tray-icon-box">🎁</div>
+              <span class="tray-label">선물</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KEYBOARD — expands below input bar -->
+      <div class="keyboard-sim" id="keyboardSim">
+        <div class="keyboard-inner">
+          <div class="kb-row">
+            <div class="kb-key" onclick="typeChar('ㅂ')">ㅂ</div>
+            <div class="kb-key" onclick="typeChar('ㅈ')">ㅈ</div>
+            <div class="kb-key" onclick="typeChar('ㄷ')">ㄷ</div>
+            <div class="kb-key" onclick="typeChar('ㄱ')">ㄱ</div>
+            <div class="kb-key" onclick="typeChar('ㅅ')">ㅅ</div>
+            <div class="kb-key" onclick="typeChar('ㅛ')">ㅛ</div>
+            <div class="kb-key" onclick="typeChar('ㅕ')">ㅕ</div>
+            <div class="kb-key" onclick="typeChar('ㅑ')">ㅑ</div>
+            <div class="kb-key" onclick="typeChar('ㅐ')">ㅐ</div>
+            <div class="kb-key" onclick="typeChar('ㅔ')">ㅔ</div>
+          </div>
+          <div class="kb-row">
+            <div class="kb-key" onclick="typeChar('ㅁ')">ㅁ</div>
+            <div class="kb-key" onclick="typeChar('ㄴ')">ㄴ</div>
+            <div class="kb-key" onclick="typeChar('ㅇ')">ㅇ</div>
+            <div class="kb-key" onclick="typeChar('ㄹ')">ㄹ</div>
+            <div class="kb-key" onclick="typeChar('ㅎ')">ㅎ</div>
+            <div class="kb-key" onclick="typeChar('ㅗ')">ㅗ</div>
+            <div class="kb-key" onclick="typeChar('ㅓ')">ㅓ</div>
+            <div class="kb-key" onclick="typeChar('ㅏ')">ㅏ</div>
+            <div class="kb-key" onclick="typeChar('ㅣ')">ㅣ</div>
+          </div>
+          <div class="kb-row">
+            <div class="kb-key dark wide">⇧</div>
+            <div class="kb-key" onclick="typeChar('ㅋ')">ㅋ</div>
+            <div class="kb-key" onclick="typeChar('ㅌ')">ㅌ</div>
+            <div class="kb-key" onclick="typeChar('ㅊ')">ㅊ</div>
+            <div class="kb-key" onclick="typeChar('ㅍ')">ㅍ</div>
+            <div class="kb-key" onclick="typeChar('ㅠ')">ㅠ</div>
+            <div class="kb-key" onclick="typeChar('ㅜ')">ㅜ</div>
+            <div class="kb-key" onclick="typeChar('ㅡ')">ㅡ</div>
+            <div class="kb-key dark wide" onclick="backspace()">⌫</div>
+          </div>
+          <div class="kb-row">
+            <div class="kb-key dark wide">123</div>
+            <div class="kb-key dark wide">😊</div>
+            <div class="kb-key space" onclick="typeChar(' ')">space</div>
+            <div class="kb-key dark wide" onclick="sendMsg()">전송</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /bottom-dock -->
+
+    <div class="home-indicator"><div class="home-bar"></div></div>
+
+  </div>
+</div>
+
+<script>
+  const tray    = document.getElementById('bottomTray');
+  const kbSim   = document.getElementById('keyboardSim');
+  const btnPlus = document.getElementById('btnPlus');
+  const input   = document.getElementById('msgInput');
+  const chatArea= document.getElementById('chatArea');
+  let trayOpen=false, kbOpen=false;
+
+  function now(){
+    const d=new Date(),h=d.getHours(),m=String(d.getMinutes()).padStart(2,'0');
+    const ap=h>=12?'오후':'오전',hh=h>12?h-12:(h===0?12:h);
+    return `${ap} ${hh}:${m}`;
+  }
+
+  function setIcon(mode){
+    // mode: 'plus' | 'keyboard'
+    if(mode==='keyboard'){
+      btnPlus.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9686BF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M7 9h1M12 9h1M17 9h1M7 12h1M12 12h1M17 12h1M7 15h10"/></svg>`;
+    } else {
+      btnPlus.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9686BF" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    }
+  }
+
+  function toggleTray(){
+    if(kbOpen){
+      kbOpen=false; kbSim.classList.remove('open'); input.blur();
+      trayOpen=true; tray.classList.add('open');
+      btnPlus.classList.add('open');
+      setIcon('keyboard');
+      return;
+    }
+    if(trayOpen){
+      // 트레이 열린 상태에서 키보드 아이콘 누름 → 트레이 닫고 키보드 열기
+      trayOpen=false; tray.classList.remove('open'); btnPlus.classList.remove('open');
+      kbOpen=true; kbSim.classList.add('open');
+      setIcon('plus');
+      input.focus();
+      setTimeout(()=>chatArea.scrollTop=chatArea.scrollHeight,60);
+      return;
+    }
+    // 둘 다 닫혀있으면 트레이 열기
+    trayOpen=true; tray.classList.add('open');
+    btnPlus.classList.add('open');
+    setIcon('keyboard');
+  }
+
+  function openKeyboard(){
+    if(trayOpen){ trayOpen=false; tray.classList.remove('open'); btnPlus.classList.remove('open'); }
+    kbOpen=true; kbSim.classList.add('open');
+    setIcon('plus');
+    btnPlus.onclick = toggleTray;
+    setTimeout(()=>chatArea.scrollTop=chatArea.scrollHeight,60);
+  }
+
+  function closeKeyboard(){
+    kbOpen=false; kbSim.classList.remove('open'); input.blur();
+    btnPlus.classList.remove('open');
+    setIcon('plus');
+    btnPlus.onclick=toggleTray;
+  }
+
+  function dismissAll(){
+    if(!kbOpen && !trayOpen) return;
+    if(kbOpen){ kbOpen=false; kbSim.classList.remove('open'); input.blur(); setIcon('plus'); }
+    if(trayOpen){ trayOpen=false; tray.classList.remove('open'); btnPlus.classList.remove('open'); setIcon('plus'); }
+  }
+
+  // 채팅 영역 터치 시 키보드/트레이 내리기
+  chatArea.addEventListener('mousedown', dismissAll);
+  chatArea.addEventListener('touchstart', dismissAll, {passive:true});
+  function backspace(){ input.value=input.value.slice(0,-1); }
+  function handleKey(e){ if(e.key==='Enter') sendMsg(); }
+
+  function sendMsg(){
+    const txt=input.value.trim(); if(!txt) return;
+    addMsg(txt,true);
+    input.value='';
+    input.focus();
+    setTimeout(()=>chatArea.scrollTop=chatArea.scrollHeight,30);
+  }
+
+  function addMsg(txt,isMine=false){
+    const row=document.createElement('div');
+    row.className='msg-row'+(isMine?' mine':'');
+    row.style.cssText='animation:fadeUp 0.28s ease both';
+    row.innerHTML=isMine
+      ?`<div class="msg-bubble-wrap"><div class="msg-bubble mine">${txt}</div><div class="msg-time">${now()}</div></div>`
+      :`<div class="msg-avatar">👩</div><div class="msg-bubble-wrap"><div class="msg-bubble theirs">${txt}</div><div class="msg-time">${now()}</div></div>`;
+    chatArea.appendChild(row);
+    setTimeout(()=>chatArea.scrollTop=chatArea.scrollHeight,30);
+    // 트레이 아이콘 클릭 시 트레이 닫지 않음 — 아무것도 안 함
+  }
+
+  // 초기 아이콘 세팅
+  setIcon('plus');
+</script>
+</body>
+</html>

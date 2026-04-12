@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공지사항</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg:            #F5F3F1;
+  --accent:        #9686BF;
+  --accent-tint:   rgba(150,134,191,0.10);
+  --accent-tint2:  rgba(150,134,191,0.18);
+  --card:          #FFFFFF;
+  --divider:       #EAE7E3;
+  --text-primary:  #1C1A1F;
+  --text-secondary:#6B6670;
+  --text-muted:    #ADA8B2;
+  --green:         #5BB98C;
+  --amber:         #C4885A;
+  --danger:        #D4655A;
+  --shadow:        rgba(150,134,191,0.14);
+}
+
+body {
+  background: #1E1926;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nanum Square Neo', sans-serif;
+  padding: 32px 16px;
+}
+
+/* ── Phone Shell ── */
+.phone {
+  width: 390px;
+  height: 844px;
+  background: #120F1E;
+  border-radius: 50px;
+  padding: 12px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07),
+    0 32px 80px rgba(0,0,0,0.65),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+.phone-inner {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Dynamic Island */
+.dynamic-island {
+  position: absolute;
+  top: 13px; left: 50%;
+  transform: translateX(-50%);
+  width: 118px; height: 34px;
+  background: #120F1E;
+  border-radius: 20px;
+  z-index: 20;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.di-cam  { width: 10px; height: 10px; border-radius: 50%; background: #1e1b28; border: 1.5px solid #2e2b3a; }
+.di-sens { width: 13px; height: 13px; border-radius: 50%; background: #1e1b28; border: 1.5px solid #2e2b3a; }
+
+/* Status bar */
+.statusbar {
+  height: 58px;
+  display: flex; align-items: flex-end;
+  padding: 0 24px 8px;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.sb-time { font-size: 15px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
+.sb-icons { display: flex; align-items: center; gap: 5px; }
+
+/* ── Top Header ── */
+.header {
+  padding: 4px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--divider);
+  animation: fadeDown 0.35s ease both;
+}
+.header-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+.header-badge {
+  background: var(--accent-tint2);
+  border-radius: 20px;
+  padding: 4px 11px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  display: flex; align-items: center; gap: 5px;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ── Update Banner ── */
+.update-banner {
+  margin: 14px 16px 0;
+  background: linear-gradient(135deg, var(--accent) 0%, #7B6AAD 100%);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 6px 20px rgba(150,134,191,0.38);
+  opacity: 0;
+  animation: fadeUp 0.4s ease 0.1s forwards;
+  cursor: pointer;
+  transition: transform 0.14s;
+  flex-shrink: 0;
+}
+.update-banner:active { transform: scale(0.98); }
+.update-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.update-info { flex: 1; }
+.update-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); margin-bottom: 3px; }
+.update-text  { font-size: 14px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.update-arrow {
+  width: 28px; height: 28px; border-radius: 9px;
+  background: rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Scroll ── */
+.scroll {
+  flex: 1; overflow-y: auto;
+  padding: 14px 16px 12px;
+  scrollbar-width: none;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ── Notice Card ── */
+.notice-card {
+  background: var(--card);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 14px var(--shadow);
+  opacity: 0;
+  transform: translateY(14px);
+  cursor: pointer;
+  transition: transform 0.14s, box-shadow 0.14s;
+}
+.notice-card:active { transform: scale(0.985); box-shadow: 0 1px 6px var(--shadow); }
+.notice-card:nth-child(1) { animation: fadeUp 0.38s ease 0.18s forwards; }
+.notice-card:nth-child(2) { animation: fadeUp 0.38s ease 0.24s forwards; }
+.notice-card:nth-child(3) { animation: fadeUp 0.38s ease 0.30s forwards; }
+.notice-card:nth-child(4) { animation: fadeUp 0.38s ease 0.36s forwards; }
+.notice-card:nth-child(5) { animation: fadeUp 0.38s ease 0.42s forwards; }
+
+.notice-card-inner {
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.notice-card-top {
+  display: flex; align-items: center; gap: 8px;
+}
+.notice-type-tag {
+  font-size: 10px; font-weight: 800;
+  border-radius: 6px;
+  padding: 3px 8px;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.tag-notice  { background: var(--accent-tint); color: var(--accent); }
+.tag-update  { background: rgba(91,185,140,0.13); color: var(--green); }
+.tag-event   { background: rgba(196,136,90,0.13); color: var(--amber); }
+.tag-hot     { background: rgba(212,101,90,0.12); color: var(--danger); }
+
+.notice-title {
+  font-size: 14px; font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.notice-preview {
+  font-size: 12px; font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.notice-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px 13px;
+  border-top: 1px solid var(--divider);
+}
+.notice-date { font-size: 11px; font-weight: 400; color: var(--text-muted); }
+.notice-arrow { font-size: 13px; color: var(--text-muted); }
+
+/* ── Bug Report Button ── */
+.bug-btn-wrap {
+  padding: 6px 16px 10px;
+  flex-shrink: 0;
+  opacity: 0;
+  animation: fadeUp 0.38s ease 0.52s forwards;
+}
+.bug-btn {
+  width: 100%;
+  background: var(--text-primary);
+  border: none;
+  border-radius: 16px;
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.14s, opacity 0.14s;
+  box-shadow: 0 4px 18px rgba(28,26,31,0.22);
+}
+.bug-btn:hover  { opacity: 0.88; }
+.bug-btn:active { transform: scale(0.97); }
+.bug-btn-text { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.bug-btn-sub  { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.55); }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  height: 72px;
+  background: var(--card);
+  border-top: 1px solid var(--divider);
+  display: flex; align-items: flex-start;
+  padding-top: 10px;
+  flex-shrink: 0;
+}
+.nav-item {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer;
+  transition: opacity 0.14s;
+}
+.nav-item:active { opacity: 0.6; }
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: -0.01em; }
+.nav-item.active .nav-label { color: var(--accent); }
+.nav-item.active .nav-icon-svg path,
+.nav-item.active .nav-icon-svg circle { stroke: var(--accent); }
+
+/* Keyframes */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.25; } }
+
+/* ── Detail Modal ── */
+.modal-overlay {
+  position: absolute; inset: 0;
+  background: rgba(28,26,31,0.45);
+  backdrop-filter: blur(4px);
+  z-index: 30;
+  display: flex; align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  width: 100%;
+  background: var(--card);
+  border-radius: 26px 26px 0 0;
+  padding: 0 0 32px;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+  max-height: 80%;
+  display: flex; flex-direction: column;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle-wrap { padding: 12px 0 8px; display: flex; justify-content: center; }
+.modal-handle { width: 38px; height: 4px; border-radius: 2px; background: var(--divider); }
+.modal-scroll { overflow-y: auto; padding: 0 22px 8px; scrollbar-width: none; flex: 1; }
+.modal-scroll::-webkit-scrollbar { display: none; }
+.modal-tag { display: inline-block; font-size: 10px; font-weight: 800; border-radius: 6px; padding: 3px 8px; margin-bottom: 10px; }
+.modal-title { font-size: 20px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1.3; margin-bottom: 10px; word-break: keep-all; }
+.modal-date  { font-size: 11px; font-weight: 400; color: var(--text-muted); margin-bottom: 18px; }
+.modal-divider { height: 1px; background: var(--divider); margin-bottom: 18px; }
+.modal-body { font-size: 14px; font-weight: 400; color: var(--text-secondary); line-height: 1.75; word-break: keep-all; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-inner">
+
+    <div class="dynamic-island">
+      <div class="di-cam"></div><div class="di-sens"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <span class="sb-time">9:41</span>
+      <div class="sb-icons">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="#1C1A1F"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="#1C1A1F"><path d="M10 3.5C12.8 3.5 15.3 4.7 17 6.6L18.5 5.1C16.4 2.8 13.4 1.3 10 1.3S3.6 2.8 1.5 5.1L3 6.6C4.7 4.7 7.2 3.5 10 3.5Z" opacity=".35"/><path d="M10 6.5C11.9 6.5 13.6 7.3 14.8 8.6L16.3 7.1C14.7 5.4 12.5 4.3 10 4.3S5.3 5.4 3.7 7.1L5.2 8.6C6.4 7.3 8.1 6.5 10 6.5Z"/><circle cx="10" cy="12" r="2"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="#1C1A1F"><rect x="0" y="0" width="21" height="12" rx="3.5" stroke="#1C1A1F" stroke-width="1" fill="none" opacity=".35"/><rect x="22" y="4" width="3" height="4" rx="1" opacity=".4"/><rect x="1.5" y="1.5" width="16" height="9" rx="2"/></svg>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <span class="header-title">공지사항</span>
+      <div class="header-badge">
+        <div class="badge-dot"></div>
+        새 공지 2
+      </div>
+    </div>
+
+    <!-- Update Banner -->
+    <div class="update-banner" onclick="openModal('update')">
+      <div class="update-icon">🚀</div>
+      <div class="update-info">
+        <div class="update-label">업데이트 안내</div>
+        <div class="update-text">v2.4 업데이트 준비중이에요</div>
+      </div>
+      <div class="update-arrow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Notice List -->
+    <div class="scroll">
+
+      <div class="notice-card" onclick="openModal('welcome')">
+        <div class="notice-card-inner">
+          <div class="notice-card-top">
+            <span class="notice-type-tag tag-notice">공지</span>
+            <span class="notice-title">앱에 오신 걸 환영합니다 🎉</span>
+          </div>
+          <div class="notice-preview">안녕하세요! 새로운 만남과 설렘이 가득한 공간에 오신 걸 환영해요. 마음이 맞는 사람과 즐겁게 소통해 보세요.</div>
+        </div>
+        <div class="notice-card-footer">
+          <span class="notice-date">2026.03.20</span>
+          <span class="notice-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="notice-card" onclick="openModal('event')">
+        <div class="notice-card-inner">
+          <div class="notice-card-top">
+            <span class="notice-type-tag tag-event">이벤트</span>
+            <span class="notice-title">3월 봄맞이 매칭 이벤트</span>
+          </div>
+          <div class="notice-preview">따뜻한 봄을 맞아 특별 매칭 이벤트를 진행해요! 이번 달 가입하시면 프리미엄 7일 무료 체험권을 드려요.</div>
+        </div>
+        <div class="notice-card-footer">
+          <span class="notice-date">2026.03.18</span>
+          <span class="notice-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="notice-card" onclick="openModal('policy')">
+        <div class="notice-card-inner">
+          <div class="notice-card-top">
+            <span class="notice-type-tag tag-notice">공지</span>
+            <span class="notice-title">이용약관 및 개인정보처리방침 개정 안내</span>
+          </div>
+          <div class="notice-preview">서비스 개선을 위해 이용약관 일부가 변경됩니다. 시행일 이후에도 서비스를 계속 이용하시면 변경된 약관에 동의한 것으로 간주됩니다.</div>
+        </div>
+        <div class="notice-card-footer">
+          <span class="notice-date">2026.03.15</span>
+          <span class="notice-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="notice-card" onclick="openModal('update2')">
+        <div class="notice-card-inner">
+          <div class="notice-card-top">
+            <span class="notice-type-tag tag-update">업데이트</span>
+            <span class="notice-title">v2.3 업데이트 — 채팅 UX 개선</span>
+          </div>
+          <div class="notice-preview">입력창 디자인 개선, 트레이 아이콘 반응성 향상, 키보드 dismiss 기능 추가 등 채팅 경험이 훨씬 편리해졌어요.</div>
+        </div>
+        <div class="notice-card-footer">
+          <span class="notice-date">2026.03.10</span>
+          <span class="notice-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="notice-card" onclick="openModal('hot')">
+        <div class="notice-card-inner">
+          <div class="notice-card-top">
+            <span class="notice-type-tag tag-hot">중요</span>
+            <span class="notice-title">허위 프로필 신고 시스템 강화 안내</span>
+          </div>
+          <div class="notice-preview">건강한 커뮤니티를 위해 허위 프로필 탐지 시스템을 강화했습니다. 위반 시 이용이 제한될 수 있습니다.</div>
+        </div>
+        <div class="notice-card-footer">
+          <span class="notice-date">2026.03.05</span>
+          <span class="notice-arrow">›</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bug Report Button -->
+    <div class="bug-btn-wrap">
+      <button class="bug-btn" onclick="alert('버그신고/기능요청 페이지로 이동합니다.')">
+        <div>
+          <div class="bug-btn-text">🐞 버그신고 / 기능요청</div>
+          <div class="bug-btn-sub">불편한 점을 알려주시면 빠르게 개선할게요</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <svg class="nav-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9686BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        <span class="nav-label" style="color:var(--accent)">Notice</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ADA8B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        <span class="nav-label">Story</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ADA8B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="nav-label">Home</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ADA8B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="nav-label">Chat</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ADA8B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">Profile</span>
+      </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+      <div class="modal-sheet" id="modalSheet">
+        <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+        <div class="modal-scroll">
+          <span class="modal-tag" id="modalTag"></span>
+          <div class="modal-title" id="modalTitle"></div>
+          <div class="modal-date" id="modalDate"></div>
+          <div class="modal-divider"></div>
+          <div class="modal-body" id="modalBody"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const NOTICES = {
+  update: {
+    tag: '업데이트', tagClass: 'tag-update',
+    title: 'v2.4 업데이트 준비중이에요 🚀',
+    date: '2026.03.27',
+    body: `안녕하세요!\n\n더 나은 서비스를 제공하기 위해 v2.4 업데이트를 열심히 준비하고 있어요.\n\n이번 업데이트에서는 해시태그 필터 검색 기능, 프로필 꾸미기, 그리고 더욱 빠른 매칭 알고리즘이 추가될 예정이에요.\n\n조금만 기다려 주시면 훨씬 더 좋은 경험으로 찾아뵐게요. 기대해 주세요! 🙌`,
+  },
+  welcome: {
+    tag: '공지', tagClass: 'tag-notice',
+    title: '앱에 오신 걸 환영합니다 🎉',
+    date: '2026.03.20',
+    body: `안녕하세요! 앱에 오신 것을 진심으로 환영합니다.\n\n새로운 만남과 설렘이 가득한 공간이에요. 마음이 맞는 사람과 즐겁게 소통하고, 특별한 인연을 만들어 보세요.\n\n서비스 이용 중 불편한 점이 있으시면 언제든지 버그신고/기능요청 버튼을 통해 알려주세요. 빠르게 개선하겠습니다.\n\n좋은 만남이 가득하길 바랍니다 💜`,
+  },
+  event: {
+    tag: '이벤트', tagClass: 'tag-event',
+    title: '3월 봄맞이 매칭 이벤트 🌸',
+    date: '2026.03.18',
+    body: `따뜻한 봄을 맞아 특별한 이벤트를 진행해요!\n\n✅ 이벤트 기간: 3월 18일 ~ 3월 31일\n✅ 혜택: 이번 달 신규 가입 시 프리미엄 7일 무료 체험권 증정\n✅ 대상: 이벤트 기간 내 가입한 모든 신규 회원\n\n좋은 인연, 봄처럼 설레는 만남을 시작해 보세요 🌷`,
+  },
+  policy: {
+    tag: '공지', tagClass: 'tag-notice',
+    title: '이용약관 및 개인정보처리방침 개정 안내',
+    date: '2026.03.15',
+    body: `서비스 개선을 위해 이용약관 및 개인정보처리방침 일부가 변경됩니다.\n\n✅ 시행일: 2026년 4월 1일\n\n주요 변경사항:\n- 개인정보 수집 항목 명확화\n- 마케팅 정보 수신 동의 절차 개선\n- 서비스 이용 제한 기준 구체화\n\n시행일 이후에도 서비스를 계속 이용하시면 변경된 약관에 동의한 것으로 간주됩니다. 자세한 내용은 앱 설정 > 약관 및 정책에서 확인하실 수 있습니다.`,
+  },
+  update2: {
+    tag: '업데이트', tagClass: 'tag-update',
+    title: 'v2.3 업데이트 — 채팅 UX 개선',
+    date: '2026.03.10',
+    body: `v2.3 업데이트 내용을 안내드립니다.\n\n🛠 개선 사항:\n- 입력창 pill 스타일 디자인 개선\n- + 버튼 / 키보드 아이콘 상태 전환 추가\n- 트레이 탭에서 아이콘 클릭 시 트레이 유지\n- 채팅 영역 터치 시 키보드·트레이 dismiss\n- 전송 후 키보드 자동 유지 기능\n\n더 자연스럽고 편리한 채팅 경험을 즐겨보세요 💬`,
+  },
+  hot: {
+    tag: '중요', tagClass: 'tag-hot',
+    title: '허위 프로필 신고 시스템 강화 안내',
+    date: '2026.03.05',
+    body: `건강하고 안전한 커뮤니티를 만들기 위해 허위 프로필 탐지 시스템을 강화했습니다.\n\n⚠️ 위반 시 조치 기준:\n- 1회: 경고 메시지 발송\n- 2회: 7일 이용 제한\n- 3회 이상: 계정 영구 정지\n\n모든 회원이 안심하고 이용할 수 있는 환경을 위해 지속적으로 노력하겠습니다. 이상한 프로필을 발견하시면 신고 기능을 이용해 주세요.`,
+  },
+};
+
+function openModal(key) {
+  const n = NOTICES[key];
+  if (!n) return;
+  document.getElementById('modalTag').textContent = n.tag;
+  document.getElementById('modalTag').className = 'modal-tag ' + n.tagClass;
+  document.getElementById('modalTitle').textContent = n.title;
+  document.getElementById('modalDate').textContent = n.date;
+  document.getElementById('modalBody').innerHTML = n.body.replace(/\n/g,'<br>');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+</script>
+</body>
+</html>

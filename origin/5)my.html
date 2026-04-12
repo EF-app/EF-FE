@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>녹차 — 프로필</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F5F3F1;
+    --accent: #9686BF;
+    --accent-tint: rgba(150,134,191,0.10);
+    --accent-tint2: rgba(150,134,191,0.18);
+    --card: #FFFFFF;
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+    --green: #5BB98C;
+    --amber: #C4885A;
+    --danger: #D4655A;
+    --shadow: 0 4px 20px rgba(150,134,191,0.09);
+    --shadow-md: 0 8px 32px rgba(150,134,191,0.13);
+  }
+
+  body {
+    background: #22222A;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    font-family: 'Nanum Square Neo', sans-serif;
+    padding: 32px 0 48px;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #18181E;
+    border-radius: 48px;
+    border: 2.5px solid #3A3A42;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.05) inset,
+      0 40px 80px rgba(0,0,0,0.55),
+      0 0 100px rgba(150,134,191,0.07);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .dynamic-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #08080A;
+    border-radius: 20px;
+    z-index: 100;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    border-radius: 46px;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* ── Sticky header ── */
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: 62px;
+    background: rgba(245,243,241,0.92);
+    backdrop-filter: blur(18px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 24px 10px;
+    border-bottom: 1px solid transparent;
+  }
+
+  .sticky-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--card);
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+
+  /* ── Profile hero card ── */
+  .profile-hero {
+    margin: 16px 20px 12px;
+    background: var(--card);
+    border-radius: 22px;
+    padding: 22px 20px 20px;
+    box-shadow: var(--shadow-md);
+    animation: fadeUp 0.38s ease both;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .profile-hero:active { transform: scale(0.985); }
+
+  .hero-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .avatar-wrap { position: relative; }
+
+  .avatar-lg {
+    width: 66px;
+    height: 66px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #9686BF 0%, #C8BDED 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+
+  .avatar-edit {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 8px;
+    border: 2px solid var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-info { flex: 1; }
+
+  .hero-name {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+  }
+
+  .badge {
+    padding: 3px 9px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .badge-expert { background: var(--accent-tint); color: var(--accent); }
+  .badge-lv { background: rgba(91,185,140,0.12); color: var(--green); }
+  .badge-hot { background: rgba(212,101,90,0.1); color: var(--danger); }
+
+  .hero-bio {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    border-top: 1px solid var(--divider);
+    padding-top: 16px;
+  }
+
+  .stat-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .stat-col + .stat-col {
+    border-left: 1px solid var(--divider);
+  }
+
+  .stat-num {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  /* Edit profile btn */
+  .edit-btn {
+    margin: 0 20px 20px;
+    height: 44px;
+    background: var(--accent-tint);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    transition: transform 0.15s;
+    animation: fadeUp 0.38s ease 0.05s both;
+  }
+  .edit-btn:active { transform: scale(0.97); }
+
+  /* ── Activity strip ── */
+  .activity-strip {
+    margin: 0 20px 20px;
+    background: var(--card);
+    border-radius: 18px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.38s ease 0.08s both;
+  }
+
+  .strip-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .activity-grid {
+    display: flex;
+    gap: 10px;
+  }
+
+  .act-item {
+    flex: 1;
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .act-icon {
+    font-size: 18px;
+  }
+
+  .act-num {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .act-label {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  /* ── Section group card ── */
+  .group-label {
+    padding: 0 26px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .menu-card {
+    margin: 0 20px 12px;
+    background: var(--card);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.38s ease both;
+  }
+
+  .menu-row {
+    display: flex;
+    align-items: center;
+    padding: 15px 18px;
+    gap: 14px;
+    cursor: pointer;
+    transition: background 0.12s;
+    position: relative;
+  }
+  .menu-row:active { background: var(--bg); }
+
+  .menu-row + .menu-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 52px;
+    right: 18px;
+    height: 1px;
+    background: var(--divider);
+  }
+
+  .menu-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .mi-purple { background: var(--accent-tint); }
+  .mi-green  { background: rgba(91,185,140,0.12); }
+  .mi-amber  { background: rgba(196,136,90,0.12); }
+  .mi-danger { background: rgba(212,101,90,0.10); }
+  .mi-blue   { background: rgba(82,160,210,0.12); }
+  .mi-gray   { background: rgba(173,168,178,0.14); }
+
+  .menu-text { flex: 1; }
+
+  .menu-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .menu-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .menu-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .menu-value {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .menu-badge {
+    padding: 2px 8px;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .mb-purple { background: var(--accent-tint); color: var(--accent); }
+  .mb-green  { background: rgba(91,185,140,0.12); color: var(--green); }
+  .mb-danger { background: rgba(212,101,90,0.10); color: var(--danger); }
+
+  .chevron {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    width: 40px;
+    height: 24px;
+    background: var(--accent);
+    border-radius: 12px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .toggle.off {
+    background: var(--divider);
+  }
+  .toggle.off::after {
+    right: auto;
+    left: 3px;
+  }
+
+  /* Premium upsell card */
+  .premium-card {
+    margin: 0 20px 12px;
+    background: linear-gradient(135deg, #9686BF 0%, #BEB0DC 100%);
+    border-radius: 20px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 8px 28px rgba(150,134,191,0.30);
+    cursor: pointer;
+    transition: transform 0.15s;
+    animation: fadeUp 0.38s ease 0.12s both;
+    position: relative;
+    overflow: hidden;
+  }
+  .premium-card:active { transform: scale(0.98); }
+
+  .premium-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -20px;
+    width: 110px; height: 110px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 50%;
+  }
+
+  .prem-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .prem-info { flex: 1; }
+
+  .prem-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 3px;
+  }
+
+  .prem-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.45;
+  }
+
+  .prem-arrow {
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Logout row */
+  .logout-row {
+    margin: 0 20px 6px;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--danger);
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.38s ease 0.28s both;
+    transition: transform 0.15s;
+  }
+  .logout-row:active { transform: scale(0.97); }
+
+  .version-text {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    padding: 10px 0 6px;
+    animation: fadeUp 0.38s ease 0.30s both;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    padding: 10px 0 20px;
+    border-radius: 0 0 46px 46px;
+    z-index: 50;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: transform 0.15s;
+  }
+  .nav-item:active { transform: scale(0.9); }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .nav-item.active .nav-label  { color: var(--accent); }
+  .nav-item.inactive .nav-label { color: var(--text-muted); }
+
+  .nav-indicator {
+    width: 28px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin-top: 1px;
+  }
+
+  /* Scrollable content wrapper */
+  .scroll-content { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding-bottom: 8px; }
+  .scroll-content::-webkit-scrollbar { display: none; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.10s; }
+  .d3 { animation-delay: 0.15s; }
+  .d4 { animation-delay: 0.20s; }
+  .d5 { animation-delay: 0.25s; }
+  .d6 { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="dynamic-island"></div>
+  <div class="screen">
+
+    <!-- Sticky header -->
+    <div class="sticky-header">
+      <span class="sticky-title">프로필</span>
+      <div class="icon-btn">
+        <!-- gear icon -->
+        <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
+          <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#6B6670" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19.4 15C19.1277 15.6171 19.2583 16.3378 19.73 16.82L19.79 16.88C20.1656 17.2554 20.3766 17.7644 20.3766 18.295C20.3766 18.8256 20.1656 19.3346 19.79 19.71C19.4146 20.0856 18.9056 20.2966 18.375 20.2966C17.8444 20.2966 17.3354 20.0856 16.96 19.71L16.9 19.65C16.4178 19.1783 15.6971 19.0477 15.08 19.32C14.4755 19.5791 14.0826 20.1724 14.08 20.83V21C14.08 22.1046 13.1846 23 12.08 23C10.9754 23 10.08 22.1046 10.08 21V20.91C10.0642 20.2327 9.63587 19.6339 9 19.4C8.38291 19.1277 7.66219 19.2583 7.18 19.73L7.12 19.79C6.74463 20.1656 6.23557 20.3766 5.705 20.3766C5.17443 20.3766 4.66537 20.1656 4.29 19.79C3.91436 19.4146 3.70341 18.9056 3.70341 18.375C3.70341 17.8444 3.91436 17.3354 4.29 16.96L4.35 16.9C4.82167 16.4178 4.95231 15.6971 4.68 15.08C4.42093 14.4755 3.82764 14.0826 3.17 14.08H3C1.89543 14.08 1 13.1846 1 12.08C1 10.9754 1.89543 10.08 3 10.08H3.09C3.76733 10.0642 4.36613 9.63587 4.6 9C4.87231 8.38291 4.74167 7.66219 4.27 7.18L4.21 7.12C3.83436 6.74463 3.62341 6.23557 3.62341 5.705C3.62341 5.17443 3.83436 4.66537 4.21 4.29C4.58537 3.91436 5.09443 3.70341 5.625 3.70341C6.15557 3.70341 6.66463 3.91436 7.04 4.29L7.1 4.35C7.58219 4.82167 8.30291 4.95231 8.92 4.68H9C9.60447 4.42093 9.99738 3.82764 10 3.17V3C10 1.89543 10.8954 1 12 1C13.1046 1 14 1.89543 14 3V3.09C14.0026 3.74764 14.3955 4.34093 15 4.6C15.6171 4.87231 16.3378 4.74167 16.82 4.27L16.88 4.21C17.2554 3.83436 17.7644 3.62341 18.295 3.62341C18.8256 3.62341 19.3346 3.83436 19.71 4.21C20.0856 4.58537 20.2966 5.09443 20.2966 5.625C20.2966 6.15557 20.0856 6.66463 19.71 7.04L19.65 7.1C19.1783 7.58219 19.0477 8.30291 19.32 8.92V9C19.5791 9.60447 20.1724 9.99738 20.83 10H21C22.1046 10 23 10.8954 23 12C23 13.1046 22.1046 14 21 14H20.91C20.2524 14.0026 19.6591 14.3955 19.4 15Z" stroke="#6B6670" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="scroll-content">
+
+      <!-- Profile hero -->
+      <div class="profile-hero">
+        <div class="hero-top">
+          <div class="avatar-wrap">
+            <div class="avatar-lg">김</div>
+            <div class="avatar-edit">
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24">
+                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hero-info">
+            <div class="hero-name">김녹차</div>
+            <div class="hero-badges">
+              <span class="badge badge-expert">✦ 전문가</span>
+              <span class="badge badge-lv">Lv.24</span>
+              <span class="badge badge-hot">🔥 Top 3%</span>
+            </div>
+            <div class="hero-bio">차 한 잔의 여유를 찾는 사람 🍵<br>서울 · 가입 2023.03</div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-col">
+            <span class="stat-num">47</span>
+            <span class="stat-label">작성 글</span>
+          </div>
+          <div class="stat-col">
+            <span class="stat-num">1,204</span>
+            <span class="stat-label">받은 공감</span>
+          </div>
+          <div class="stat-col">
+            <span class="stat-num">328</span>
+            <span class="stat-label">포인트</span>
+          </div>
+          <div class="stat-col">
+            <span class="stat-num">89</span>
+            <span class="stat-label">팔로워</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit profile btn -->
+      <div class="edit-btn d1">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="#9686BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        프로필 수정하기
+      </div>
+
+      <!-- Activity strip -->
+      <div class="activity-strip d2">
+        <div class="strip-title">내 활동 요약</div>
+        <div class="activity-grid">
+          <div class="act-item">
+            <span class="act-icon">📝</span>
+            <span class="act-num">47</span>
+            <span class="act-label">내 글</span>
+          </div>
+          <div class="act-item">
+            <span class="act-icon">💬</span>
+            <span class="act-num">183</span>
+            <span class="act-label">댓글</span>
+          </div>
+          <div class="act-item">
+            <span class="act-icon">❤️</span>
+            <span class="act-num">92</span>
+            <span class="act-label">스크랩</span>
+          </div>
+          <div class="act-item">
+            <span class="act-icon">🏆</span>
+            <span class="act-num">5</span>
+            <span class="act-label">배지</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Premium upsell -->
+      <div class="premium-card">
+        <div class="prem-icon">👑</div>
+        <div class="prem-info">
+          <div class="prem-title">프리미엄 멤버십</div>
+          <div class="prem-sub">광고 없이, 더 많은 혜택을<br>무제한으로 즐기세요</div>
+        </div>
+        <div class="prem-arrow">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 계정 관리 -->
+      <div class="group-label d3">계정</div>
+      <div class="menu-card d3">
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-purple">👤</div>
+          <div class="menu-text">
+            <div class="menu-title">계정 관리</div>
+            <div class="menu-sub">이메일 · 비밀번호 · 연동</div>
+          </div>
+          <div class="menu-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-green">🔔</div>
+          <div class="menu-text">
+            <div class="menu-title">알림 설정</div>
+            <div class="menu-sub">댓글, 공감, 공지 알림</div>
+          </div>
+          <div class="menu-right">
+            <span class="menu-badge mb-purple">ON</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-amber">🔒</div>
+          <div class="menu-text">
+            <div class="menu-title">개인정보 보호</div>
+            <div class="menu-sub">공개 범위 · 차단 관리</div>
+          </div>
+          <div class="menu-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-blue">🚫</div>
+          <div class="menu-text">
+            <div class="menu-title">차단한 사용자</div>
+          </div>
+          <div class="menu-right">
+            <span class="menu-value">2명</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 앱 설정 -->
+      <div class="group-label d4">앱 설정</div>
+      <div class="menu-card d4">
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-purple">🌙</div>
+          <div class="menu-text">
+            <div class="menu-title">다크 모드</div>
+          </div>
+          <div class="menu-right">
+            <div class="toggle off"></div>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-gray">🔤</div>
+          <div class="menu-text">
+            <div class="menu-title">글꼴 크기</div>
+          </div>
+          <div class="menu-right">
+            <span class="menu-value">기본</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-green">📶</div>
+          <div class="menu-text">
+            <div class="menu-title">데이터 절약 모드</div>
+          </div>
+          <div class="menu-right">
+            <div class="toggle off"></div>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-amber">🌐</div>
+          <div class="menu-text">
+            <div class="menu-title">언어</div>
+          </div>
+          <div class="menu-right">
+            <span class="menu-value">한국어</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 고객 지원 -->
+      <div class="group-label d5">고객 지원</div>
+      <div class="menu-card d5">
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-purple">❓</div>
+          <div class="menu-text">
+            <div class="menu-title">도움말 · FAQ</div>
+          </div>
+          <div class="menu-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-amber">💬</div>
+          <div class="menu-text">
+            <div class="menu-title">1:1 문의하기</div>
+          </div>
+          <div class="menu-right">
+            <span class="menu-badge mb-green">빠른 답변</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-green">⭐</div>
+          <div class="menu-text">
+            <div class="menu-title">앱 평가하기</div>
+          </div>
+          <div class="menu-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-gray">📄</div>
+          <div class="menu-text">
+            <div class="menu-title">약관 및 정책</div>
+          </div>
+          <div class="menu-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon-wrap mi-gray">ℹ️</div>
+          <div class="menu-text">
+            <div class="menu-title">버전 정보</div>
+          </div>
+          <div class="menu-right">
+            <span class="menu-value">v2.4.1</span>
+            <span class="menu-badge mb-green">최신</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout -->
+      <div class="logout-row d6">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+          <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="#D4655A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        로그아웃
+      </div>
+
+      <div class="version-text">녹차 v2.4.1 · Made with 🍵 in Seoul</div>
+
+    </div>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <div class="nav-item inactive">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="#ADA8B2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-label">홈</span>
+      </div>
+      <div class="nav-item inactive">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="#ADA8B2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-label">커뮤니티</span>
+      </div>
+      <div class="nav-item inactive">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" stroke="#ADA8B2" stroke-width="1.8"/>
+          <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="#ADA8B2" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-label">탐색</span>
+      </div>
+      <div class="nav-item inactive">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.5783 8.50903 2.99836 7.05 2.99836C5.59096 2.99836 4.19169 3.5783 3.16 4.61C2.1283 5.6417 1.54837 7.04097 1.54837 8.5C1.54837 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.0621 22.0329 6.39462C21.7563 5.72714 21.351 5.12075 20.84 4.61Z" stroke="#ADA8B2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-label">관심</span>
+      </div>
+      <div class="nav-item active">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" fill="#9686BF" stroke="#9686BF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-label" style="color:var(--accent);">프로필</span>
+        <div class="nav-indicator"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

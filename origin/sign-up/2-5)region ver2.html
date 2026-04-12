@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지역 설정 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEAE7;
+    --primary: #9686BF;
+    --primary-tint: rgba(150,134,191,0.10);
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+  }
+
+  html, body { width: 100%; min-height: 100vh; }
+
+  body {
+    font-family: 'Nanum Square Neo', sans-serif;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 12px 60px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Phone frame ── */
+  .phone-frame {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    min-height: 780px;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    padding: 14px 24px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .status-time { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+  .status-icons { display: flex; align-items: center; gap: 6px; }
+
+  /* ── App header ── */
+  .app-header {
+    padding: 14px 24px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .app-name { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+
+  /* ── Content ── */
+  .content {
+    padding: 32px 28px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.4px; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .page-title {
+    font-size: 26px; font-weight: 400;
+    color: var(--text-primary); letter-spacing: -0.5px;
+    line-height: 1.3; margin-bottom: 8px;
+    word-break: keep-all;
+  }
+  .page-sub {
+    font-size: 13.5px; font-weight: 400;
+    color: var(--text-secondary); line-height: 1.65;
+    margin-bottom: 36px; word-break: keep-all;
+  }
+
+  /* ── Picker container ── */
+  .picker-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    margin: 0 -8px;
+  }
+
+  /* ── 선택 하이라이트 바 ── */
+  .picker-highlight {
+    position: absolute;
+    left: 12px; right: 12px;
+    top: 50%; transform: translateY(-50%);
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(150,134,191,0.10);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── 각 컬럼 ── */
+  .picker-col {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    height: 260px;
+  }
+
+  /* 위아래 페이드 마스크 */
+  .picker-col::before,
+  .picker-col::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 90px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .picker-col::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--bg) 20%, transparent 100%);
+  }
+  .picker-col::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg) 20%, transparent 100%);
+  }
+
+  /* 스크롤 리스트 */
+  .picker-list {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 104px 0; /* (260 - 52) / 2 = 104 */
+  }
+  .picker-list::-webkit-scrollbar { display: none; }
+
+  .picker-item {
+    height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center;
+    font-size: 17px; font-weight: 400;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s, font-weight 0.2s, font-size 0.15s;
+    user-select: none;
+    letter-spacing: -0.3px;
+  }
+  .picker-item.selected {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .picker-item.near {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  /* 구분선 (가운데) */
+  .picker-divider {
+    width: 1px;
+    height: 180px;
+    background: var(--divider);
+    z-index: 3;
+    flex-shrink: 0;
+  }
+
+  /* ── 선택된 지역 표시 칩 ── */
+  .selected-region {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 28px 28px;
+    min-height: 60px;
+  }
+  .region-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--primary-tint);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 13px; font-weight: 700;
+    color: var(--primary);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .region-chip.show { opacity: 1; transform: translateY(0); }
+
+  /* ── CTA ── */
+  .cta-wrap { padding: 0 24px 28px; }
+  .btn-next {
+    width: 100%;
+    background: #E8E5E1; color: #B0ABB5;
+    border: none; border-radius: 14px;
+    padding: 17px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 15px; font-weight: 800;
+    cursor: default;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.25s, color 0.25s, transform 0.12s, box-shadow 0.22s;
+  }
+  .btn-next.active {
+    background: var(--primary); color: #fff; cursor: pointer;
+  }
+  .btn-next.active:hover  { box-shadow: 0 8px 24px rgba(150,134,191,0.30); transform: translateY(-1px); }
+  .btn-next.active:active { transform: scale(0.98); box-shadow: none; }
+
+  /* ── Home indicator ── */
+  .home-indicator {
+    width: 120px; height: 4px;
+    background: var(--text-primary);
+    border-radius: 3px;
+    margin: 0 auto 16px; opacity: 0.15;
+  }
+
+  /* ── 애니메이션 ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .eyebrow    { animation: fadeUp 0.4s ease 0.05s both; }
+  .page-title { animation: fadeUp 0.4s ease 0.10s both; }
+  .page-sub   { animation: fadeUp 0.4s ease 0.14s both; }
+  .picker-area { animation: fadeUp 0.4s ease 0.20s both; }
+  /* ── 해외 나라 피커 ── */
+  .overseas-col {
+    display: none;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    height: 260px;
+  }
+  .overseas-col::before,
+  .overseas-col::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; height: 90px;
+    z-index: 2; pointer-events: none;
+  }
+  .overseas-col::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--bg) 20%, transparent 100%);
+  }
+  .overseas-col::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg) 20%, transparent 100%);
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12">
+        <rect x="0"    y="3"   width="3" height="9"    rx="1" fill="#1C1A1F" opacity=".3"/>
+        <rect x="4.5"  y="2"   width="3" height="10"   rx="1" fill="#1C1A1F" opacity=".5"/>
+        <rect x="9"    y="0.5" width="3" height="11.5" rx="1" fill="#1C1A1F" opacity=".75"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="#1C1A1F"/>
+      </svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1C5.3 1 2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A1F"/>
+        <path d="M8 6C9.5 6 10.8 6.6 11.8 7.6L13.2 6.2C11.8 4.8 9.9 4 8 4C6.1 4 4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A1F" opacity=".6"/>
+        <circle cx="8" cy="10.5" r="1.5" fill="#1C1A1F"/>
+      </svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13">
+        <rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke="#1C1A1F" stroke-opacity=".3"/>
+        <rect x="2"   y="2"   width="18" height="9"  rx="2"   fill="#1C1A1F"/>
+        <path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A1F" opacity=".35"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="logo-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5L2.5 4.7v6.6L8 14.5l5.5-3.2V4.7L8 1.5Z" stroke="white" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" fill="white"/>
+      </svg>
+    </div>
+    <span class="app-name">녹차</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <p class="eyebrow">지역 설정</p>
+    <h1 class="page-title">처음 오셨군요,<br>반가워요! 👋</h1>
+    <p class="page-sub">자주 활동하는 지역을 선택하면<br>그 지역 사람들과 만날 수 있어요.</p>
+
+    <!-- Picker -->
+    <div class="picker-area">
+      <div class="picker-highlight"></div>
+
+      <!-- 시/도 컬럼 -->
+      <div class="picker-col">
+        <div class="picker-list" id="col-city">
+          <!-- JS로 채움 -->
+        </div>
+      </div>
+
+      <div class="picker-divider" id="picker-divider"></div>
+
+      <!-- 구/군 컬럼 (국내) -->
+      <div class="picker-col" id="district-col">
+        <div class="picker-list" id="col-district">
+          <!-- JS로 채움 -->
+        </div>
+      </div>
+
+      <!-- 해외: 나라 피커 (해외 선택 시 구 컬럼 대신 표시) -->
+      <div class="overseas-col" id="overseas-wrap">
+        <div class="picker-list" id="col-country">
+          <!-- JS로 채움 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 선택된 지역 칩 -->
+    <div class="selected-region">
+      <div class="region-chip" id="region-chip">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M6 1C4.1 1 2.5 2.6 2.5 4.5C2.5 7 6 11 6 11C6 11 9.5 7 9.5 4.5C9.5 2.6 7.9 1 6 1Z" stroke="#9686BF" stroke-width="1.3"/>
+          <circle cx="6" cy="4.5" r="1.2" fill="#9686BF"/>
+        </svg>
+        <span id="chip-text">서울 강남구</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <button class="btn-next" id="btn-next" onclick="goNext()">
+      다음으로
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+/* ── 지역 데이터 ── */
+const RAW = {
+  '서울':  ['강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구'],
+  '경기':  ['가평군','고양시','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시','수원시','시흥시','안산시','안성시','안양시','양주시','양평군','여주시','연천군','오산시','용인시','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시'],
+  '인천':  ['강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구'],
+  '대전':  ['대덕구','동구','서구','유성구','중구'],
+  '충북':  ['괴산군','단양군','보은군','영동군','옥천군','음성군','제천시','증평군','진천군','청주시','충주시'],
+  '충남':  ['계룡시','공주시','금산군','논산시','당진시','보령시','부여군','서산시','서천군','아산시','예산군','천안시','청양군','태안군','홍성군'],
+  '강원':  ['강릉시','고성군','동해시','삼척시','속초시','양구군','양양군','영월군','원주시','인제군','정선군','철원군','춘천시','태백시','평창군','홍천군','화천군','횡성군'],
+  '부산':  ['강서구','금정구','기장군','남구','동구','동래구','부산진구','북구','사상구','사하구','서구','수영구','연제구','영도구','중구','해운대구'],
+  '경북':  ['경산시','경주시','고령군','구미시','군위군','김천시','문경시','봉화군','상주시','성주군','안동시','영덕군','영양군','영주시','영천시','예천군','울릉군','울진군','의성군','청도군','청송군','칠곡군','포항시'],
+  '경남':  ['거제시','거창군','고성군','김해시','남해군','밀양시','사천시','산청군','양산시','의령군','진주시','창녕군','창원시','통영시','하동군','함안군','함양군','합천군'],
+  '대구':  ['군위군','남구','달서구','달성군','동구','북구','서구','수성구','중구'],
+  '울산':  ['남구','동구','북구','울주군','중구'],
+  '광주':  ['광산구','남구','동구','북구','서구'],
+  '전북':  ['고창군','군산시','김제시','남원시','무주군','부안군','순창군','완주군','익산시','임실군','장수군','전주시','정읍시','진안군'],
+  '전남':  ['강진군','고흥군','곡성군','광양시','구례군','나주시','담양군','목포시','무안군','보성군','순천시','신안군','여수시','영광군','영암군','완도군','장성군','장흥군','진도군','함평군','해남군','화순군'],
+  '세종':  ['세종시 전체'],
+  '해외':  null,
+};
+
+/* ── 주요 나라 목록 (가나다 순) ── */
+const COUNTRIES = [
+  '그리스','나이지리아','남아프리카공화국','네덜란드','노르웨이',
+  '뉴질랜드','대만','덴마크','독일','라오스','러시아','루마니아',
+  '말레이시아','멕시코','모로코','몽골','미국','미얀마','바레인',
+  '베트남','벨기에','볼리비아','브라질','사우디아라비아','서반아(스페인)',
+  '스웨덴','스위스','싱가포르','아랍에미리트','아르헨티나','아이슬란드',
+  '영국','오스트레일리아(호주)','오스트리아','요르단','우크라이나',
+  '이스라엘','이집트','이탈리아','인도','인도네시아','일본',
+  '중국','체코','칠레','카타르','캄보디아','캐나다','케냐',
+  '콜롬비아','쿠웨이트','태국','터키(튀르키예)','튀니지','파키스탄',
+  '페루','포르투갈','폴란드','프랑스','필리핀','핀란드','헝가리','홍콩',
+];
+
+const CITY_ORDER = ['서울','경기','인천','대전','충북','충남','강원','부산','경북','경남','대구','울산','광주','전북','전남','세종','해외'];
+const cities = CITY_ORDER;
+
+function getDistricts(city) {
+  if (city === '해외') return null;
+  const arr = RAW[city] ? [...RAW[city]].sort((a,b) => a.localeCompare(b,'ko')) : [];
+  return ['선택안함', ...arr];
+}
+
+let selectedCityIdx     = 0;
+let selectedDistrictIdx = 0;
+let selectedCountryIdx  = 0;
+let isOverseas          = false;
+
+const colCity     = document.getElementById('col-city');
+const colDistrict = document.getElementById('col-district');
+const colCountry  = document.getElementById('col-country');
+const regionChip  = document.getElementById('region-chip');
+const chipText    = document.getElementById('chip-text');
+const btnNext     = document.getElementById('btn-next');
+
+const ITEM_H = 52;
+
+/* ── 렌더링 ── */
+function renderCity() {
+  colCity.innerHTML = '';
+  cities.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'picker-item';
+    el.textContent = c;
+    colCity.appendChild(el);
+  });
+}
+
+function renderCountries() {
+  colCountry.innerHTML = '';
+  COUNTRIES.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'picker-item';
+    el.textContent = c;
+    colCountry.appendChild(el);
+  });
+}
+
+function renderDistrict(cityIdx) {
+  const city        = cities[cityIdx];
+  const districtCol = document.getElementById('district-col');
+  const overseasWrap = document.getElementById('overseas-wrap');
+  const pickerDiv   = document.getElementById('picker-divider');
+
+  if (city === '해외') {
+    districtCol.style.display   = 'none';
+    overseasWrap.style.display  = 'flex';       /* flex 사용해도 OK: 자식이 picker-list */
+    overseasWrap.style.position = 'relative';
+    overseasWrap.style.overflow = 'hidden';
+    pickerDiv.style.opacity     = '1';
+    isOverseas = true;
+    /* 나라 피커 위치 초기화 */
+    selectedCountryIdx = 0;
+    scrollToIdx(colCountry, 0, false);
+    updateStyles(colCountry, 0);
+    updateChip();
+    return;
+  }
+
+  isOverseas = false;
+  districtCol.style.display   = '';
+  overseasWrap.style.display  = 'none';
+  pickerDiv.style.opacity     = '1';
+
+  const districts = getDistricts(city);
+  colDistrict.innerHTML = '';
+  districts.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'picker-item';
+    el.textContent = d;
+    colDistrict.appendChild(el);
+  });
+}
+
+/* ── 스타일 업데이트 ── */
+function updateStyles(list, selIdx) {
+  list.querySelectorAll('.picker-item').forEach((el, i) => {
+    el.classList.remove('selected','near');
+    const diff = Math.abs(i - selIdx);
+    if (diff === 0)      el.classList.add('selected');
+    else if (diff === 1) el.classList.add('near');
+  });
+}
+
+function scrollToIdx(list, idx, smooth) {
+  list.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'instant' });
+}
+
+function getIdx(list) {
+  return Math.round(list.scrollTop / ITEM_H);
+}
+
+/* ── 칩 & 버튼 업데이트 ── */
+function updateChip() {
+  const city = cities[selectedCityIdx];
+
+  if (city === '해외') {
+    const country = COUNTRIES[selectedCountryIdx] || '';
+    chipText.textContent = '해외 · ' + country;
+    regionChip.classList.add('show');
+    btnNext.classList.add('active');
+    return;
+  }
+
+  const districts = getDistricts(city);
+  const district  = districts ? districts[selectedDistrictIdx] : '';
+  chipText.textContent = district === '선택안함'
+    ? city + ' · 구/군 선택안함'
+    : city + ' ' + district;
+  regionChip.classList.add('show');
+  btnNext.classList.add('active');
+}
+
+/* ── 스크롤 바인딩 ── */
+function bindScroll(list, onEnd) {
+  let snapTimer = null;
+  list.addEventListener('scroll', () => {
+    clearTimeout(snapTimer);
+    const idx = getIdx(list);
+    onEnd(idx, false);
+    snapTimer = setTimeout(() => {
+      const idx2 = getIdx(list);
+      scrollToIdx(list, idx2, true);
+      onEnd(idx2, true);
+    }, 80);
+  });
+}
+
+/* ── 초기화 ── */
+function init() {
+  renderCity();
+  renderCountries();
+  renderDistrict(0);
+
+  scrollToIdx(colCity, 0, false);
+  scrollToIdx(colDistrict, 0, false);
+  scrollToIdx(colCountry, 0, false);
+  updateStyles(colCity, 0);
+  updateStyles(colDistrict, 0);
+  updateStyles(colCountry, 0);
+
+  /* 시 스크롤 */
+  bindScroll(colCity, (idx, final) => {
+    updateStyles(colCity, idx);
+    if (idx !== selectedCityIdx) {
+      selectedCityIdx = idx;
+      selectedDistrictIdx = 0;
+      selectedCountryIdx  = 0;
+      renderDistrict(idx);
+      if (!isOverseas) {
+        scrollToIdx(colDistrict, 0, false);
+        updateStyles(colDistrict, 0);
+      }
+    }
+    if (final) updateChip();
+  });
+
+  /* 구 스크롤 (국내) */
+  bindScroll(colDistrict, (idx, final) => {
+    selectedDistrictIdx = idx;
+    updateStyles(colDistrict, idx);
+    if (final) updateChip();
+  });
+
+  /* 나라 스크롤 (해외) */
+  bindScroll(colCountry, (idx, final) => {
+    selectedCountryIdx = idx;
+    updateStyles(colCountry, idx);
+    if (final) updateChip();
+  });
+
+  setTimeout(updateChip, 300);
+}
+
+function goNext() {
+  if (!btnNext.classList.contains('active')) return;
+  const city = cities[selectedCityIdx];
+  let label = city === '해외'
+    ? '해외 · ' + COUNTRIES[selectedCountryIdx]
+    : city + ' ' + (getDistricts(city)[selectedDistrictIdx] || '');
+  alert('✅ 지역 설정 완료: ' + label + '\n다음 화면으로 이동합니다.');
+}
+
+init();
+</script>
+</body>
+</html>

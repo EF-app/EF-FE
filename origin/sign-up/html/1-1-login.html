@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEAE7;
+    --primary: #9686BF;
+    --primary-tint: rgba(150,134,191,0.10);
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+    --danger: #BF9696;
+    --danger-bg: #F5ECEC;
+    --border-invalid: #D4A9A9;
+  }
+
+  html, body { width: 100%; }
+
+  body {
+    font-family: 'Nanum Square Neo', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 12px 60px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Phone frame ── */
+  .phone-frame {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    padding: 14px 24px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .status-time { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+  .status-icons { display: flex; align-items: center; gap: 6px; }
+
+  /* ── App header ── */
+  .app-header {
+    padding: 14px 24px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .app-name { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+
+  /* ── Content ── */
+  .content { padding: 32px 24px 36px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.4px; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .page-title {
+    font-size: 26px; font-weight: 400;
+    color: var(--text-primary); letter-spacing: -0.5px;
+    line-height: 1.2; margin-bottom: 6px;
+  }
+  .page-sub {
+    font-size: 13px; font-weight: 400;
+    color: var(--text-secondary); line-height: 1.6; margin-bottom: 32px;
+  }
+
+  /* ── Field ── */
+  .field-group { margin-bottom: 16px; }
+  .field-label {
+    display: block; font-size: 11px; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 0.6px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .field-wrap {
+    position: relative; display: flex; align-items: center;
+  }
+  .field-icon {
+    position: absolute; left: 15px;
+    display: flex; align-items: center;
+    pointer-events: none; z-index: 2;
+  }
+
+  /* ── Input ── */
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    padding: 15px 48px 15px 42px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.18s;
+    -webkit-appearance: none;
+    min-width: 0;
+  }
+  input::placeholder { color: var(--text-muted); }
+  input:focus { border-color: var(--primary); }
+  input.invalid { border-color: var(--border-invalid); }
+
+  /* ── Eye toggle ── */
+  .eye-btn {
+    position: absolute; right: 14px;
+    background: none; border: none;
+    cursor: pointer; padding: 4px;
+    display: flex; align-items: center;
+    z-index: 3;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+  }
+  .eye-btn:hover { opacity: 0.8; }
+
+  /* ── PW hint (규격 안내) ── */
+  .pw-rule {
+    font-size: 11px; font-weight: 400;
+    color: var(--text-muted);
+    margin-top: 6px; padding-left: 2px;
+    line-height: 1.5;
+  }
+
+  /* ── Error message ── */
+  .error-msg {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--danger-bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.22s, transform 0.22s;
+    pointer-events: none;
+  }
+  .error-msg.show {
+    opacity: 1; transform: translateY(0);
+    pointer-events: auto;
+  }
+  .error-msg-text {
+    font-size: 12px; font-weight: 700;
+    color: var(--danger);
+    flex: 1;
+  }
+  .error-count {
+    font-size: 11px; font-weight: 700;
+    color: var(--danger);
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  /* ── Confirm button ── */
+  .btn-confirm {
+    width: 100%;
+    background: #E8E5E1; color: #B0ABB5;
+    border: none; border-radius: 14px;
+    padding: 16.5px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 15px; font-weight: 800;
+    cursor: default;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 8px;
+    transition: background 0.22s, color 0.22s, transform 0.12s, box-shadow 0.22s;
+  }
+  .btn-confirm.active {
+    background: var(--primary); color: #fff; cursor: pointer;
+  }
+  .btn-confirm.active:hover {
+    box-shadow: 0 8px 24px rgba(150,134,191,0.30); transform: translateY(-1px);
+  }
+  .btn-confirm.active:active { transform: scale(0.98); box-shadow: none; }
+
+  /* ── Links area ── */
+  .links-row {
+    display: flex; justify-content: center; align-items: center;
+    margin-top: 20px; gap: 6px;
+  }
+  .link-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 12.5px; font-weight: 400;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 2px 4px;
+    transition: color 0.15s;
+  }
+  .link-btn:hover { color: var(--primary); }
+  .link-btn.accent { color: var(--primary); font-weight: 700; }
+  .link-divider {
+    width: 1px; height: 11px;
+    background: var(--divider);
+  }
+
+  .signup-row {
+    display: flex; justify-content: center; align-items: center;
+    margin-top: 10px; gap: 4px;
+  }
+  .signup-row span {
+    font-size: 12.5px; color: var(--text-muted); font-weight: 400;
+  }
+
+  /* ── Support ── */
+  .support-row {
+    display: flex; justify-content: center; align-items: center;
+    margin-top: 28px; gap: 6px;
+  }
+  .support-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 11.5px; font-weight: 400;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--divider);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .support-link:hover { color: var(--primary); border-color: var(--primary); }
+
+  /* ── Home indicator ── */
+  .home-indicator {
+    width: 120px; height: 4px;
+    background: var(--text-primary);
+    border-radius: 3px;
+    margin: 28px auto 16px;
+    opacity: 0.15;
+  }
+
+  /* ── Locked overlay ── */
+  .locked-banner {
+    display: none;
+    background: var(--danger-bg);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .locked-banner.show { display: block; }
+  .locked-banner p {
+    font-size: 12.5px; font-weight: 700;
+    color: var(--danger); line-height: 1.5;
+  }
+
+  /* ── Fade-up animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .eyebrow     { animation: fadeUp 0.4s ease 0.05s both; }
+  .page-title  { animation: fadeUp 0.4s ease 0.10s both; }
+  .page-sub    { animation: fadeUp 0.4s ease 0.14s both; }
+  .field-group { animation: fadeUp 0.4s ease 0.18s both; }
+  .error-area  { animation: fadeUp 0.4s ease 0.22s both; }
+  .btn-confirm { animation: fadeUp 0.4s ease 0.24s both; }
+  .links-row   { animation: fadeUp 0.4s ease 0.28s both; }
+  .signup-row  { animation: fadeUp 0.4s ease 0.30s both; }
+  .support-row { animation: fadeUp 0.4s ease 0.33s both; }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12">
+        <rect x="0"    y="3"   width="3" height="9"    rx="1" fill="#1C1A1F" opacity=".3"/>
+        <rect x="4.5"  y="2"   width="3" height="10"   rx="1" fill="#1C1A1F" opacity=".5"/>
+        <rect x="9"    y="0.5" width="3" height="11.5" rx="1" fill="#1C1A1F" opacity=".75"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="#1C1A1F"/>
+      </svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1C5.3 1 2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A1F"/>
+        <path d="M8 6C9.5 6 10.8 6.6 11.8 7.6L13.2 6.2C11.8 4.8 9.9 4 8 4C6.1 4 4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A1F" opacity=".6"/>
+        <circle cx="8" cy="10.5" r="1.5" fill="#1C1A1F"/>
+      </svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13">
+        <rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke="#1C1A1F" stroke-opacity=".3"/>
+        <rect x="2"   y="2"   width="18" height="9"  rx="2"   fill="#1C1A1F"/>
+        <path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A1F" opacity=".35"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="logo-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5L2.5 4.7v6.6L8 14.5l5.5-3.2V4.7L8 1.5Z" stroke="white" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" fill="white"/>
+      </svg>
+    </div>
+    <span class="app-name">녹차</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <p class="eyebrow">로그인</p>
+    <h1 class="page-title">다시 만나서<br>반가워요</h1>
+    <p class="page-sub">계속하려면 로그인해 주세요</p>
+
+    <!-- 계정 잠김 배너 -->
+    <div class="locked-banner" id="locked-banner">
+      <p>🔒 로그인 5회 실패로 계정이 잠겼습니다.<br>고객센터 또는 비밀번호 재설정을 이용해 주세요.</p>
+    </div>
+
+    <!-- 아이디 -->
+    <div class="field-group">
+      <label class="field-label" for="inp-id">아이디</label>
+      <div class="field-wrap">
+        <span class="field-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <circle cx="7.5" cy="5.5" r="2.8" stroke="#ADA8B2" stroke-width="1.3"/>
+            <path d="M1.5 13.5c0-3 2.7-5 6-5s6 2 6 5" stroke="#ADA8B2" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input type="text" id="inp-id" placeholder="아이디를 입력하세요"
+          autocomplete="username" spellcheck="false"
+          oninput="onFieldInput()"/>
+      </div>
+    </div>
+
+    <!-- 비밀번호 -->
+    <div class="field-group">
+      <label class="field-label" for="inp-pw">비밀번호</label>
+      <div class="field-wrap">
+        <span class="field-icon">
+          <svg width="14" height="16" viewBox="0 0 14 16" fill="none">
+            <rect x="1" y="6.5" width="12" height="9" rx="2.5" stroke="#ADA8B2" stroke-width="1.3"/>
+            <path d="M4 6.5V5C4 3.3 5.3 2 7 2s3 1.3 3 3v1.5" stroke="#ADA8B2" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="7" cy="11" r="1.2" fill="#ADA8B2"/>
+          </svg>
+        </span>
+        <input type="password" id="inp-pw" placeholder="비밀번호를 입력하세요"
+          autocomplete="current-password"
+          oninput="onFieldInput()"/>
+        <button class="eye-btn" type="button" id="eye-toggle" aria-label="비밀번호 표시">
+          <svg id="eye-icon" width="17" height="13" viewBox="0 0 17 13" fill="none">
+            <path d="M1 6.5S3.8 1 8.5 1 16 6.5 16 6.5 13.2 12 8.5 12 1 6.5 1 6.5Z" stroke="#ADA8B2" stroke-width="1.3"/>
+            <circle cx="8.5" cy="6.5" r="2.2" stroke="#ADA8B2" stroke-width="1.3"/>
+          </svg>
+        </button>
+      </div>
+      <!-- 비밀번호 규격 안내 -->
+      <p class="pw-rule">영문, 숫자, 특수문자 포함 8자 이상</p>
+    </div>
+
+    <!-- 오류 메시지 -->
+    <div class="error-area">
+      <div class="error-msg" id="error-msg">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="#BF9696" stroke-width="1.3"/>
+          <path d="M7 4v3.5M7 9.5V9.6" stroke="#BF9696" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span class="error-msg-text">로그인 정보가 일치하지 않습니다.</span>
+        <span class="error-count" id="fail-count"></span>
+      </div>
+    </div>
+
+    <!-- 확인 버튼 -->
+    <button class="btn-confirm" id="btn-confirm" type="button" onclick="doLogin()">
+      확인
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- 비밀번호 찾기 | 회원가입 -->
+    <div class="links-row">
+      <a class="link-btn" href="reset_password.html">비밀번호를 잊으셨나요?</a>
+    </div>
+
+    <!-- 아직 회원이 아니세요? -->
+    <div class="signup-row">
+      <span>아직 회원이 아니세요?</span>
+      <div class="link-divider"></div>
+      <a class="link-btn accent" href="signup.html">회원가입</a>
+    </div>
+
+    <!-- 고객센터 -->
+    <div class="support-row">
+      <a class="support-link" href="mailto:support@nokcha.app?subject=고객센터%20문의&body=문의%20내용을%20입력해%20주세요.">
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+          <rect x="0.5" y="0.5" width="12" height="9" rx="2" stroke="#ADA8B2" stroke-width="1.1"/>
+          <path d="M1 1.5L6.5 6L12 1.5" stroke="#ADA8B2" stroke-width="1.1" stroke-linecap="round"/>
+        </svg>
+        고객센터 메일 문의
+      </a>
+    </div>
+
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  const inpId     = document.getElementById('inp-id');
+  const inpPw     = document.getElementById('inp-pw');
+  const btnConfirm = document.getElementById('btn-confirm');
+  const errorMsg  = document.getElementById('error-msg');
+  const failCount = document.getElementById('fail-count');
+  const eyeToggle = document.getElementById('eye-toggle');
+  const lockedBanner = document.getElementById('locked-banner');
+
+  /* 더미 계정 (테스트용) */
+  const VALID_ID = 'nokcha';
+  const VALID_PW = 'Test@1234';
+
+  let failNum = 0;
+  let isLocked = false;
+
+  /* ── 필드 입력 시 버튼 활성화 ── */
+  function onFieldInput() {
+    const hasId = inpId.value.trim().length > 0;
+    const hasPw = inpPw.value.length > 0;
+    if (hasId && hasPw && !isLocked) {
+      btnConfirm.classList.add('active');
+    } else {
+      btnConfirm.classList.remove('active');
+    }
+    /* 다시 입력 시작하면 오류 메시지 숨김 */
+    if (errorMsg.classList.contains('show')) {
+      errorMsg.classList.remove('show');
+      inpId.classList.remove('invalid');
+      inpPw.classList.remove('invalid');
+    }
+  }
+
+  /* ── 로그인 처리 ── */
+  function doLogin() {
+    if (!btnConfirm.classList.contains('active')) return;
+    if (isLocked) return;
+
+    const id = inpId.value.trim();
+    const pw = inpPw.value;
+
+    /* 성공 */
+    if (id === VALID_ID && pw === VALID_PW) {
+      btnConfirm.textContent = '로그인 중...';
+      btnConfirm.classList.remove('active');
+      setTimeout(() => {
+        /* 보안코드 화면으로 이동 (실제 구현 시 교체) */
+        alert('✅ 로그인 성공! 보안코드 인증 화면으로 이동합니다.');
+        /* window.location.href = 'security_code.html'; */
+        btnConfirm.innerHTML = '확인 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        btnConfirm.classList.add('active');
+      }, 900);
+      return;
+    }
+
+    /* 실패 */
+    failNum++;
+    inpPw.value = '';          /* 비밀번호 초기화 */
+    inpId.classList.add('invalid');
+    inpPw.classList.add('invalid');
+    btnConfirm.classList.remove('active');
+
+    if (failNum >= 5) {
+      /* 계정 잠김 */
+      isLocked = true;
+      errorMsg.classList.remove('show');
+      lockedBanner.classList.add('show');
+      inpId.disabled = true;
+      inpPw.disabled = true;
+      setTimeout(() => {
+        alert('로그인에 5번 실패하여 계정이 잠겼습니다. 계정 정보 확인창으로 이동합니다.');
+        /* window.location.href = 'account_locked.html'; */
+      }, 300);
+    } else {
+      /* 오류 메시지 표시 */
+      failCount.textContent = failNum + '/5';
+      errorMsg.classList.add('show');
+    }
+  }
+
+  /* ── 눈 아이콘 토글 ── */
+  let pwVisible = false;
+  eyeToggle.addEventListener('click', () => {
+    pwVisible = !pwVisible;
+    inpPw.type = pwVisible ? 'text' : 'password';
+    eyeToggle.style.opacity = pwVisible ? '0.85' : '0.5';
+  });
+
+  /* ── 엔터키 로그인 ── */
+  [inpId, inpPw].forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  });
+</script>
+</body>
+</html>

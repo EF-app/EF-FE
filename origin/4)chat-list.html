@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>녹차 – 채팅</title>
+<style>
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-dEb.woff2') format('woff2');font-weight:800}
+
+:root{
+  --bg:#F5F3F1;
+  --purple:#9686BF;
+  --purple-light:#EDE9F8;
+  --purple-mid:rgba(150,134,191,.18);
+  --purple-soft:rgba(150,134,191,.10);
+  --card:#fff;
+  --div:#EAE7E3;
+  --t1:#1C1A1F;--t2:#6B6670;--t3:#ADA8B2;
+  --green:#5BB98C;--amber:#C4885A;--red:#D4655A;
+  --sh:0 2px 16px rgba(150,134,191,.10);
+  --sh-pop:0 16px 56px rgba(100,80,160,.22),0 4px 16px rgba(150,134,191,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'NSN','Apple SD Gothic Neo',sans-serif;background:#DEDAD5}
+
+/* ── 폰 셸 ── */
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:36px 0 64px}
+.phone{
+  width:min(390px,100vw);
+  height:min(844px,calc(100dvh - 72px));
+  background:var(--bg);
+  border-radius:clamp(0px,50px,50px);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+@media(min-width:430px){.phone{box-shadow:0 40px 100px rgba(0,0,0,.24),0 0 0 10px #181818,0 0 0 11px #2C2C2C}}
+@media(max-width:429px){body{padding:0}.phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}}
+
+/* ── Status Bar ── */
+.status{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 4px;font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+.status-r{display:flex;align-items:center;gap:5px}
+.di{width:120px;height:32px;background:#0D0D0D;border-radius:18px;margin:4px auto 0;flex-shrink:0}
+
+/* ── Top Bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 8px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;border-radius:10px;background:var(--purple);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(150,134,191,.35)}
+.logo-txt{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.topbar-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);transition:all .16s;flex-shrink:0}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn svg{width:16px;height:16px;fill:none;stroke:var(--t2);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── 탭 ── */
+.tabs{display:flex;gap:0;padding:0 18px 0;flex-shrink:0}
+.tab{
+  flex:1;padding:10px 0 9px;
+  font-size:13px;font-weight:700;color:var(--t3);
+  border:none;background:transparent;cursor:pointer;
+  border-bottom:2.5px solid transparent;
+  transition:color .18s,border-color .18s;
+  letter-spacing:-.01em;
+}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:800}
+
+/* ── 채팅 목록 스크롤 영역 ── */
+.chat-list{flex:1;overflow-y:auto;-ms-overflow-style:none;scrollbar-width:none;padding:6px 0 20px}
+.chat-list::-webkit-scrollbar{display:none}
+
+/* ── 검색바 ── */
+.search-wrap{padding:8px 16px 4px;flex-shrink:0}
+.search-bar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card);
+  border-radius:14px;padding:9px 14px;
+  box-shadow:var(--sh);
+}
+.search-bar svg{width:15px;height:15px;flex-shrink:0;stroke:var(--t3);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.search-bar input{border:none;background:transparent;flex:1;font-family:inherit;font-size:13px;font-weight:400;color:var(--t1);outline:none}
+.search-bar input::placeholder{color:var(--t3)}
+
+/* ── 채팅 아이템 ── */
+.chat-item{
+  display:flex;align-items:center;
+  padding:13px 16px 13px 18px;
+  gap:12px;
+  position:relative;
+  transition:background .14s;
+  cursor:pointer;
+}
+.chat-item:active{background:var(--purple-soft)}
+
+/* 아바타 */
+.avatar{
+  width:52px;height:52px;
+  border-radius:50%;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  position:relative;
+}
+.online-dot{
+  position:absolute;bottom:1px;right:1px;
+  width:12px;height:12px;
+  border-radius:50%;background:var(--green);
+  border:2px solid var(--bg);
+}
+
+/* 텍스트 영역 */
+.chat-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.chat-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.chat-name{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-time{font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0}
+.chat-bottom{display:flex;align-items:center;gap:6px}
+.chat-preview{font-size:12.5px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.chat-preview.mine{color:var(--t3)}
+
+/* 뱃지 */
+.badge{
+  flex-shrink:0;
+  min-width:20px;height:20px;
+  border-radius:10px;padding:0 5px;
+  background:var(--purple);
+  font-size:11px;font-weight:800;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+
+/* 메모 버튼 */
+.memo-btn{
+  flex-shrink:0;margin-left:4px;
+  width:32px;height:32px;border-radius:10px;
+  border:none;background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:background .14s,transform .12s;
+  position:relative;
+}
+.memo-btn:active{transform:scale(.88)}
+.memo-btn svg{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .14s}
+.memo-btn.has-memo svg{stroke:var(--purple)}
+.memo-btn.has-memo{background:var(--purple-soft)}
+/* 메모 있을 때 작은 점 */
+.memo-dot{
+  position:absolute;top:4px;right:4px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--purple);
+  display:none;
+}
+.memo-btn.has-memo .memo-dot{display:block}
+
+/* 구분선 */
+.divider{height:1px;background:var(--div);margin:0 18px}
+
+/* 섹션 헤더 */
+.section-header{
+  padding:14px 18px 6px;
+  font-size:11px;font-weight:800;color:var(--t3);
+  letter-spacing:.04em;text-transform:uppercase;
+}
+
+/* ── 메모 모달 오버레이 ── */
+.memo-overlay{
+  position:absolute;inset:0;z-index:200;
+  background:rgba(20,16,36,.42);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .24s;
+}
+.memo-overlay.open{opacity:1;pointer-events:all}
+
+.memo-sheet{
+  width:100%;
+  background:var(--card);
+  border-radius:26px 26px 0 0;
+  padding:0 0 24px;
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;
+  max-height:70%;
+}
+.memo-overlay.open .memo-sheet{transform:translateY(0)}
+
+.memo-handle{width:36px;height:4px;background:var(--div);border-radius:2px;margin:14px auto 0;flex-shrink:0}
+
+.memo-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px 10px;flex-shrink:0;
+}
+.memo-header-left{display:flex;align-items:center;gap:10px}
+.memo-av{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.memo-target-name{font-size:14px;font-weight:800;color:var(--t1);letter-spacing:-.02em}
+.memo-target-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.memo-close{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--div);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:var(--t2);flex-shrink:0;
+  transition:background .14s;
+}
+.memo-close:active{background:#D4D0CC}
+
+/* 구분선 */
+.memo-divider{height:1px;background:var(--div);margin:0 20px;flex-shrink:0}
+
+/* 메모 텍스트 영역 */
+.memo-body{flex:1;overflow-y:auto;padding:14px 20px;-ms-overflow-style:none;scrollbar-width:none}
+.memo-body::-webkit-scrollbar{display:none}
+
+.memo-label{
+  font-size:11px;font-weight:800;color:var(--purple);
+  letter-spacing:.03em;text-transform:uppercase;
+  margin-bottom:8px;display:flex;align-items:center;gap:5px;
+}
+.memo-label svg{width:12px;height:12px;stroke:var(--purple);fill:none;stroke-width:2.5;stroke-linecap:round}
+
+.memo-textarea{
+  width:100%;min-height:110px;
+  background:var(--purple-light);
+  border:1.5px solid transparent;
+  border-radius:16px;
+  padding:14px 16px;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:13.5px;font-weight:400;
+  color:var(--t1);line-height:1.7;
+  resize:none;outline:none;
+  transition:border-color .18s,background .18s;
+}
+.memo-textarea:focus{border-color:var(--purple);background:#EAE4F5}
+.memo-textarea::placeholder{color:var(--t3)}
+
+/* 메모 날짜 */
+.memo-date{font-size:11px;color:var(--t3);text-align:right;margin-top:6px;min-height:16px}
+
+/* 저장 버튼 */
+.memo-actions{display:flex;gap:8px;padding:12px 20px 0;flex-shrink:0}
+.memo-cancel{
+  flex:1;height:46px;border-radius:14px;
+  border:1.5px solid var(--div);background:transparent;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:14px;font-weight:700;color:var(--t2);cursor:pointer;
+  transition:background .14s;
+}
+.memo-cancel:active{background:var(--div)}
+.memo-save{
+  flex:2;height:46px;border-radius:14px;
+  border:none;background:linear-gradient(135deg,var(--purple),#C4B5E8);
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:14px;font-weight:800;color:#fff;cursor:pointer;
+  box-shadow:0 4px 16px rgba(150,134,191,.36);
+  transition:all .14s;
+}
+.memo-save:active{transform:scale(.97);box-shadow:0 2px 8px rgba(150,134,191,.22)}
+
+/* 저장 완료 토스트 */
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(10px)}}
+.toast{
+  position:absolute;bottom:110px;left:50%;
+  transform:translateX(-50%);
+  background:rgba(28,26,31,.88);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-radius:20px;padding:10px 18px;
+  font-size:13px;font-weight:700;color:#fff;
+  white-space:nowrap;pointer-events:none;opacity:0;z-index:300;
+}
+.toast.show{animation:toastIn .26s cubic-bezier(.22,1,.36,1) forwards}
+.toast.hide{animation:toastOut .22s ease forwards}
+
+/* 빈 상태 */
+.empty-chat{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 30px;text-align:center;gap:12px;
+}
+.empty-chat-emoji{font-size:48px}
+.empty-chat-title{font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
+.empty-chat-sub{font-size:13px;color:var(--t3);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status -->
+  <div class="status">
+    <span>9:41</span>
+    <div class="di" style="position:absolute;left:50%;transform:translateX(-50%);top:10px"></div>
+    <div class="status-r">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--t1)"><rect x="0" y="8" width="2.5" height="8" rx="1"/><rect x="4.5" y="5.5" width="2.5" height="10.5" rx="1"/><rect x="9" y="3" width="2.5" height="13" rx="1"/><rect x="13.5" y="0" width="2.5" height="16" rx="1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t1)" stroke-width="1.4"><path d="M1 5.5a9.5 9.5 0 0 1 14 0"/><path d="M3.5 8a6.5 6.5 0 0 1 9 0"/><path d="M6 10.5a3.5 3.5 0 0 1 4 0"/><circle cx="8" cy="13" r="1" fill="var(--t1)" stroke="none"/></svg>
+      <svg width="20" height="11" viewBox="0 0 22 12" fill="none" stroke="var(--t1)" stroke-width="1.2"><rect x=".6" y=".6" width="17.8" height="10.8" rx="2.4"/><rect x="1.8" y="1.8" width="13" height="8.4" rx="1.5" fill="var(--t1)" stroke="none"/><path d="M19.5 4v4" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div class="logo-txt">녹<span style="color:var(--purple)">차</span></div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" title="필터">
+        <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 검색 -->
+  <div class="search-wrap">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      <input type="text" placeholder="이름 또는 메시지 검색" id="searchInput" oninput="filterChats()">
+    </div>
+  </div>
+
+  <!-- 탭 -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'all')">전체</button>
+    <button class="tab" onclick="switchTab(this,'unread')">안읽음</button>
+    <button class="tab" onclick="switchTab(this,'liked')">좋아요 💜</button>
+  </div>
+
+  <!-- 채팅 목록 -->
+  <div class="chat-list" id="chatList"></div>
+
+  <!-- 메모 모달 -->
+  <div class="memo-overlay" id="memoOverlay" onclick="closeMemoOutside(event)">
+    <div class="memo-sheet">
+      <div class="memo-handle"></div>
+      <div class="memo-header">
+        <div class="memo-header-left">
+          <div class="memo-av" id="memoAv">🌸</div>
+          <div>
+            <div class="memo-target-name" id="memoTargetName">지수</div>
+            <div class="memo-target-sub">나만 보이는 메모</div>
+          </div>
+        </div>
+        <button class="memo-close" onclick="closeMemo()">✕</button>
+      </div>
+      <div class="memo-divider"></div>
+      <div class="memo-body">
+        <div class="memo-label">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          메모
+        </div>
+        <textarea class="memo-textarea" id="memoText" placeholder="이 분에 대해 기억하고 싶은 것을 적어두세요 💜&#10;예) 취미, 대화 소재, 느낀 점 등" rows="5"></textarea>
+        <div class="memo-date" id="memoDate"></div>
+      </div>
+      <div class="memo-actions">
+        <button class="memo-cancel" onclick="closeMemo()">취소</button>
+        <button class="memo-save" onclick="saveMemo()">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+/* ── 채팅 데이터 ── */
+const CHATS = [
+  { id:1,  name:'지수',  emoji:'🌸', grad:'linear-gradient(145deg,#C5BAE0,#9686BF)', time:'방금',   unread:3,  liked:true,  online:true,  preview:'오늘 홍대 어때요? 같이 가요!', mine:false },
+  { id:2,  name:'준서',  emoji:'🦁', grad:'linear-gradient(145deg,#F0E0C0,#D4A060)', time:'2분 전', unread:0,  liked:true,  online:true,  preview:'맞아요 저도 러닝 좋아해요 😊', mine:false },
+  { id:3,  name:'아린',  emoji:'🌌', grad:'linear-gradient(145deg,#B8C8F0,#6B87D4)', time:'14분 전',unread:1,  liked:true,  online:false, preview:'그 전시 같이 가실래요?', mine:false },
+  { id:4,  name:'하준',  emoji:'🌿', grad:'linear-gradient(145deg,#A8D5BA,#5BB98C)', time:'1시간',  unread:0,  liked:false, online:false, preview:'네 알겠어요~', mine:true },
+  { id:5,  name:'나연',  emoji:'🛡️', grad:'linear-gradient(145deg,#E8D8F0,#B090D0)', time:'어제',   unread:7,  liked:false, online:false, preview:'뜨개질 배워보고 싶어요!', mine:false },
+  { id:6,  name:'태양',  emoji:'🦅', grad:'linear-gradient(145deg,#3A4A6A,#6A9ACA)', time:'어제',   unread:0,  liked:true,  online:true,  preview:'독특한 취향이신가봐요 ㅎㅎ', mine:true },
+  { id:7,  name:'소연',  emoji:'🌺', grad:'linear-gradient(145deg,#F0D5C0,#C4885A)', time:'2일 전', unread:0,  liked:false, online:false, preview:'캠핑 일정 잡았어요!', mine:false },
+  { id:8,  name:'채원',  emoji:'🦋', grad:'linear-gradient(145deg,#F0D0E8,#C870A8)', time:'3일 전', unread:0,  liked:false, online:false, preview:'춤 같이 배워봐요 💃', mine:false },
+  { id:9,  name:'유나',  emoji:'🌟', grad:'linear-gradient(145deg,#F8F0B8,#D4C040)', time:'3일 전', unread:0,  liked:false, online:true,  preview:'페스티벌 같이 가요!!', mine:false },
+  { id:10, name:'민준',  emoji:'⚡', grad:'linear-gradient(145deg,#B8D4F0,#6499D4)', time:'4일 전', unread:0,  liked:false, online:false, preview:'ㅎㅎ 나중에 얘기해요', mine:true },
+];
+
+/* 메모 저장소 */
+const memos = {}; // {id: {text, date}}
+let currentMemoId = null;
+let currentTab = 'all';
+let searchQuery = '';
+
+/* ── 렌더 ── */
+function getFilteredChats() {
+  let list = [...CHATS];
+  if (currentTab === 'unread') list = list.filter(c => c.unread > 0);
+  if (currentTab === 'liked')  list = list.filter(c => c.liked);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(c => c.name.includes(q) || c.preview.toLowerCase().includes(q));
+  }
+  return list;
+}
+
+function renderList() {
+  const container = document.getElementById('chatList');
+  const list = getFilteredChats();
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="empty-chat">
+        <div class="empty-chat-emoji">💌</div>
+        <div class="empty-chat-title">채팅이 없어요</div>
+        <div class="empty-chat-sub">매칭 화면에서 마음에 드는<br>분께 메시지를 보내보세요!</div>
+      </div>`;
+    return;
+  }
+
+  // 오늘 / 이전 섹션 분리
+  const todayChats = list.filter(c => ['방금','2분 전','14분 전','1시간'].includes(c.time));
+  const prevChats  = list.filter(c => !todayChats.includes(c));
+
+  let html = '';
+
+  if (todayChats.length) {
+    if (prevChats.length) html += `<div class="section-header">오늘</div>`;
+    todayChats.forEach((c, i) => {
+      html += buildItem(c);
+      if (i < todayChats.length - 1) html += `<div class="divider"></div>`;
+    });
+  }
+  if (prevChats.length) {
+    html += `<div class="section-header" style="margin-top:8px">이전</div>`;
+    prevChats.forEach((c, i) => {
+      html += buildItem(c);
+      if (i < prevChats.length - 1) html += `<div class="divider"></div>`;
+    });
+  }
+
+  container.innerHTML = html;
+}
+
+function buildItem(c) {
+  const hasMemo = !!(memos[c.id] && memos[c.id].text.trim());
+  const unreadBadge = c.unread > 0
+    ? `<div class="badge">${c.unread > 99 ? '99+' : c.unread}</div>` : '';
+  const onlineDot = c.online ? `<div class="online-dot"></div>` : '';
+  const previewCls = c.mine ? 'chat-preview mine' : 'chat-preview';
+  const memoHasCls = hasMemo ? 'has-memo' : '';
+
+  return `
+  <div class="chat-item" onclick="openChatRoom(${c.id})">
+    <div class="avatar" style="background:${c.grad}">
+      ${c.emoji}
+      ${onlineDot}
+    </div>
+    <div class="chat-info">
+      <div class="chat-top">
+        <div class="chat-name">${c.name}</div>
+        <div class="chat-time">${c.time}</div>
+      </div>
+      <div class="chat-bottom">
+        <div class="${previewCls}">${c.mine ? '나: ' : ''}${c.preview}</div>
+        ${unreadBadge}
+      </div>
+    </div>
+    <button class="memo-btn ${memoHasCls}" onclick="openMemo(event,${c.id})" title="메모">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <div class="memo-dot"></div>
+    </button>
+  </div>`;
+}
+
+/* ── 탭 전환 ── */
+function switchTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  renderList();
+}
+
+/* ── 검색 ── */
+function filterChats() {
+  searchQuery = document.getElementById('searchInput').value;
+  renderList();
+}
+
+/* ── 메모 모달 ── */
+function openMemo(e, id) {
+  e.stopPropagation();
+  const chat = CHATS.find(c => c.id === id);
+  currentMemoId = id;
+
+  const av = document.getElementById('memoAv');
+  av.textContent = chat.emoji;
+  av.style.background = chat.grad;
+  document.getElementById('memoTargetName').textContent = chat.name;
+
+  const saved = memos[id];
+  const textarea = document.getElementById('memoText');
+  textarea.value = saved ? saved.text : '';
+  document.getElementById('memoDate').textContent = saved
+    ? `마지막 수정: ${saved.date}` : '';
+
+  document.getElementById('memoOverlay').classList.add('open');
+  setTimeout(() => textarea.focus(), 360);
+}
+
+function closeMemo() {
+  document.getElementById('memoOverlay').classList.remove('open');
+  currentMemoId = null;
+}
+function closeMemoOutside(e) {
+  if (e.target === document.getElementById('memoOverlay')) closeMemo();
+}
+
+function saveMemo() {
+  if (currentMemoId === null) return;
+  const text = document.getElementById('memoText').value.trim();
+  const now = new Date();
+  const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  if (text) {
+    memos[currentMemoId] = { text, date: dateStr };
+    document.getElementById('memoDate').textContent = `마지막 수정: ${dateStr}`;
+  } else {
+    delete memos[currentMemoId];
+  }
+
+  closeMemo();
+  renderList();
+  showToast(text ? '💜 메모가 저장됐어요' : '메모가 삭제됐어요');
+}
+
+/* ── 토스트 ── */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  el.textContent = msg;
+  el.classList.remove('hide'); el.classList.add('show');
+  toastTimer = setTimeout(() => {
+    el.classList.remove('show'); el.classList.add('hide');
+    setTimeout(() => el.classList.remove('hide'), 300);
+  }, 2200);
+}
+
+/* ── 채팅방 (더미) ── */
+function openChatRoom(id) {
+  const chat = CHATS.find(c => c.id === id);
+  // 안읽음 초기화
+  chat.unread = 0;
+  renderList();
+}
+
+/* ── 초기 렌더 ── */
+renderList();
+</script>
+</body>
+</html>

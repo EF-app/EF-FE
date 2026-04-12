@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo:*)",
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(npx tsc:*)",
+      "Bash(awk -F: '{print NR\": \"$0}')",
+      "Bash(awk 'NR>1{if\\(prev+1==$1\\){print prev_line; print $0}} {prev=NR; prev_line=$0}')",
+      "Bash(node:*)"
+    ]
+  }
+}

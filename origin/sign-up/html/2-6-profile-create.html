@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>녹차 – 프로필 만들기</title>
+<style>
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-dEb.woff2') format('woff2');font-weight:800}
+
+:root{
+  --bg:#F5F3F1;--purple:#9686BF;--pl:rgba(150,134,191,.10);--pm:rgba(150,134,191,.22);
+  --card:#fff;--div:#EAE7E3;
+  --t1:#1C1A1F;--t2:#6B6670;--t3:#ADA8B2;
+  --green:#5BB98C;--gl:rgba(91,185,140,.10);
+  --amber:#C4885A;--al:rgba(196,136,90,.10);
+  --red:#D4655A;
+  --sh:0 2px 14px rgba(150,134,191,.08);--shm:0 6px 28px rgba(150,134,191,.14);
+  --r:18px;--rsm:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{font-family:'NSN','Apple SD Gothic Neo',sans-serif;background:#DEDAD5;
+  min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:36px 0 64px}
+
+/* ── Phone Shell ── */
+.phone{width:390px;min-height:844px;background:var(--bg);border-radius:50px;overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.24),0 0 0 10px #181818,0 0 0 11px #2C2C2C;
+  display:flex;flex-direction:column;position:relative}
+
+/* ── Status ── */
+.status{display:flex;justify-content:space-between;align-items:center;
+  padding:14px 28px 4px;font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+.status-r{display:flex;align-items:center;gap:5px}
+.di{width:126px;height:34px;background:#0D0D0D;border-radius:20px;margin:4px auto 0;flex-shrink:0}
+
+/* ── Steps ── */
+.steps-wrap{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.step{position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transform:translateX(44px);
+  transition:opacity .32s ease,transform .32s cubic-bezier(.4,0,.2,1)}
+.step.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.step.out{opacity:0;transform:translateX(-44px)}
+
+/* ── Top Bar ── */
+.top-bar{display:flex;align-items:center;gap:10px;padding:12px 20px 8px;flex-shrink:0}
+.back-btn{width:34px;height:34px;border-radius:10px;background:var(--card);
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);
+  cursor:pointer;flex-shrink:0;transition:transform .15s}
+.back-btn:active{transform:scale(.92)}
+.back-btn svg{width:16px;height:16px;fill:none;stroke:var(--t2);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.prog-wrap{flex:1}
+.prog-label{font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px;letter-spacing:.04em}
+.prog-track{height:4px;border-radius:2px;background:var(--div);overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),#BDB0DE);
+  transition:width .6s cubic-bezier(.22,1,.36,1)}
+.step-badge{font-size:11px;font-weight:800;color:var(--purple);flex-shrink:0}
+
+/* ── Scroll ── */
+.scroll{flex:1;overflow-y:auto;padding-bottom:16px;
+  -ms-overflow-style:none;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.sc{padding:0 18px}
+
+/* ── Step Header ── */
+.s-emoji{font-size:28px;margin-bottom:8px;display:block}
+.s-title{font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.04em;line-height:1.25;margin-bottom:5px}
+.s-sub{font-size:12.5px;font-weight:400;color:var(--t3);line-height:1.6;margin-bottom:20px;word-break:keep-all}
+
+/* ── Section Label ── */
+.slbl{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+  color:var(--t3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:9px;margin-top:2px}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--purple);flex-shrink:0}
+
+/* ── Pills (multi-select) ── */
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.pill{padding:7px 13px;border-radius:20px;border:1.5px solid var(--div);background:var(--card);
+  font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .16s;
+  user-select:none;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.pill:active{transform:scale(.94)}
+.pill.on{border-color:var(--purple);background:var(--pl);color:var(--purple)}
+
+/* ── Accordion ── */
+.acc{margin-bottom:6px}
+.acc-head{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;background:var(--card);border-radius:var(--rsm);
+  border:1.5px solid var(--div);cursor:pointer;transition:all .18s;user-select:none}
+.acc-head.open{border-color:var(--purple);background:var(--pl);border-radius:var(--rsm) var(--rsm) 0 0}
+.acc-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--t1)}
+.acc-title span{font-size:16px}
+.acc-head.open .acc-title{color:var(--purple)}
+.acc-chevron{width:16px;height:16px;fill:none;stroke:var(--t3);stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+.acc-head.open .acc-chevron{transform:rotate(180deg);stroke:var(--purple)}
+.acc-body{background:var(--card);border:1.5px solid var(--purple);border-top:none;
+  border-radius:0 0 var(--rsm) var(--rsm);padding:12px 14px 14px;display:none}
+.acc-body.open{display:block}
+
+/* ── Custom tag input ── */
+.tag-input-row{display:flex;gap:8px;margin-bottom:10px}
+.tag-input{flex:1;padding:10px 14px;border-radius:var(--rsm);border:1.5px solid var(--div);
+  background:var(--card);font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:13px;font-weight:400;color:var(--t1);outline:none;transition:border-color .2s}
+.tag-input:focus{border-color:var(--purple)}
+.tag-input::placeholder{color:var(--t3)}
+.tag-add-btn{padding:10px 16px;border-radius:var(--rsm);background:var(--purple);
+  border:none;font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:13px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;
+  box-shadow:0 4px 12px rgba(150,134,191,.3);transition:all .16s}
+.tag-add-btn:active{transform:scale(.95)}
+.custom-tags{display:flex;flex-wrap:wrap;gap:7px;min-height:0}
+.custom-tag{display:flex;align-items:center;gap:5px;padding:6px 10px 6px 13px;
+  border-radius:20px;background:var(--purple);color:#fff;font-size:12px;font-weight:700}
+.custom-tag-x{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;line-height:1}
+
+/* ── Separator ── */
+.sep{height:1px;background:var(--div);margin:16px 0}
+
+/* ── Single-select rows ── */
+.sel-row{display:flex;flex-direction:column;gap:4px;margin-bottom:2px}
+.sel-item{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 15px;border-radius:var(--rsm);border:1.5px solid var(--div);
+  background:var(--card);cursor:pointer;transition:all .16s;user-select:none}
+.sel-item:active{transform:scale(.99)}
+.sel-item.on{border-color:var(--purple);background:var(--pl)}
+.sel-item-txt{font-size:13.5px;font-weight:700;color:var(--t1)}
+.sel-item.on .sel-item-txt{color:var(--purple)}
+.sel-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--div);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .16s}
+.sel-item.on .sel-check{background:var(--purple);border-color:var(--purple)}
+.sel-check svg{width:10px;height:10px;stroke:#fff;stroke-width:2.5;fill:none;
+  opacity:0;transition:opacity .12s}
+.sel-item.on .sel-check svg{opacity:1}
+
+/* ── H-scroll chips ── */
+.h-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;margin-bottom:2px;
+  -ms-overflow-style:none;scrollbar-width:none}
+.h-chips::-webkit-scrollbar{display:none}
+.h-chip{flex-shrink:0;padding:9px 16px;border-radius:20px;border:1.5px solid var(--div);
+  background:var(--card);font-size:13px;font-weight:700;color:var(--t2);
+  cursor:pointer;transition:all .16s;white-space:nowrap;user-select:none}
+.h-chip.on{border-color:var(--purple);background:var(--pl);color:var(--purple)}
+
+/* ── Toggle section (show/hide) ── */
+.toggle-sec{overflow:hidden;transition:max-height .3s ease,opacity .3s ease;max-height:0;opacity:0}
+.toggle-sec.show{max-height:400px;opacity:1}
+
+/* ── MBTI Drum ── */
+.mbti-wrap{display:flex;gap:8px;margin-bottom:4px}
+.mbti-drum{flex:1;position:relative;height:120px;overflow:hidden;border-radius:14px;
+  background:var(--card);border:1.5px solid var(--div);cursor:ns-resize}
+.mbti-drum.sel{border-color:var(--purple);background:var(--pl)}
+.drum-fade-top{position:absolute;top:0;left:0;right:0;height:36px;
+  background:linear-gradient(to bottom,rgba(255,255,255,1),transparent);z-index:2;pointer-events:none}
+.mbti-drum.sel .drum-fade-top{background:linear-gradient(to bottom,rgba(240,237,248,1),transparent)}
+.drum-fade-bot{position:absolute;bottom:0;left:0;right:0;height:36px;
+  background:linear-gradient(to top,rgba(255,255,255,1),transparent);z-index:2;pointer-events:none}
+.mbti-drum.sel .drum-fade-bot{background:linear-gradient(to top,rgba(240,237,248,1),transparent)}
+.drum-line{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  height:40px;pointer-events:none;z-index:1}
+.drum-line::before,.drum-line::after{content:'';position:absolute;left:8px;right:8px;height:1.5px;background:var(--purple);opacity:.25}
+.drum-line::before{top:0}.drum-line::after{bottom:0}
+.drum-list{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:40px 0;transition:transform .18s ease}
+.drum-item{height:40px;display:flex;align-items:center;justify-content:center;width:100%;
+  font-size:22px;font-weight:800;color:var(--t3);letter-spacing:-.02em;transition:all .18s;flex-shrink:0}
+.drum-item.active{color:var(--purple);font-size:25px}
+.mbti-drum.unset .drum-item.active{color:var(--t3);font-size:22px}
+.mbti-result{margin-top:10px;background:var(--card);border-radius:14px;
+  padding:13px 16px;border:1.5px solid var(--div);
+  display:flex;align-items:center;justify-content:space-between}
+.mbti-type{font-size:24px;font-weight:800;color:var(--t3);letter-spacing:-.02em}
+.mbti-type.set{color:var(--purple)}
+.mbti-name{font-size:12px;font-weight:400;color:var(--t3)}
+
+/* ── Photo grid ── */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.photo-slot{aspect-ratio:3/4;border-radius:var(--rsm);background:var(--card);
+  border:2px dashed var(--div);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  transition:all .18s;position:relative;overflow:hidden}
+.photo-slot.main-slot{border-color:var(--purple);background:var(--pl)}
+.photo-slot.filled{border-style:solid;border-color:transparent}
+.photo-slot svg{width:20px;height:20px;stroke:var(--t3);fill:none;stroke-width:1.5;margin-bottom:5px}
+.photo-slot.main-slot svg{stroke:var(--purple)}
+.photo-lbl{font-size:11px;font-weight:700;color:var(--t3)}
+.photo-slot.main-slot .photo-lbl{color:var(--purple)}
+.photo-mock{width:100%;height:100%;background:linear-gradient(140deg,#C5BAE0,#9686BF);
+  display:flex;align-items:center;justify-content:center;font-size:30px}
+.photo-badge{position:absolute;top:7px;left:7px;background:var(--purple);
+  color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.02em}
+
+/* ── Textarea ── */
+.bio-wrap{position:relative;margin-bottom:4px}
+.bio-ta{width:100%;min-height:130px;padding:14px;border-radius:var(--r);
+  border:1.5px solid var(--div);background:var(--card);
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:13.5px;font-weight:400;color:var(--t1);resize:none;outline:none;
+  line-height:1.7;transition:border-color .2s}
+.bio-ta:focus{border-color:var(--purple)}
+.bio-ta::placeholder{color:var(--t3)}
+.bio-cnt{text-align:right;font-size:11px;color:var(--t3);font-weight:700;margin-top:5px}
+
+/* ── Info card ── */
+.info-card{background:var(--card);border-radius:var(--rsm);padding:12px 14px;
+  margin-bottom:14px;box-shadow:var(--sh)}
+.info-card-row{display:flex;align-items:flex-start;gap:8px}
+.info-card-txt{font-size:12px;font-weight:400;color:var(--t2);line-height:1.65}
+
+/* ── Bottom ── */
+.bottom{padding:12px 18px 28px;flex-shrink:0;background:var(--bg)}
+.cta{width:100%;padding:16px;border-radius:16px;background:var(--purple);border:none;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:15px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:-.02em;
+  box-shadow:0 8px 22px rgba(150,134,191,.32);transition:all .16s;
+  display:flex;align-items:center;justify-content:center;gap:7px}
+.cta:disabled{background:var(--t3);box-shadow:none;cursor:not-allowed;opacity:.7}
+.cta:not(:disabled):active{transform:scale(.98)}
+.cta svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.skip{text-align:center;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--t3);cursor:pointer;line-height:1.5}
+
+/* ── Complete ── */
+.complete-wrap{display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:44px 20px 24px}
+.comp-ring{width:88px;height:88px;border-radius:50%;background:var(--purple);
+  display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  box-shadow:0 12px 32px rgba(150,134,191,.38)}
+.comp-ring svg{width:40px;height:40px;stroke:#fff;fill:none;stroke-width:2.5}
+.comp-title{font-size:24px;font-weight:800;color:var(--t1);letter-spacing:-.04em;margin-bottom:10px;line-height:1.25}
+.comp-title span{color:var(--purple)}
+.comp-desc{font-size:13.5px;font-weight:400;color:var(--t2);line-height:1.7;word-break:keep-all;max-width:270px}
+.comp-card{width:100%;margin-top:24px;background:var(--card);border-radius:var(--r);
+  padding:16px;box-shadow:var(--sh);display:flex;gap:14px;align-items:center}
+.comp-av{width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--purple),#C4B8E8);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+.comp-info{}
+.comp-name{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
+.comp-meta{font-size:11.5px;font-weight:400;color:var(--t3);margin-top:2px}
+.comp-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.comp-chip{padding:3px 9px;border-radius:20px;background:var(--pl);
+  border:1px solid var(--pm);font-size:11px;font-weight:700;color:var(--purple)}
+.comp-bar-card{width:100%;margin-top:12px;background:var(--card);border-radius:var(--r);
+  padding:15px 16px;box-shadow:var(--sh)}
+
+/* ── Anim ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.step.active .sc>*{animation:fadeUp .38s ease both}
+.step.active .sc>*:nth-child(1){animation-delay:.04s}
+.step.active .sc>*:nth-child(2){animation-delay:.08s}
+.step.active .sc>*:nth-child(3){animation-delay:.12s}
+.step.active .sc>*:nth-child(4){animation-delay:.16s}
+.step.active .sc>*:nth-child(5){animation-delay:.20s}
+.step.active .sc>*:nth-child(6){animation-delay:.24s}
+.step.active .sc>*:nth-child(7){animation-delay:.28s}
+.step.active .sc>*:nth-child(8){animation-delay:.32s}
+.step.active .sc>*:nth-child(9){animation-delay:.36s}
+.step.active .sc>*:nth-child(10){animation-delay:.40s}
+.step.active .sc>*:nth-child(11){animation-delay:.44s}
+
+/* ── Checkbox style multi-row ── */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px}
+.check-item{display:flex;align-items:center;gap:8px;padding:10px 12px;
+  border-radius:var(--rsm);border:1.5px solid var(--div);background:var(--card);
+  cursor:pointer;transition:all .16s;user-select:none}
+.check-item.on{border-color:var(--purple);background:var(--pl)}
+.check-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--div);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .16s}
+.check-item.on .check-box{background:var(--purple);border-color:var(--purple)}
+.check-box svg{width:10px;height:10px;stroke:#fff;stroke-width:2.5;fill:none;opacity:0;transition:opacity .12s}
+.check-item.on .check-box svg{opacity:1}
+.check-txt{font-size:12.5px;font-weight:700;color:var(--t1)}
+.check-item.on .check-txt{color:var(--purple)}
+
+/* ── Toggle section (lightweight) ── */
+.tog-head{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;border-radius:var(--rsm);background:var(--card);
+  border:1.5px solid var(--div);cursor:pointer;transition:all .18s;user-select:none}
+.tog-head.open{border-color:var(--purple);background:var(--pl)}
+.tog-head.open span{color:var(--purple)!important}
+.tog-head.open .tog-arrow{stroke:var(--purple)!important;transform:rotate(180deg)}
+.tog-arrow{transition:transform .22s ease;flex-shrink:0}
+.tog-body{overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .25s ease}
+.tog-body.open{max-height:600px;opacity:1}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status -->
+  <div class="status">
+    <span>9:41</span>
+    <div class="di" style="position:absolute;left:50%;transform:translateX(-50%);top:10px;"></div>
+    <div class="status-r">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--t1)"><rect x="0" y="8" width="2.5" height="8" rx="1"/><rect x="4.5" y="5.5" width="2.5" height="10.5" rx="1"/><rect x="9" y="3" width="2.5" height="13" rx="1"/><rect x="13.5" y="0" width="2.5" height="16" rx="1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t1)" stroke-width="1.4"><path d="M1 5.5a9.5 9.5 0 0 1 14 0"/><path d="M3.5 8a6.5 6.5 0 0 1 9 0"/><path d="M6 10.5a3.5 3.5 0 0 1 4 0"/><circle cx="8" cy="13" r="1" fill="var(--t1)" stroke="none"/></svg>
+      <svg width="20" height="11" viewBox="0 0 22 12" fill="none" stroke="var(--t1)" stroke-width="1.2"><rect x=".6" y=".6" width="17.8" height="10.8" rx="2.4"/><rect x="1.8" y="1.8" width="13" height="8.4" rx="1.5" fill="var(--t1)" stroke="none"/><path d="M19.5 4v4" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <div class="steps-wrap">
+
+  <!-- ════════════════ STEP 0: 웰컴 ════════════════ -->
+  <div class="step active" id="s0">
+    <div class="scroll">
+      <div style="padding:0 20px 24px">
+        <!-- 로고 -->
+        <div style="display:flex;align-items:center;gap:10px;padding:18px 0 32px">
+          <div style="width:42px;height:42px;border-radius:14px;background:var(--purple);
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 6px 18px rgba(150,134,191,.35)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14l-4-4 1.41-1.41L11 13.17l6.59-6.59L19 8l-8 8z"/></svg>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.04em">녹<span style="color:var(--purple)">차</span></div>
+        </div>
+
+        <!-- 타이틀 -->
+        <div style="font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-.05em;line-height:1.22;margin-bottom:14px">
+          나만의 프로필을<br><span style="color:var(--purple)">만들어볼까요?</span> 🌿
+        </div>
+        <div style="font-size:13.5px;font-weight:400;color:var(--t2);line-height:1.75;margin-bottom:32px;word-break:keep-all">
+          몇 가지 질문에 답하면<br>꼭 맞는 사람을 매칭해드려요.<br>솔직할수록 좋은 만남이 생겨요!
+        </div>
+
+        <!-- 스텝 카드 목록 -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:14px;padding:15px 16px;background:var(--card);border-radius:16px;box-shadow:var(--sh)">
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--pl);border:1.5px solid var(--pm);
+              display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--purple);flex-shrink:0">1</div>
+            <div>
+              <div style="font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:-.02em">관심 키워드 선택</div>
+              <div style="font-size:11.5px;font-weight:400;color:var(--t3);margin-top:2px">나를 표현할 키워드 입력</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:15px 16px;background:var(--card);border-radius:16px;box-shadow:var(--sh)">
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--pl);border:1.5px solid var(--pm);
+              display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--purple);flex-shrink:0">2</div>
+            <div>
+              <div style="font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:-.02em">음주 · 흡연 · 타투</div>
+              <div style="font-size:11.5px;font-weight:400;color:var(--t3);margin-top:2px">나의 생활습관 정보 입력</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:15px 16px;background:var(--card);border-radius:16px;box-shadow:var(--sh)">
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--pl);border:1.5px solid var(--pm);
+              display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--purple);flex-shrink:0">3</div>
+            <div>
+              <div style="font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:-.02em">스타일 &amp; 이상형</div>
+              <div style="font-size:11.5px;font-weight:400;color:var(--t3);margin-top:2px">나의 모습과 원하는 상대 설정</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:15px 16px;background:var(--card);border-radius:16px;box-shadow:var(--sh)">
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--pl);border:1.5px solid var(--pm);
+              display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--purple);flex-shrink:0">4</div>
+            <div>
+              <div style="font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:-.02em">사진 &amp; 자기소개</div>
+              <div style="font-size:11.5px;font-weight:400;color:var(--t3);margin-top:2px">첫인상을 결정하는 마지막 단계</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="cta" onclick="go('interest')">
+        프로필 만들기 시작
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP interest: 관심 대상 ════════════════ -->
+  <div class="step" id="sinterest">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go(0)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="prog-wrap">
+        <div class="prog-label">시작하기</div>
+        <div class="prog-track"><div class="prog-fill" style="width:8%"></div></div>
+      </div>
+      <div class="step-badge" style="color:var(--t3);font-weight:400;font-size:11px">선택 후 다음</div>
+    </div>
+    <div class="scroll"><div class="sc">
+      <span class="s-emoji">💫</span>
+      <div class="s-title">어디에 더<br>관심 있나요?</div>
+      <div class="s-sub">원하는 만남의 방향을 선택해 주세요.<br>나중에 언제든 바꿀 수 있어요.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px" id="interestGroup">
+        <div class="sel-item" onclick="soloInterest(this)"
+          style="flex-direction:column;align-items:center;text-align:center;padding:20px 8px 18px;border-radius:18px;justify-content:flex-start;gap:0">
+          <div style="font-size:28px;margin-bottom:10px">👫</div>
+          <div class="sel-item-txt" style="font-size:14px;letter-spacing:-.02em;margin-bottom:5px">지인</div>
+          <div style="font-size:11px;font-weight:400;color:var(--t3);line-height:1.4;word-break:keep-all">새로운 친구를 만나고 싶어요</div>
+          <div class="sel-check" style="margin-top:12px"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <div class="sel-item" onclick="soloInterest(this)"
+          style="flex-direction:column;align-items:center;text-align:center;padding:20px 8px 18px;border-radius:18px;justify-content:flex-start;gap:0">
+          <div style="font-size:28px;margin-bottom:10px">💑</div>
+          <div class="sel-item-txt" style="font-size:14px;letter-spacing:-.02em;margin-bottom:5px">모두</div>
+          <div style="font-size:11px;font-weight:400;color:var(--t3);line-height:1.4;word-break:keep-all">친구도 연인도 OK!</div>
+          <div class="sel-check" style="margin-top:12px"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <div class="sel-item" onclick="soloInterest(this)"
+          style="flex-direction:column;align-items:center;text-align:center;padding:20px 8px 18px;border-radius:18px;justify-content:flex-start;gap:0">
+          <div style="font-size:28px;margin-bottom:10px">💕</div>
+          <div class="sel-item-txt" style="font-size:14px;letter-spacing:-.02em;margin-bottom:5px">애인</div>
+          <div style="font-size:11px;font-weight:400;color:var(--t3);line-height:1.4;word-break:keep-all">사랑을 찾고 싶어요</div>
+          <div class="sel-check" style="margin-top:12px"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="bottom">
+      <button class="cta" id="interestNextBtn" disabled onclick="go(1)">
+        다음 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 1: 관심사 키워드 ════════════════ -->
+  <div class="step" id="s1">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('interest')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-label">STEP 1 / 5</div>
+        <div class="prog-track"><div class="prog-fill" style="width:20%"></div></div>
+      </div>
+      <div class="step-badge">1/5</div>
+    </div>
+    <div class="scroll"><div class="sc">
+      <span class="s-emoji">🎨</span>
+      <div class="s-title">관심사 키워드를<br>골라주세요</div>
+      <div class="s-sub">여러 개 선택 가능해요. 많이 고를수록<br>더 잘 맞는 사람을 만날 수 있어요!</div>
+
+      <!-- 라이프스타일 -->
+      <div class="slbl"><div class="sdot"></div>라이프스타일</div>
+      <div class="pills" style="margin-bottom:18px">
+        <div class="pill" onclick="tp(this)">아침형 인간</div>
+        <div class="pill" onclick="tp(this)">저녁형 인간</div>
+        <div class="pill" onclick="tp(this)">집순이/집돌이</div>
+        <div class="pill" onclick="tp(this)">활동적</div>
+        <div class="pill" onclick="tp(this)">반려동물</div>
+        <div class="pill" onclick="tp(this)">미니멀라이프</div>
+        <div class="pill" onclick="tp(this)">혼밥/혼영</div>
+        <div class="pill" onclick="tp(this)">워라밸</div>
+        <div class="pill" onclick="tp(this)">친환경</div>
+      </div>
+
+      <!-- 취미 -->
+      <div class="slbl"><div class="sdot"></div>취미</div>
+      <div class="pills" style="margin-bottom:18px">
+        <div class="pill" onclick="tp(this)">유튜브</div>
+        <div class="pill" onclick="tp(this)">영화</div>
+        <div class="pill" onclick="tp(this)">드라마</div>
+        <div class="pill" onclick="tp(this)">연예인</div>
+        <div class="pill" onclick="tp(this)">애니메이션</div>
+        <div class="pill" onclick="tp(this)">웹툰</div>
+        <div class="pill" onclick="tp(this)">웹소설</div>
+        <div class="pill" onclick="tp(this)">요리</div>
+        <div class="pill" onclick="tp(this)">베이킹</div>
+        <div class="pill" onclick="tp(this)">홈카페</div>
+        <div class="pill" onclick="tp(this)">드로잉</div>
+        <div class="pill" onclick="tp(this)">양재</div>
+        <div class="pill" onclick="tp(this)">소잉</div>
+        <div class="pill" onclick="tp(this)">필사</div>
+        <div class="pill" onclick="tp(this)">캘리그라피</div>
+        <div class="pill" onclick="tp(this)">뜨개질</div>
+        <div class="pill" onclick="tp(this)">향수</div>
+        <div class="pill" onclick="tp(this)">악기연주</div>
+        <div class="pill" onclick="tp(this)">밴드</div>
+        <div class="pill" onclick="tp(this)">춤</div>
+        <div class="pill" onclick="tp(this)">사주/타로</div>
+        <div class="pill" onclick="tp(this)">메이크업</div>
+        <div class="pill" onclick="tp(this)">네일아트</div>
+        <div class="pill" onclick="tp(this)">청소</div>
+        <div class="pill" onclick="tp(this)">인테리어</div>
+        <div class="pill" onclick="tp(this)">물건수집</div>
+        <div class="pill" onclick="tp(this)">주식</div>
+        <div class="pill" onclick="tp(this)">비트코인</div>
+        <div class="pill" onclick="tp(this)">반려식물</div>
+      </div>
+
+      <!-- 외부여가활동 -->
+      <div class="slbl"><div class="sdot"></div>외부 여가활동</div>
+      <div class="pills" style="margin-bottom:18px">
+        <div class="pill" onclick="tp(this)">맛집 탐방</div>
+        <div class="pill" onclick="tp(this)">카페 투어</div>
+        <div class="pill" onclick="tp(this)">전시회</div>
+        <div class="pill" onclick="tp(this)">연극</div>
+        <div class="pill" onclick="tp(this)">뮤지컬</div>
+        <div class="pill" onclick="tp(this)">사진 찍기</div>
+        <div class="pill" onclick="tp(this)">필름사진</div>
+        <div class="pill" onclick="tp(this)">스포츠 직관</div>
+        <div class="pill" onclick="tp(this)">페스티벌</div>
+        <div class="pill" onclick="tp(this)">방탈출</div>
+        <div class="pill" onclick="tp(this)">코인노래방</div>
+        <div class="pill" onclick="tp(this)">볼링</div>
+        <div class="pill" onclick="tp(this)">당구/포켓볼</div>
+        <div class="pill" onclick="tp(this)">쇼핑</div>
+        <div class="pill" onclick="tp(this)">피크닉</div>
+        <div class="pill" onclick="tp(this)">놀이공원</div>
+        <div class="pill" onclick="tp(this)">산책</div>
+        <div class="pill" onclick="tp(this)">국내여행</div>
+        <div class="pill" onclick="tp(this)">해외여행</div>
+        <div class="pill" onclick="tp(this)">드라이브</div>
+        <div class="pill" onclick="tp(this)">캠핑</div>
+        <div class="pill" onclick="tp(this)">바비큐</div>
+        <div class="pill" onclick="tp(this)">등산</div>
+        <div class="pill" onclick="tp(this)">낚시</div>
+        <div class="pill" onclick="tp(this)">봉사활동</div>
+        <div class="pill" onclick="tp(this)">플로깅</div>
+      </div>
+
+      <!-- 자기계발 -->
+      <div class="slbl"><div class="sdot"></div>자기계발</div>
+      <div class="pills" style="margin-bottom:18px">
+        <div class="pill" onclick="tp(this)">재테크</div>
+        <div class="pill" onclick="tp(this)">자격증 취득</div>
+        <div class="pill" onclick="tp(this)">외국어 공부</div>
+        <div class="pill" onclick="tp(this)">커리어 개발</div>
+        <div class="pill" onclick="tp(this)">독서</div>
+        <div class="pill" onclick="tp(this)">신문/뉴스</div>
+        <div class="pill" onclick="tp(this)">카공</div>
+        <div class="pill" onclick="tp(this)">명상</div>
+        <div class="pill" onclick="tp(this)">미라클모닝</div>
+        <div class="pill" onclick="tp(this)">식단 관리</div>
+        <div class="pill" onclick="tp(this)">건강 관리</div>
+        <div class="pill" onclick="tp(this)">작문</div>
+        <div class="pill" onclick="tp(this)">SNS 키우기</div>
+      </div>
+
+      <!-- 음식 (토글) -->
+      <div style="margin-bottom:6px">
+        <div class="tog-head" onclick="toggleSec(this)" id="togFood">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:14px">🍜</span>
+            <span style="font-size:13px;font-weight:700;color:var(--t2)">음식</span>
+          </div>
+          <svg class="tog-arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tog-body" id="togFoodBody">
+          <div class="pills" style="padding:12px 0 4px">
+            <div class="pill" onclick="tp(this)">비건</div>
+            <div class="pill" onclick="tp(this)">한식</div>
+            <div class="pill" onclick="tp(this)">중식</div>
+            <div class="pill" onclick="tp(this)">일식</div>
+            <div class="pill" onclick="tp(this)">양식</div>
+            <div class="pill" onclick="tp(this)">브런치</div>
+            <div class="pill" onclick="tp(this)">베트남/태국</div>
+            <div class="pill" onclick="tp(this)">멕시코음식</div>
+            <div class="pill" onclick="tp(this)">매운음식</div>
+            <div class="pill" onclick="tp(this)">채소파</div>
+            <div class="pill" onclick="tp(this)">육식파</div>
+            <div class="pill" onclick="tp(this)">해산물</div>
+            <div class="pill" onclick="tp(this)">분식</div>
+            <div class="pill" onclick="tp(this)">패스트푸드</div>
+            <div class="pill" onclick="tp(this)">베이커리</div>
+            <div class="pill" onclick="tp(this)">간식류</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 운동 (토글) -->
+      <div style="margin-bottom:6px">
+        <div class="tog-head" onclick="toggleSec(this)" id="togSport">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:14px">⚽</span>
+            <span style="font-size:13px;font-weight:700;color:var(--t2)">운동</span>
+          </div>
+          <svg class="tog-arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tog-body" id="togSportBody">
+          <div class="pills" style="padding:12px 0 4px">
+            <div class="pill" onclick="tp(this)">풋살</div>
+            <div class="pill" onclick="tp(this)">러닝</div>
+            <div class="pill" onclick="tp(this)">마라톤</div>
+            <div class="pill" onclick="tp(this)">자전거</div>
+            <div class="pill" onclick="tp(this)">헬스</div>
+            <div class="pill" onclick="tp(this)">요가</div>
+            <div class="pill" onclick="tp(this)">필라테스</div>
+            <div class="pill" onclick="tp(this)">발레</div>
+            <div class="pill" onclick="tp(this)">홈트</div>
+            <div class="pill" onclick="tp(this)">클라이밍</div>
+            <div class="pill" onclick="tp(this)">크로스핏</div>
+            <div class="pill" onclick="tp(this)">배드민턴</div>
+            <div class="pill" onclick="tp(this)">탁구</div>
+            <div class="pill" onclick="tp(this)">골프</div>
+            <div class="pill" onclick="tp(this)">테니스</div>
+            <div class="pill" onclick="tp(this)">수영</div>
+            <div class="pill" onclick="tp(this)">서핑</div>
+            <div class="pill" onclick="tp(this)">스쿠버다이빙</div>
+            <div class="pill" onclick="tp(this)">스키</div>
+            <div class="pill" onclick="tp(this)">스노우보드</div>
+            <div class="pill" onclick="tp(this)">스케이트보드</div>
+            <div class="pill" onclick="tp(this)">야구</div>
+            <div class="pill" onclick="tp(this)">축구</div>
+            <div class="pill" onclick="tp(this)">농구</div>
+            <div class="pill" onclick="tp(this)">배구</div>
+            <div class="pill" onclick="tp(this)">복싱/주짓수</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 음악 (토글) -->
+      <div style="margin-bottom:6px">
+        <div class="tog-head" onclick="toggleSec(this)" id="togMusic">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:14px">🎵</span>
+            <span style="font-size:13px;font-weight:700;color:var(--t2)">음악</span>
+          </div>
+          <svg class="tog-arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tog-body" id="togMusicBody">
+          <div class="pills" style="padding:12px 0 4px">
+            <div class="pill" onclick="tp(this)">K-POP</div>
+            <div class="pill" onclick="tp(this)">J-POP</div>
+            <div class="pill" onclick="tp(this)">팝송</div>
+            <div class="pill" onclick="tp(this)">인디음악</div>
+            <div class="pill" onclick="tp(this)">시티팝</div>
+            <div class="pill" onclick="tp(this)">알앤비</div>
+            <div class="pill" onclick="tp(this)">EDM</div>
+            <div class="pill" onclick="tp(this)">힙합</div>
+            <div class="pill" onclick="tp(this)">락</div>
+            <div class="pill" onclick="tp(this)">발라드</div>
+            <div class="pill" onclick="tp(this)">재즈</div>
+            <div class="pill" onclick="tp(this)">클래식</div>
+            <div class="pill" onclick="tp(this)">골고루</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 게임 (토글) -->
+      <div style="margin-bottom:20px">
+        <div class="tog-head" onclick="toggleSec(this)" id="togGame">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:14px">🎮</span>
+            <span style="font-size:13px;font-weight:700;color:var(--t2)">게임</span>
+          </div>
+          <svg class="tog-arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tog-body" id="togGameBody">
+          <div class="pills" style="padding:12px 0 4px">
+            <div class="pill" onclick="tp(this)">닌텐도</div>
+            <div class="pill" onclick="tp(this)">보드게임</div>
+            <div class="pill" onclick="tp(this)">오버워치</div>
+            <div class="pill" onclick="tp(this)">배그</div>
+            <div class="pill" onclick="tp(this)">LOL</div>
+            <div class="pill" onclick="tp(this)">서든어택</div>
+            <div class="pill" onclick="tp(this)">메이플</div>
+            <div class="pill" onclick="tp(this)">발로란트</div>
+            <div class="pill" onclick="tp(this)">플스</div>
+            <div class="pill" onclick="tp(this)">스팀 게임</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 개인 키워드 추가 -->
+      <div class="slbl"><div class="sdot"></div>나만의 키워드 추가</div>
+      <div class="tag-input-row">
+        <input class="tag-input" id="tagInput" placeholder="직접 입력해보세요" maxlength="12">
+        <button class="tag-add-btn" onclick="addTag()">추가</button>
+      </div>
+      <div class="custom-tags" id="customTags"></div>
+      <div style="height:4px"></div>
+    </div></div>
+    <div class="bottom">
+      <button class="cta" id="kwNextBtn" disabled onclick="go(2)">다음 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <div class="skip" onclick="go(2)">건너뛰기 · 필요할 때 언제든 추가할 수 있어요</div>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 2: 음주·흡연·타투 ════════════════ -->
+  <div class="step" id="s2">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go(1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="prog-wrap">
+        <div class="prog-label">STEP 2 / 5</div>
+        <div class="prog-track"><div class="prog-fill" style="width:40%"></div></div>
+      </div>
+      <div class="step-badge">2/5</div>
+    </div>
+    <div class="scroll"><div class="sc">
+      <span class="s-emoji">🍷</span>
+      <div class="s-title">생활 습관을<br>알려주세요</div>
+      <div class="s-sub">솔직하게 답해줄수록 잘 맞는<br>상대를 찾기 쉬워져요!</div>
+
+      <!-- 음주 빈도 -->
+      <div class="slbl"><div class="sdot"></div>음주 빈도</div>
+      <div class="sel-row" id="drinkFreq" style="margin-bottom:14px">
+        <div class="sel-item" onclick="solo(this,'drinkFreq');drinkToggle(this);checkHabitBtn()"><div class="sel-item-txt">🚫 아예 안 마심</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'drinkFreq');drinkToggle(this);checkHabitBtn()"><div class="sel-item-txt">🌿 가끔 마심</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'drinkFreq');drinkToggle(this);checkHabitBtn()"><div class="sel-item-txt">🍺 꽤 마심</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'drinkFreq');drinkToggle(this);checkHabitBtn()"><div class="sel-item-txt">🥂 자주 마심</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'drinkFreq');drinkToggle(this);checkHabitBtn()"><div class="sel-item-txt">💪 금주 중</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      </div>
+
+      <!-- 선호 주종 (토글) -->
+      <div class="toggle-sec" id="drinkTypeSec">
+        <div class="slbl"><div class="sdot"></div>선호 주종</div>
+        <div class="pills" style="margin-bottom:18px">
+          <div class="pill" onclick="tp(this)">🍶 소주</div>
+          <div class="pill" onclick="tp(this)">🍺 맥주</div>
+          <div class="pill" onclick="tp(this)">🍷 와인</div>
+          <div class="pill" onclick="tp(this)">🥃 위스키/하이볼</div>
+          <div class="pill" onclick="tp(this)">🍹 칵테일</div>
+          <div class="pill" onclick="tp(this)">🍶 전통주</div>
+          <div class="pill" onclick="tp(this)">가리지 않아요</div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- 흡연 여부 -->
+      <div class="slbl"><div class="sdot"></div>흡연 여부</div>
+      <div style="font-size:12px;font-weight:400;color:var(--t3);margin-bottom:10px;line-height:1.5">흡연 여부는 매칭에서 중요한 정보예요. 솔직하게 알려주세요.</div>
+      <div class="sel-row" id="smokeFreq" style="margin-bottom:14px">
+        <div class="sel-item" onclick="solo(this,'smokeFreq');smokeToggle(this);checkHabitBtn()"><div class="sel-item-txt">🌿 비흡연자</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'smokeFreq');smokeToggle(this);checkHabitBtn()"><div class="sel-item-txt">아주 가끔 피움</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'smokeFreq');smokeToggle(this);checkHabitBtn()"><div class="sel-item-txt">때때로 피움</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'smokeFreq');smokeToggle(this);checkHabitBtn()"><div class="sel-item-txt">🚬 흡연자</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="sel-item" onclick="solo(this,'smokeFreq');smokeToggle(this);checkHabitBtn()"><div class="sel-item-txt">💪 금연 중</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      </div>
+
+      <!-- 종류 (토글) -->
+      <div class="toggle-sec" id="smokeTypeSec">
+        <div class="slbl"><div class="sdot"></div>종류</div>
+        <div class="pills" style="margin-bottom:18px">
+          <div class="pill" onclick="tp(this)">액상 전자담배</div>
+          <div class="pill" onclick="tp(this)">궐련형 전자담배</div>
+          <div class="pill" onclick="tp(this)">연초</div>
+          <div class="pill" onclick="tp(this)">해당없음</div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- 타투 유무 (토글) -->
+      <div style="margin-bottom:4px">
+        <div class="tog-head" onclick="toggleSec(this)">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:14px">🖊️</span>
+            <span style="font-size:13px;font-weight:700;color:var(--t2)">타투 유무</span>
+          </div>
+          <svg class="tog-arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="tog-body">
+          <div style="font-size:12px;font-weight:400;color:var(--t3);padding:10px 2px 8px;line-height:1.5">취향을 더 잘 맞추기 위한 정보예요 💛</div>
+          <div class="sel-row" id="tattooFreq">
+            <div class="sel-item" onclick="solo(this,'tattooFreq')"><div class="sel-item-txt">타투가 많이 있어요 (아주 많아요)</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+            <div class="sel-item" onclick="solo(this,'tattooFreq')"><div class="sel-item-txt">타투가 여러 개 있어요</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+            <div class="sel-item" onclick="solo(this,'tattooFreq')"><div class="sel-item-txt">포인트 타투 하나/소수 있어요</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+            <div class="sel-item" onclick="solo(this,'tattooFreq')"><div class="sel-item-txt">지금은 없지만 관심있어요</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+            <div class="sel-item" onclick="solo(this,'tattooFreq')"><div class="sel-item-txt">없어요</div><div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="bottom">
+      <button class="cta" id="habitNextBtn" disabled onclick="go(3)">다음 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 3: 내 스타일 + MBTI ════════════════ -->
+  <div class="step" id="s3">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go(2)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="prog-wrap">
+        <div class="prog-label">STEP 3 / 5</div>
+        <div class="prog-track"><div class="prog-fill" style="width:60%"></div></div>
+      </div>
+      <div class="step-badge">3/5</div>
+    </div>
+    <div class="scroll"><div class="sc">
+      <span class="s-emoji">👤</span>
+      <div class="s-title">내 스타일 정보를<br>추가해볼까요?</div>
+      <div class="s-sub">선택 안 해도 되는 항목이에요.<br>자유롭게 업데이트할 수 있어요.</div>
+
+      <!-- 머리길이 -->
+      <div class="slbl"><div class="sdot"></div>머리 길이</div>
+      <div class="h-chips" style="margin-bottom:18px" id="hair">
+        <div class="h-chip" onclick="soloChip(this,'hair')">선택 안함</div>
+        <div class="h-chip" onclick="soloChip(this,'hair')">숏컷</div>
+        <div class="h-chip" onclick="soloChip(this,'hair')">단발~중단발</div>
+        <div class="h-chip" onclick="soloChip(this,'hair')">긴머리</div>
+      </div>
+
+      <!-- 체형 -->
+      <div class="slbl"><div class="sdot"></div>체형</div>
+      <div class="h-chips" style="margin-bottom:18px" id="body">
+        <div class="h-chip" onclick="soloChip(this,'body')">선택 안함</div>
+        <div class="h-chip" onclick="soloChip(this,'body')">슬림</div>
+        <div class="h-chip" onclick="soloChip(this,'body')">보통</div>
+        <div class="h-chip" onclick="soloChip(this,'body')">통통</div>
+        <div class="h-chip" onclick="soloChip(this,'body')">통통 이상</div>
+      </div>
+
+      <!-- 키 -->
+      <div class="slbl"><div class="sdot"></div>키</div>
+      <div class="h-chips" style="margin-bottom:18px" id="height">
+        <div class="h-chip" onclick="soloChip(this,'height')">선택 안함</div>
+        <div class="h-chip" onclick="soloChip(this,'height')">150 이하</div>
+        <div class="h-chip" onclick="soloChip(this,'height')">151~155</div>
+        <div class="h-chip" onclick="soloChip(this,'height')">156~160</div>
+        <div class="h-chip" onclick="soloChip(this,'height')">161~165</div>
+        <div class="h-chip" onclick="soloChip(this,'height')">166~170</div>
+        <div class="h-chip" onclick="soloChip(this,'height')">171 이상</div>
+      </div>
+
+      <!-- 성향 -->
+      <div class="slbl"><div class="sdot"></div>성향</div>
+      <div class="h-chips" style="margin-bottom:22px" id="vibe">
+        <div class="h-chip" onclick="soloChip(this,'vibe')">선택 안함</div>
+        <div class="h-chip" onclick="soloChip(this,'vibe')">온깁</div>
+        <div class="h-chip" onclick="soloChip(this,'vibe')">깁선호</div>
+        <div class="h-chip" onclick="soloChip(this,'vibe')">텍선호</div>
+        <div class="h-chip" onclick="soloChip(this,'vibe')">온텍</div>
+        <div class="h-chip" onclick="soloChip(this,'vibe')">플라토닉</div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- MBTI 드럼 -->
+      <div class="slbl"><div class="sdot"></div>MBTI</div>
+      <div style="font-size:12px;font-weight:400;color:var(--t3);margin-bottom:14px;line-height:1.5">위아래로 스크롤해서 선택해주세요</div>
+      <div class="mbti-wrap" id="mbtiWrap">
+        <!-- E/I -->
+        <div class="mbti-drum unset" data-idx="0" data-items='["","E","I"]' data-cur="0">
+          <div class="drum-fade-top"></div>
+          <div class="drum-fade-bot"></div>
+          <div class="drum-line"></div>
+          <div class="drum-list"></div>
+        </div>
+        <!-- N/S -->
+        <div class="mbti-drum unset" data-idx="1" data-items='["","N","S"]' data-cur="0">
+          <div class="drum-fade-top"></div>
+          <div class="drum-fade-bot"></div>
+          <div class="drum-line"></div>
+          <div class="drum-list"></div>
+        </div>
+        <!-- F/T -->
+        <div class="mbti-drum unset" data-idx="2" data-items='["","F","T"]' data-cur="0">
+          <div class="drum-fade-top"></div>
+          <div class="drum-fade-bot"></div>
+          <div class="drum-line"></div>
+          <div class="drum-list"></div>
+        </div>
+        <!-- P/J -->
+        <div class="mbti-drum unset" data-idx="3" data-items='["","P","J"]' data-cur="0">
+          <div class="drum-fade-top"></div>
+          <div class="drum-fade-bot"></div>
+          <div class="drum-line"></div>
+          <div class="drum-list"></div>
+        </div>
+      </div>
+      <div class="mbti-result" id="mbtiResult">
+        <div>
+          <div class="mbti-type" id="mbtiDisplay">_ _ _ _</div>
+          <div class="mbti-name" id="mbtiName">선택해주세요</div>
+        </div>
+        <div style="font-size:28px" id="mbtiEmoji">🤔</div>
+      </div>
+    </div></div>
+    <div class="bottom">
+      <button class="cta" id="styleNextBtn" onclick="go(4)">다음 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <div class="skip" onclick="go(4)">건너뛰기 · 자유롭게 업데이트할 수 있습니다</div>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 4: 이상형 ════════════════ -->
+  <div class="step" id="s4">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go(3)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="prog-wrap">
+        <div class="prog-label">STEP 4 / 5</div>
+        <div class="prog-track"><div class="prog-fill" style="width:80%"></div></div>
+      </div>
+      <div class="step-badge">4/5</div>
+    </div>
+    <div class="scroll"><div class="sc">
+      <span class="s-emoji">💜</span>
+      <div class="s-title">끌리는 스타일이<br>있다면 선택해볼까요?</div>
+      <div class="s-sub">당신의 마음을 움직이는 키워드를 찾아보세요.<br>복수 선택 가능해요!</div>
+
+      <!-- 머리길이 -->
+      <div class="slbl"><div class="sdot"></div>머리 길이</div>
+      <div class="h-chips" style="margin-bottom:16px">
+        <div class="h-chip" onclick="tp(this)">중요하지 않아요</div>
+        <div class="h-chip" onclick="tp(this)">숏컷</div>
+        <div class="h-chip" onclick="tp(this)">단발~중단발</div>
+        <div class="h-chip" onclick="tp(this)">긴머리</div>
+      </div>
+
+      <!-- 체형 -->
+      <div class="slbl"><div class="sdot"></div>체형</div>
+      <div class="h-chips" style="margin-bottom:16px">
+        <div class="h-chip" onclick="tp(this)">중요하지 않아요</div>
+        <div class="h-chip" onclick="tp(this)">슬림</div>
+        <div class="h-chip" onclick="tp(this)">보통</div>
+        <div class="h-chip" onclick="tp(this)">통통</div>
+        <div class="h-chip" onclick="tp(this)">통통 이상</div>
+      </div>
+
+      <!-- 키 -->
+      <div class="slbl"><div class="sdot"></div>키</div>
+      <div class="h-chips" style="margin-bottom:16px">
+        <div class="h-chip" onclick="tp(this)">중요하지 않아요</div>
+        <div class="h-chip" onclick="tp(this)">150 이하</div>
+        <div class="h-chip" onclick="tp(this)">151~155</div>
+        <div class="h-chip" onclick="tp(this)">156~160</div>
+        <div class="h-chip" onclick="tp(this)">161~165</div>
+        <div class="h-chip" onclick="tp(this)">166~170</div>
+        <div class="h-chip" onclick="tp(this)">171 이상</div>
+      </div>
+
+      <!-- 성향 -->
+      <div class="slbl"><div class="sdot"></div>성향</div>
+      <div class="h-chips" style="margin-bottom:20px">
+        <div class="h-chip" onclick="tp(this)">중요하지 않아요</div>
+        <div class="h-chip" onclick="tp(this)">온깁</div>
+        <div class="h-chip" onclick="tp(this)">깁선호</div>
+        <div class="h-chip" onclick="tp(this)">텍선호</div>
+        <div class="h-chip" onclick="tp(this)">온텍</div>
+        <div class="h-chip" onclick="tp(this)">플라토닉</div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="slbl"><div class="sdot"></div>상대를 볼 때 가장 중요한 포인트</div>
+      <div style="font-size:12px;font-weight:400;color:var(--t3);margin-bottom:12px">복수 선택 가능해요!</div>
+      <div class="check-grid" style="margin-bottom:6px">
+        <div class="check-item" onclick="this.classList.toggle('on')">
+          <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-txt">🌿 라이프스타일</div>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('on')">
+          <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-txt">🎨 관심사</div>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('on')">
+          <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-txt">🍷 생활습관</div>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('on')">
+          <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-txt">👤 스타일</div>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('on')">
+          <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-txt">🧬 MBTI 궁합</div>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('on')">
+          <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-txt">💬 연락 스타일</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="bottom">
+      <button class="cta" onclick="go(5)">다음 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <div class="skip" onclick="go(5)">건너뛰기 · 마음이 아리송하면 나중에 선택해도 돼요</div>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 5: 사진 + 자기소개 ════════════════ -->
+  <div class="step" id="s5">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go(4)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="prog-wrap">
+        <div class="prog-label">STEP 5 / 5</div>
+        <div class="prog-track"><div class="prog-fill" style="width:100%"></div></div>
+      </div>
+      <div class="step-badge">5/5</div>
+    </div>
+    <div class="scroll"><div class="sc">
+      <span class="s-emoji">📷</span>
+      <div class="s-title">프로필 사진을<br>등록해 주세요</div>
+      <div class="s-sub">첫인상이 결정돼요! 밝고 잘 나온 사진일수록<br>매칭 확률이 올라가요.</div>
+
+      <div class="photo-grid">
+        <div class="photo-slot main-slot" onclick="togglePhoto(this,'main')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div class="photo-lbl">대표 사진</div>
+        </div>
+        <div class="photo-slot" onclick="togglePhoto(this,'extra')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div class="photo-lbl">+ 추가</div>
+        </div>
+        <div class="photo-slot" onclick="togglePhoto(this,'extra')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div class="photo-lbl">+ 추가</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-row">
+          <span style="font-size:15px;flex-shrink:0">💡</span>
+          <div class="info-card-txt">
+            <span style="font-weight:700;color:var(--t1)">사진 가이드</span><br>
+            ✅ 얼굴이 잘 보이는 정면 사진<br>
+            ✅ 밝은 환경에서 찍은 사진<br>
+            ❌ 너무 오래된 사진, 단체 사진
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <span class="s-emoji">✏️</span>
+      <div class="s-title" style="font-size:19px">나에 대해<br>더 알려주세요!</div>
+      <div class="s-sub" style="margin-bottom:14px">자유롭게 작성해보세요. 어떤 형식이든 좋아요!<br>짧게 적고 나중에 더 추가할 수도 있어요 😊</div>
+
+      <div class="bio-wrap">
+        <textarea class="bio-ta" id="bioTa" maxlength="300" oninput="bioCount()"
+          placeholder="예) 서울에서 디자이너로 일하고 있어요 🌿&#10;주말엔 홈카페 만들거나 사진 찍으러 다녀요.&#10;대화가 잘 통하는 분이면 더 좋겠어요 :)"></textarea>
+      </div>
+      <div class="bio-cnt"><span id="bioCnt">0</span>/300</div>
+    </div></div>
+    <div class="bottom">
+      <button class="cta" id="finishBtn" disabled onclick="go(6)">
+        프로필 완성하기 ✨
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 6: 완료 ════════════════ -->
+  <div class="step" id="s6">
+    <div class="scroll">
+      <div class="complete-wrap">
+        <div class="comp-ring">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.06em;margin-bottom:8px">PROFILE COMPLETE</div>
+        <div class="comp-title">프로필 생성이<br><span>완료됐어요!</span> 🎉</div>
+        <div style="height:12px"></div>
+        <div class="comp-desc">이제 녹차에서 새로운 만남을<br>시작해볼까요?<br>딱 맞는 사람을 찾아드릴게요 💜</div>
+
+        <div class="comp-card">
+          <div class="comp-av">지수</div>
+          <div class="comp-info">
+            <div class="comp-name">김지수 · 26세</div>
+            <div class="comp-meta">INFP · 서울 마포구</div>
+            <div class="comp-chips">
+              <div class="comp-chip">홈카페</div>
+              <div class="comp-chip">테니스</div>
+              <div class="comp-chip">인디음악</div>
+              <div class="comp-chip">클라이밍</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-bar-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--t3)">프로필 완성도</div>
+            <div style="font-size:19px;font-weight:800;color:var(--purple)">92%</div>
+          </div>
+          <div style="height:5px;border-radius:3px;background:var(--div);overflow:hidden;margin-bottom:7px">
+            <div style="width:92%;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),#BDB0DE)"></div>
+          </div>
+          <div style="font-size:11px;font-weight:400;color:var(--t3)">사진 1장 더 추가하면 100%예요! 🌟</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="cta" onclick="go(0)" style="background:var(--purple)">
+        녹차 시작하기
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="skip" onclick="go(0)">프로필 미리보기</div>
+    </div>
+  </div>
+
+  </div><!-- /steps-wrap -->
+</div>
+
+<script>
+// ── Step navigation ──
+const stepMap={0:'s0','interest':'sinterest',1:'s1',2:'s2',3:'s3',4:'s4',5:'s5',6:'s6'};
+function go(n){
+  const cur=document.querySelector('.step.active');
+  if(cur){cur.classList.add('out');setTimeout(()=>cur.classList.remove('out'),340);cur.classList.remove('active')}
+  const id=stepMap[n]!==undefined?stepMap[n]:'s'+n;
+  const next=document.getElementById(id);
+  if(next){
+    setTimeout(()=>{next.classList.add('active')},12);
+    setTimeout(()=>{const s=next.querySelector('.scroll');if(s)s.scrollTop=0},55);
+  }
+}
+
+// ── Fix 3: Keyword pill toggle → enable next btn when ≥1 selected ──
+function tp(el){
+  el.classList.toggle('on');
+  // Step 1 keyword next btn
+  const s1=document.getElementById('s1');
+  const btn=document.getElementById('kwNextBtn');
+  if(btn&&s1&&s1.contains(el)){
+    const anyOn=s1.querySelectorAll('.pill.on, .custom-tag').length>0;
+    btn.disabled=!anyOn;
+  }
+}
+
+// ── Single select rows ──
+function solo(el,gid){
+  const g=document.getElementById(gid)||el.parentElement;
+  g.querySelectorAll('.sel-item').forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── Fix 2: Interest horizontal cards ──
+function soloInterest(el){
+  document.querySelectorAll('#interestGroup .sel-item').forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('interestNextBtn').disabled=false;
+}
+
+// ── H-chip solo (step 3 style) ──
+function soloChip(el,gid){
+  const g=document.getElementById(gid)||el.parentElement;
+  g.querySelectorAll('.h-chip').forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── Accordion (legacy) ──
+function toggleAcc(head){
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// ── Lightweight toggle (음식/운동/음악/게임) ──
+function toggleSec(head){
+  head.classList.toggle('open');
+  const body=head.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ── Drink toggle ──
+function drinkToggle(el){
+  const txt=el.querySelector('.sel-item-txt').textContent;
+  const hide=txt.includes('안 마심')||txt.includes('금주');
+  document.getElementById('drinkTypeSec').classList.toggle('show',!hide);
+}
+
+// ── Smoke toggle ──
+function smokeToggle(el){
+  const txt=el.querySelector('.sel-item-txt').textContent;
+  document.getElementById('smokeTypeSec').classList.toggle('show',!txt.includes('비흡연자'));
+}
+
+// ── Step 2 habit next btn: both drink + smoke must be selected ──
+function checkHabitBtn(){
+  const drinkSel=document.querySelector('#drinkFreq .sel-item.on');
+  const smokeSel=document.querySelector('#smokeFreq .sel-item.on');
+  const btn=document.getElementById('habitNextBtn');
+  if(btn) btn.disabled=!(drinkSel&&smokeSel);
+}
+
+// ── Custom tag (also triggers keyword btn check) ──
+function addTag(){
+  const inp=document.getElementById('tagInput');
+  const val=inp.value.trim();
+  if(!val)return;
+  const wrap=document.getElementById('customTags');
+  const tag=document.createElement('div');
+  tag.className='custom-tag';
+  tag.innerHTML=`#${val}<div class="custom-tag-x" onclick="this.parentElement.remove();checkKwBtn()">✕</div>`;
+  wrap.appendChild(tag);
+  inp.value='';inp.focus();
+  checkKwBtn();
+}
+function checkKwBtn(){
+  const s1=document.getElementById('s1');
+  const btn=document.getElementById('kwNextBtn');
+  if(!btn)return;
+  const pills=s1.querySelectorAll('.pill.on').length;
+  const tags=document.getElementById('customTags').children.length;
+  btn.disabled=(pills+tags)===0;
+}
+document.getElementById('tagInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag()}});
+
+// ── Bio count ──
+function bioCount(){
+  document.getElementById('bioCnt').textContent=document.getElementById('bioTa').value.length;
+}
+
+// ── Fix 6: Photo toggle → enable finish btn when main photo filled ──
+function togglePhoto(slot,type){
+  if(slot.classList.contains('filled')){
+    slot.classList.remove('filled');
+    if(type==='main'){
+      slot.innerHTML='<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--purple);fill:none;stroke-width:1.5;margin-bottom:5px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><div class="photo-lbl" style="color:var(--purple)">대표 사진</div>';
+    } else {
+      slot.innerHTML='<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--t3);fill:none;stroke-width:1.5;margin-bottom:5px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><div class="photo-lbl">+ 추가</div>';
+    }
+  } else {
+    slot.classList.add('filled');
+    const emoji=type==='main'?'🌸':'🌿';
+    const badge=type==='main'?'<div class="photo-badge">대표</div>':'';
+    slot.innerHTML=`<div class="photo-mock" style="font-size:${type==='main'?'32':'26'}px">${emoji}</div>${badge}`;
+  }
+  // check main slot filled
+  const mainFilled=document.querySelector('.main-slot.filled')!==null;
+  document.getElementById('finishBtn').disabled=!mainFilled;
+}
+
+// ── Fix 4: MBTI drum + validation ──
+const mbtiNames={
+  'INTJ':'전략가','INTP':'논리학자','ENTJ':'통솔자','ENTP':'변론가',
+  'INFJ':'옹호자','INFP':'중재자','ENFJ':'선도자','ENFP':'활동가',
+  'ISTJ':'현실주의자','ISFJ':'수호자','ESTJ':'경영자','ESFJ':'집정관',
+  'ISTP':'장인','ISFP':'모험가','ESTP':'사업가','ESFP':'연예인'
+};
+const mbtiEmojis={
+  'INTJ':'🦅','INTP':'🔬','ENTJ':'🦁','ENTP':'💡',
+  'INFJ':'🌌','INFP':'🌙','ENFJ':'🌟','ENFP':'🎠',
+  'ISTJ':'📋','ISFJ':'🛡️','ESTJ':'📊','ESFJ':'🤝',
+  'ISTP':'🔧','ISFP':'🎨','ESTP':'⚡','ESFP':'🎉'
+};
+let mbtiSel=['','','',''];
+let mbtiTouched=false; // focus 풀린 적 있는지
+
+function initDrums(){
+  document.querySelectorAll('.mbti-drum').forEach(drum=>{
+    const items=JSON.parse(drum.dataset.items);
+    const list=drum.querySelector('.drum-list');
+    items.forEach((it,i)=>{
+      const div=document.createElement('div');
+      div.className='drum-item'+(i===0?' active':'');
+      div.textContent=it||'﹣';
+      list.appendChild(div);
+    });
+    let startY=0,curIdx=0,dragging=false;
+
+    drum.addEventListener('pointerdown',e=>{
+      startY=e.clientY;dragging=false;
+      drum.setPointerCapture(e.pointerId);
+    });
+    drum.addEventListener('pointermove',e=>{
+      if(!e.buttons)return;
+      const dy=e.clientY-startY;
+      if(Math.abs(dy)>14){
+        dragging=true;
+        const dir=dy<0?1:-1;
+        const ni=Math.max(0,Math.min(items.length-1,curIdx+dir));
+        if(ni!==curIdx){curIdx=ni;startY=e.clientY;setDrum(drum,curIdx,items)}
+      }
+    });
+    drum.addEventListener('pointerup',()=>{
+      if(!dragging){
+        // tap: focus in
+      }
+      // on any interaction, mark as touched for blur logic
+    });
+    drum.addEventListener('click',e=>{
+      if(dragging)return;
+      const rect=drum.getBoundingClientRect();
+      const dir=e.clientY<rect.top+rect.height/2?-1:1;
+      curIdx=Math.max(0,Math.min(items.length-1,curIdx+dir));
+      setDrum(drum,curIdx,items);
+    });
+    drum.addEventListener('touchstart',e=>{startY=e.touches[0].clientY;dragging=false},{passive:true});
+    drum.addEventListener('touchmove',e=>{
+      const dy=e.touches[0].clientY-startY;
+      if(Math.abs(dy)>14){
+        dragging=true;
+        const dir=dy<0?1:-1;
+        const ni=Math.max(0,Math.min(items.length-1,curIdx+dir));
+        if(ni!==curIdx){curIdx=ni;startY=e.touches[0].clientY;setDrum(drum,curIdx,items)}
+      }
+    },{passive:true});
+  });
+
+  // blur: when clicking outside mbtiWrap after partial selection
+  document.addEventListener('pointerdown',e=>{
+    const wrap=document.getElementById('mbtiWrap');
+    if(!wrap)return;
+    const inWrap=wrap.contains(e.target);
+    const partial=mbtiSel.some(c=>c!=='')&&mbtiSel.some(c=>c==='');
+    if(!inWrap&&partial){
+      mbtiTouched=true;
+      applyMbtiOutline();
+    } else if(!inWrap){
+      mbtiTouched=false;
+      applyMbtiOutline();
+    }
+  });
+}
+
+function setDrum(drum,idx,items){
+  drum.dataset.cur=idx;
+  const isSet=idx>0;
+  drum.classList.toggle('unset',!isSet);
+  drum.classList.toggle('sel',isSet);
+  drum.querySelectorAll('.drum-item').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  drum.querySelector('.drum-list').style.transform=`translateY(${-idx*40}px)`;
+  mbtiSel[parseInt(drum.dataset.idx)]=items[idx]||'';
+  updateMbtiResult();
+  applyMbtiOutline();
+}
+
+function updateMbtiResult(){
+  const type=mbtiSel.join('');
+  const display=mbtiSel.map(c=>c||'_').join(' ');
+  const el=document.getElementById('mbtiDisplay');
+  const allSet=mbtiSel.every(c=>c!=='');
+  const noneSet=mbtiSel.every(c=>c==='');
+  el.textContent=display;
+  el.classList.toggle('set',allSet);
+  document.getElementById('mbtiName').textContent=allSet?(mbtiNames[type]||'알 수 없는 유형'):'선택해주세요';
+  document.getElementById('mbtiEmoji').textContent=allSet?(mbtiEmojis[type]||'✨'):'🤔';
+
+  // Fix 4: next btn - disabled only when 1~3 selected
+  const selectedCount=mbtiSel.filter(c=>c!=='').length;
+  const btn=document.getElementById('styleNextBtn');
+  if(btn) btn.disabled=(selectedCount>0&&selectedCount<4);
+}
+
+function applyMbtiOutline(){
+  const result=document.getElementById('mbtiResult');
+  if(!result)return;
+  const selectedCount=mbtiSel.filter(c=>c!=='').length;
+  const partial=(selectedCount>0&&selectedCount<4);
+  // show amber outline only when partial AND user has clicked away (touched)
+  if(partial&&mbtiTouched){
+    result.style.border='1.5px solid #C4885A';
+    result.style.boxShadow='0 0 0 3px rgba(196,136,90,0.12)';
+  } else {
+    result.style.border='1.5px solid var(--div)';
+    result.style.boxShadow='none';
+  }
+}
+
+// Init
+initDrums();
+</script>
+</body>
+</html>

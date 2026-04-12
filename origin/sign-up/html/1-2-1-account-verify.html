@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>계정 정보 확인 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F5F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEAE7;
+    --primary: #9686BF;
+    --primary-light: #EDE9F6;
+    --text-main: #1C1A1F;
+    --text-sub: #7B7683;
+    --text-hint: #ADA8B6;
+    --danger: #BF9696;
+    --danger-bg: #F5ECEC;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'Nanum Square Neo', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 12px 60px;
+  }
+
+  /* ── Phone frame ── */
+  .phone-frame {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px 0;
+  }
+  .status-time { font-size: 14px; font-weight: 800; color: var(--text-main); }
+  .status-icons { display: flex; align-items: center; gap: 5px; }
+
+  /* ── App header ── */
+  .app-header {
+    padding: 14px 24px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .app-name { font-size: 15px; font-weight: 800; color: var(--text-main); }
+
+  /* ── Nav ── */
+  .nav { padding: 16px 24px 0; }
+  .nav-back {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .nav-back:hover  { background: #E0DDD9; }
+  .nav-back:active { background: #D6D3CF; }
+
+  /* ── Content ── */
+  .content {
+    padding: 28px 24px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .step-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.4px; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+
+  .title {
+    font-size: 24px; font-weight: 400;
+    color: var(--text-main); line-height: 1.35;
+    letter-spacing: -0.3px; margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 13px; color: var(--text-sub);
+    font-weight: 400; line-height: 1.65;
+    margin-bottom: 32px; word-break: keep-all;
+  }
+
+  /* ── Form group ── */
+  .form-group { margin-bottom: 14px; }
+
+  .field-label {
+    display: block;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.7px; color: var(--text-hint);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+
+  /* ── Input row ── */
+  .input-row {
+    display: flex; gap: 8px;
+    align-items: stretch; width: 100%;
+  }
+
+  .input-wrap {
+    flex: 1; min-width: 0;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+    outline: 1.5px solid transparent;
+    transition: outline-color 0.2s;
+  }
+  .input-wrap:focus-within { outline-color: var(--primary); }
+  .input-wrap.error        { outline-color: var(--danger); }
+
+  .flag { font-size: 18px; line-height: 1; flex-shrink: 0; }
+
+  .divider-v {
+    width: 1px; height: 16px;
+    background: var(--surface-2); flex-shrink: 0;
+  }
+
+  input {
+    border: none; background: transparent; outline: none;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 14px; font-weight: 400; color: var(--text-main);
+    flex: 1; min-width: 0; width: 0;
+  }
+  input::placeholder { color: var(--text-hint); }
+
+  /* ── Verify button ── */
+  .btn-verify {
+    flex-shrink: 0;
+    background: var(--primary); color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    padding: 0 18px;
+    font-size: 13px; font-weight: 700;
+    font-family: 'Nanum Square Neo', sans-serif;
+    cursor: pointer; white-space: nowrap;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn-verify:hover  { opacity: 0.88; transform: translateY(-1px); }
+  .btn-verify:active { transform: scale(0.97); }
+
+  /* ── OTP row ── */
+  .otp-row {
+    display: flex; gap: 8px; align-items: stretch; width: 100%;
+  }
+  .otp-row .input-wrap { flex: 1; min-width: 0; }
+
+  .btn-confirm {
+    flex-shrink: 0;
+    background: var(--primary-light); color: var(--primary);
+    border: none; border-radius: var(--radius-sm);
+    padding: 0 18px;
+    font-size: 13px; font-weight: 700;
+    font-family: 'Nanum Square Neo', sans-serif;
+    cursor: pointer; white-space: nowrap;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn-confirm:hover  { opacity: 0.8; transform: translateY(-1px); }
+  .btn-confirm:active { transform: scale(0.97); }
+
+  /* ── Timer ── */
+  .timer {
+    font-size: 12px; color: var(--primary); font-weight: 700;
+    margin-top: 7px; padding-left: 2px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* ── OTP 오류 메시지 ── */
+  .otp-error {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 8px; padding-left: 2px;
+    opacity: 0; transform: translateY(-3px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+  }
+  .otp-error.show { opacity: 1; transform: translateY(0); }
+  .otp-error-text {
+    font-size: 12px; font-weight: 700; color: var(--danger);
+  }
+
+  /* ── Info card ── */
+  .info-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px 18px; margin-top: 24px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .info-icon {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .info-text {
+    font-size: 12px; color: var(--text-sub);
+    line-height: 1.65; font-weight: 400; word-break: keep-all;
+  }
+  .info-text strong { color: var(--text-main); font-weight: 700; }
+
+  /* ── CTA ── */
+  .cta-wrap { padding: 28px 24px 28px; }
+  .btn-cta {
+    width: 100%;
+    background: #E8E5E1; color: #B0ABB5;
+    border: none; border-radius: var(--radius);
+    padding: 17px;
+    font-size: 15px; font-weight: 700;
+    font-family: 'Nanum Square Neo', sans-serif;
+    cursor: default;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: background 0.22s, color 0.22s, transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-cta.active {
+    background: var(--primary); color: #fff; cursor: pointer;
+  }
+  .btn-cta.active:hover  { box-shadow: 0 8px 24px rgba(150,134,191,0.30); transform: translateY(-1px); }
+  .btn-cta.active:active { transform: scale(0.98); box-shadow: none; }
+
+  /* ── Home indicator ── */
+  .home-indicator {
+    width: 120px; height: 4px;
+    background: var(--text-main); border-radius: 3px;
+    margin: 0 auto 16px; opacity: 0.15;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .step-label  { animation: fadeUp 0.4s ease 0.05s both; }
+  .title       { animation: fadeUp 0.4s ease 0.10s both; }
+  .subtitle    { animation: fadeUp 0.4s ease 0.14s both; }
+  .form-group  { animation: fadeUp 0.4s ease 0.18s both; }
+  .info-card   { animation: fadeUp 0.4s ease 0.26s both; }
+  .cta-wrap    { animation: fadeUp 0.4s ease 0.30s both; }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12">
+        <rect x="0"    y="3"   width="3" height="9"    rx="1" fill="#1C1A1F" opacity=".3"/>
+        <rect x="4.5"  y="2"   width="3" height="10"   rx="1" fill="#1C1A1F" opacity=".5"/>
+        <rect x="9"    y="0.5" width="3" height="11.5" rx="1" fill="#1C1A1F" opacity=".75"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="#1C1A1F"/>
+      </svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <path d="M8 2.5C10.5 2.5 12.7 3.6 14.2 5.3L15.5 4C13.6 1.9 11 0.5 8 0.5C5 0.5 2.4 1.9 0.5 4L1.8 5.3C3.3 3.6 5.5 2.5 8 2.5Z" fill="#1C1A1F" opacity=".3"/>
+        <path d="M8 5.5C9.7 5.5 11.2 6.2 12.3 7.4L13.6 6.1C12.1 4.5 10.2 3.5 8 3.5C5.8 3.5 3.9 4.5 2.4 6.1L3.7 7.4C4.8 6.2 6.3 5.5 8 5.5Z" fill="#1C1A1F" opacity=".6"/>
+        <circle cx="8" cy="10" r="1.5" fill="#1C1A1F"/>
+      </svg>
+      <svg width="25" height="12" fill="none" viewBox="0 0 25 12">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#1C1A1F" stroke-opacity=".35"/>
+        <rect x="2"   y="2"   width="16" height="8"  rx="2"   fill="#1C1A1F"/>
+        <path d="M23 4.5V7.5C23.8 7.2 24.5 6.5 24.5 6C24.5 5.5 23.8 4.8 23 4.5Z" fill="#1C1A1F" opacity=".4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="logo-mark">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5L2.5 4.7v6.6L8 14.5l5.5-3.2V4.7L8 1.5Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" fill="white"/>
+      </svg>
+    </div>
+    <span class="app-name">녹차</span>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-back" onclick="history.back()">
+      <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
+        <path d="M11 13.5L6.5 9L11 4.5" stroke="#1C1A1F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <span class="step-label">계정 정보 확인</span>
+    <h1 class="title">본인 확인을 위해<br>번호를 인증해요</h1>
+    <p class="subtitle">계정 정보를 확인하기 위하여<br>핸드폰 번호 인증을 진행합니다.</p>
+
+    <!-- 휴대폰 번호 -->
+    <div class="form-group">
+      <label class="field-label">휴대폰 번호</label>
+      <div class="input-row">
+        <div class="input-wrap">
+          <span class="flag">🇰🇷</span>
+          <div class="divider-v"></div>
+          <input type="tel" id="phone" placeholder="010-0000-0000" maxlength="13"
+            oninput="formatPhone(this); onPhoneInput()">
+        </div>
+        <button class="btn-verify" onclick="sendCode()">인증</button>
+      </div>
+    </div>
+
+    <!-- 인증번호 -->
+    <div class="form-group" id="otp-group" style="opacity:0.35; pointer-events:none; transition:opacity 0.3s;">
+      <label class="field-label">인증번호</label>
+      <div class="otp-row">
+        <div class="input-wrap" id="otp-wrap">
+          <input type="text" id="otp" placeholder="6자리 입력" maxlength="6"
+            oninput="onOtpInput()" inputmode="numeric">
+        </div>
+        <button class="btn-confirm" onclick="verifyOtp()">확인</button>
+      </div>
+      <div class="timer" id="timer" style="display:none">
+        <svg width="12" height="12" fill="none" viewBox="0 0 12 12">
+          <circle cx="6" cy="6" r="5" stroke="#9686BF" stroke-width="1.2"/>
+          <path d="M6 3.5V6L7.5 7.5" stroke="#9686BF" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <span id="timer-text">02:59</span>
+      </div>
+
+      <!-- 인증번호 오류 메시지 (7번) -->
+      <div class="otp-error" id="otp-error">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <circle cx="6.5" cy="6.5" r="5.5" stroke="#BF9696" stroke-width="1.2"/>
+          <path d="M6.5 4v3M6.5 8.5v.1" stroke="#BF9696" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span class="otp-error-text">인증번호가 틀렸습니다. 다시 확인해주세요.</span>
+      </div>
+    </div>
+
+    <!-- Info card -->
+    <div class="info-card">
+      <div class="info-icon">
+        <svg width="9" height="9" fill="none" viewBox="0 0 9 9">
+          <path d="M4.5 2V4.5M4.5 6.5V6.6" stroke="#9686BF" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="info-text">
+        가입 시 등록한 번호로 인증을 진행합니다.<br>
+        <strong>번호가 변경된 경우</strong> 고객센터로 문의해 주세요.
+      </p>
+    </div>
+  </div>
+
+  <!-- CTA — 8번: 기본 비활성, 보임 -->
+  <div class="cta-wrap">
+    <button class="btn-cta" id="btn-next" onclick="goNext()">
+      다음
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  /* ── 더미 OTP (실제 서비스: SMS API) ── */
+  const DUMMY_OTP = '123456';
+
+  let timerInterval = null;
+  let seconds       = 179;
+  let otpVerified   = false;
+
+  const otpGroup  = document.getElementById('otp-group');
+  const otpWrap   = document.getElementById('otp-wrap');
+  const otpError  = document.getElementById('otp-error');
+  const btnNext   = document.getElementById('btn-next');
+
+  /* ── 전화번호 포맷 ── */
+  function formatPhone(input) {
+    let v = input.value.replace(/\D/g, '');
+    if      (v.length <= 3) input.value = v;
+    else if (v.length <= 7) input.value = v.slice(0,3) + '-' + v.slice(3);
+    else                    input.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+  }
+
+  /* ── 폰 입력 시: 번호 바뀌면 인증 초기화 ── */
+  function onPhoneInput() {
+    if (otpVerified) {
+      otpVerified = false;
+      btnNext.classList.remove('active');
+    }
+  }
+
+  /* ── 인증번호 발송 ── */
+  function sendCode() {
+    const phone = document.getElementById('phone').value.replace(/\D/g,'');
+    if (phone.length < 10) return;
+
+    /* OTP 그룹 활성화 */
+    otpGroup.style.opacity       = '1';
+    otpGroup.style.pointerEvents = 'auto';
+
+    /* 타이머 */
+    document.getElementById('timer').style.display = 'flex';
+    otpError.classList.remove('show');
+    document.getElementById('otp').value = '';
+    otpWrap.style.outlineColor = '';
+    seconds = 179;
+    clearInterval(timerInterval);
+    updateTimer();
+    timerInterval = setInterval(() => {
+      seconds--;
+      if (seconds <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('timer-text').textContent = '만료됨';
+      } else updateTimer();
+    }, 1000);
+  }
+
+  function updateTimer() {
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    document.getElementById('timer-text').textContent = m + ':' + s;
+  }
+
+  /* ── OTP 입력 시 오류 메시지 자동 숨김 ── */
+  function onOtpInput() {
+    otpError.classList.remove('show');
+    otpWrap.style.outlineColor = '';
+  }
+
+  /* ── OTP 확인 ── */
+  function verifyOtp() {
+    const otp = document.getElementById('otp').value.trim();
+
+    if (otp === DUMMY_OTP) {
+      /* 성공 */
+      otpVerified = true;
+      clearInterval(timerInterval);
+      document.getElementById('timer').style.display = 'none';
+      otpWrap.style.outlineColor = '#8BBFA8';
+      otpError.classList.remove('show');
+      btnNext.classList.add('active');
+    } else {
+      /* 실패 — 오류 메시지 (7번) 표시 */
+      otpVerified = false;
+      otpWrap.style.outlineColor = '#D4A9A9';
+      otpError.classList.add('show');
+      document.getElementById('otp').value = '';
+      btnNext.classList.remove('active');
+    }
+  }
+
+  /* ── 다음 버튼 ── */
+  function goNext() {
+    if (!btnNext.classList.contains('active')) return;
+    /* 실제 서비스: 계정 정보 확인 결과 화면으로 이동 */
+    /* window.location.href = 'account_result.html'; */
+    alert('✅ 인증 완료! 계정 정보 확인 화면으로 이동합니다.');
+  }
+</script>
+</body>
+</html>
