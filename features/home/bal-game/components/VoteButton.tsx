@@ -65,7 +65,7 @@ const VoteButton: React.FC<VoteButtonProps> = ({
         </Text>
         <Text
           className="text-[12px] font-bold mt-[2px]"
-          style={{ color: isMyChoice ? COLORS.primaryMid : COLORS.textPrimaryMuted }}
+          style={{ color: isMyChoice ? COLORS.primaryMid : COLORS.textMuted }}
         >
           {percent}%
         </Text>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>녹차 – 내 프로필</title>
+<style>
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-dEb.woff2') format('woff2');font-weight:800}
+
+:root{
+  --bg:#F5F3F1;--purple:#9686BF;--pl:rgba(150,134,191,.10);--pm:rgba(150,134,191,.22);
+  --card:#fff;--div:#EAE7E3;
+  --t1:#1C1A1F;--t2:#6B6670;--t3:#ADA8B2;
+  --green:#5BB98C;--gl:rgba(91,185,140,.10);
+  --amber:#C4885A;--al:rgba(196,136,90,.10);
+  --red:#D4655A;--rl:rgba(212,101,90,.10);
+  --sh:0 2px 14px rgba(150,134,191,.08);--shm:0 6px 28px rgba(150,134,191,.14);
+  --r:18px;--rsm:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{font-family:'NSN','Apple SD Gothic Neo',sans-serif;background:#DEDAD5;
+  min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:36px 0 64px}
+
+/* ── Phone ── */
+.phone{width:390px;min-height:844px;background:var(--bg);border-radius:50px;overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.24),0 0 0 10px #181818,0 0 0 11px #2C2C2C;
+  display:flex;flex-direction:column;position:relative}
+
+/* ── Status ── */
+.status{display:flex;justify-content:space-between;align-items:center;
+  padding:14px 28px 4px;font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+.status-r{display:flex;align-items:center;gap:5px}
+.di{width:126px;height:34px;background:#0D0D0D;border-radius:20px;margin:4px auto 0;flex-shrink:0}
+
+/* ── Top nav ── */
+.top-nav{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px 10px;flex-shrink:0}
+.top-nav-title{font-size:19px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.top-nav-title span{color:var(--purple)}
+.nav-actions{display:flex;gap:8px}
+.icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);
+  cursor:pointer;transition:transform .15s}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:16px;height:16px;fill:none;stroke:var(--t2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Scroll ── */
+.scroll{flex:1;overflow-y:auto;padding-bottom:20px;
+  -ms-overflow-style:none;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── Completeness bar ── */
+.comp-bar{margin:0 18px 14px;background:var(--card);border-radius:var(--rsm);
+  padding:13px 16px;box-shadow:var(--sh);
+  animation:fadeUp .4s ease .04s both}
+.comp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.comp-lbl{font-size:12px;font-weight:700;color:var(--t2)}
+.comp-pct{font-size:18px;font-weight:800;color:var(--purple);letter-spacing:-.04em}
+.comp-track{height:5px;border-radius:3px;background:var(--div);overflow:hidden;margin-bottom:6px}
+.comp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),#BDB0DE);width:88%}
+.comp-hint{font-size:11px;font-weight:400;color:var(--t3)}
+.comp-hint strong{font-weight:700;color:var(--amber)}
+
+/* ── Hero photo card ── */
+.hero{margin:0 18px 14px;border-radius:var(--r);overflow:hidden;
+  box-shadow:var(--shm);animation:fadeUp .4s ease .08s both}
+.hero-photo{width:100%;height:320px;background:linear-gradient(150deg,#C5BAE0 0%,#9686BF 60%,#7A6AAD 100%);
+  position:relative;overflow:hidden;display:flex;align-items:flex-end}
+.hero-photo::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 65% 25%,rgba(255,255,255,.12) 0%,transparent 60%)}
+.hero-initials{position:absolute;bottom:12px;right:16px;
+  font-size:64px;font-weight:800;color:rgba(255,255,255,.18);letter-spacing:-.04em;user-select:none}
+.photo-dots{position:absolute;bottom:14px;left:16px;display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4)}
+.dot.a{background:#fff;width:18px;border-radius:3px}
+.edit-photo-btn{position:absolute;top:13px;right:13px;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.22);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;cursor:pointer}
+.edit-photo-btn svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.8}
+.interest-badge{position:absolute;top:13px;left:13px;
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.22);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:20px;padding:5px 11px;
+  font-size:11px;font-weight:700;color:#fff;letter-spacing:.02em}
+
+.hero-info{background:var(--card);padding:15px 18px 16px}
+.name-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.hero-name{font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.hero-age{font-size:14px;font-weight:400;color:var(--t3);margin-left:5px}
+.edit-btn{display:flex;align-items:center;gap:5px;
+  background:var(--pl);border:1px solid var(--pm);
+  border-radius:20px;padding:6px 12px;cursor:pointer;
+  font-size:12px;font-weight:700;color:var(--purple);letter-spacing:-.01em}
+.edit-btn svg{width:11px;height:11px;stroke:var(--purple);fill:none;stroke-width:2}
+.meta-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.meta-item{display:flex;align-items:center;gap:4px;
+  font-size:12px;font-weight:700;color:var(--t2)}
+.meta-item svg{width:12px;height:12px;stroke:var(--t3);fill:none;stroke-width:1.8}
+.meta-sep{width:3px;height:3px;border-radius:50%;background:var(--div)}
+
+/* ── Section ── */
+.sec{margin:0 18px 12px;animation:fadeUp .4s ease both}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-lbl{display:flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.05em;text-transform:uppercase}
+.sec-dot{width:5px;height:5px;border-radius:50%;background:var(--purple);flex-shrink:0}
+.sec-edit{font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;
+  display:flex;align-items:center;gap:3px}
+.sec-edit svg{width:11px;height:11px;stroke:var(--purple);fill:none;stroke-width:2}
+
+/* ── Card ── */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.card-p{padding:15px 16px}
+.cdiv{height:1px;background:var(--div);margin:0 16px}
+
+/* ── Keyword chips ── */
+.kw-group{margin-bottom:14px}
+.kw-group:last-child{margin-bottom:0}
+.kw-group-title{font-size:11px;font-weight:700;color:var(--t3);
+  letter-spacing:.04em;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;
+  border-radius:20px;padding:5px 11px;
+  font-size:12px;font-weight:700;white-space:nowrap}
+.chip.purple{background:var(--pl);color:var(--purple);border:1px solid var(--pm)}
+.chip.green{background:var(--gl);color:var(--green);border:1px solid rgba(91,185,140,.2)}
+.chip.amber{background:var(--al);color:var(--amber);border:1px solid rgba(196,136,90,.2)}
+.chip.neutral{background:var(--bg);color:var(--t2);border:1px solid var(--div)}
+
+/* ── Stat row ── */
+.stat-row{display:flex;align-items:center;padding:13px 16px;gap:12px}
+.stat-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:17px}
+.stat-icon.p{background:var(--pl)}
+.stat-icon.g{background:var(--gl)}
+.stat-icon.a{background:var(--al)}
+.stat-icon.n{background:var(--bg);border:1px solid var(--div)}
+.stat-content{flex:1}
+.stat-label{font-size:11px;font-weight:700;color:var(--t3);margin-bottom:2px;letter-spacing:.03em}
+.stat-val{font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:-.02em}
+.stat-sub{font-size:11.5px;font-weight:400;color:var(--t2);margin-top:1px}
+.stat-badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;flex-shrink:0}
+.stat-badge.g{background:var(--gl);color:var(--green)}
+.stat-badge.a{background:var(--al);color:var(--amber)}
+.stat-badge.p{background:var(--pl);color:var(--purple)}
+.stat-badge.n{background:var(--bg);color:var(--t3);border:1px solid var(--div)}
+
+/* ── H-scroll chips (style section) ── */
+.h-chips-view{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;
+  -ms-overflow-style:none;scrollbar-width:none}
+.h-chips-view::-webkit-scrollbar{display:none}
+.h-chip-view{flex-shrink:0;padding:7px 14px;border-radius:20px;
+  border:1.5px solid var(--div);background:var(--card);
+  font-size:12.5px;font-weight:700;color:var(--t2);white-space:nowrap}
+.h-chip-view.sel{border-color:var(--purple);background:var(--pl);color:var(--purple)}
+
+/* ── MBTI card ── */
+.mbti-card{background:var(--purple);border-radius:var(--r);padding:16px 18px;
+  box-shadow:0 6px 20px rgba(150,134,191,.28);position:relative;overflow:hidden}
+.mbti-card::before{content:'';position:absolute;top:-30px;right:-30px;
+  width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.07)}
+.mbti-card::after{content:'';position:absolute;bottom:-20px;left:20px;
+  width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.05)}
+.mbti-eyebrow{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);
+  letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.mbti-type{font-size:30px;font-weight:800;color:#fff;letter-spacing:-.04em;margin-bottom:2px}
+.mbti-desc{font-size:12px;font-weight:400;color:rgba(255,255,255,.75)}
+.mbti-emoji-big{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:36px}
+
+/* ── Style grid ── */
+.style-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.style-item{border-radius:var(--rsm);padding:12px 10px;
+  background:var(--pl);border:1px solid var(--pm);
+  display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.style-emoji{font-size:18px}
+.style-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.03em}
+.style-val{font-size:12.5px;font-weight:800;color:var(--purple);letter-spacing:-.02em}
+
+/* ── Ideal row ── */
+.ideal-list{display:flex;flex-direction:column}
+.ideal-item{display:flex;align-items:center;padding:12px 0;gap:10px;
+  border-bottom:1px solid var(--div)}
+.ideal-item:last-child{border-bottom:none}
+.ideal-icon{width:32px;height:32px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ideal-key{font-size:12.5px;font-weight:700;color:var(--t2);flex:1}
+.ideal-val{font-size:12.5px;font-weight:800;color:var(--t1)}
+.priority-badge{font-size:10px;font-weight:700;color:var(--purple);
+  background:var(--pl);border-radius:20px;padding:3px 8px;letter-spacing:.02em}
+
+/* ── Bio ── */
+.bio-text{font-size:13.5px;font-weight:400;color:var(--t1);line-height:1.75;
+  word-break:keep-all;letter-spacing:-.01em}
+.bio-text em{font-style:normal;font-weight:700;color:var(--purple)}
+
+/* ── Bottom nav ── */
+.bottom-nav{background:var(--card);border-top:1px solid var(--div);
+  padding:10px 16px 28px;display:flex;justify-content:space-around;
+  align-items:flex-start;flex-shrink:0}
+.nav-item{flex:1;display:flex;flex-direction:column;
+  align-items:center;gap:4px;cursor:pointer;position:relative;padding-top:2px}
+.nav-item svg{width:22px;height:22px;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nav-item.off svg{stroke:var(--t3)}
+.nav-item.on svg{stroke:var(--purple)}
+.nav-lbl{font-size:10px;font-weight:700}
+.nav-item.off .nav-lbl{color:var(--t3)}
+.nav-item.on .nav-lbl{color:var(--purple)}
+.nav-pip{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  width:20px;height:3px;border-radius:2px;background:var(--purple)}
+
+/* ── Anim ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.sec:nth-child(1){animation-delay:.10s}
+.sec:nth-child(2){animation-delay:.14s}
+.sec:nth-child(3){animation-delay:.18s}
+.sec:nth-child(4){animation-delay:.22s}
+.sec:nth-child(5){animation-delay:.26s}
+.sec:nth-child(6){animation-delay:.30s}
+.sec:nth-child(7){animation-delay:.34s}
+.sec:nth-child(8){animation-delay:.38s}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status -->
+  <div class="status">
+    <span>9:41</span>
+    <div class="di" style="position:absolute;left:50%;transform:translateX(-50%);top:10px;"></div>
+    <div class="status-r">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--t1)"><rect x="0" y="8" width="2.5" height="8" rx="1"/><rect x="4.5" y="5.5" width="2.5" height="10.5" rx="1"/><rect x="9" y="3" width="2.5" height="13" rx="1"/><rect x="13.5" y="0" width="2.5" height="16" rx="1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t1)" stroke-width="1.4"><path d="M1 5.5a9.5 9.5 0 0 1 14 0"/><path d="M3.5 8a6.5 6.5 0 0 1 9 0"/><path d="M6 10.5a3.5 3.5 0 0 1 4 0"/><circle cx="8" cy="13" r="1" fill="var(--t1)" stroke="none"/></svg>
+      <svg width="20" height="11" viewBox="0 0 22 12" fill="none" stroke="var(--t1)" stroke-width="1.2"><rect x=".6" y=".6" width="17.8" height="10.8" rx="2.4"/><rect x="1.8" y="1.8" width="13" height="8.4" rx="1.5" fill="var(--t1)" stroke="none"/><path d="M19.5 4v4" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- Top Nav -->
+  <div class="top-nav">
+    <div class="top-nav-title">내 프로<span>필</span></div>
+    <div class="nav-actions">
+      <div class="icon-btn" title="공유">
+        <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </div>
+      <div class="icon-btn" title="설정">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll -->
+  <div class="scroll">
+
+    <!-- 완성도 바 -->
+    <div class="comp-bar">
+      <div class="comp-top">
+        <div class="comp-lbl">프로필 완성도</div>
+        <div class="comp-pct">88%</div>
+      </div>
+      <div class="comp-track"><div class="comp-fill"></div></div>
+      <div class="comp-hint"><strong>사진 1장</strong>을 더 추가하면 매칭 확률이 높아져요 ✨</div>
+    </div>
+
+    <!-- 히어로 사진 -->
+    <div class="hero">
+      <div class="hero-photo">
+        <div class="interest-badge">💑 지인+애인</div>
+        <div class="edit-photo-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="hero-initials">지수</div>
+        <div class="photo-dots">
+          <div class="dot a"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      <div class="hero-info">
+        <div class="name-row">
+          <div>
+            <span class="hero-name">김지수</span>
+            <span class="hero-age">26세</span>
+          </div>
+          <div class="edit-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            수정
+          </div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            서울 마포구
+          </div>
+          <div class="meta-sep"></div>
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            디자이너
+          </div>
+          <div class="meta-sep"></div>
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            INFP
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 관심사 키워드 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-lbl"><div class="sec-dot"></div>관심사 키워드</div>
+        <div class="sec-edit">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          수정
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-p" style="display:flex;flex-direction:column;gap:14px">
+          <div class="kw-group">
+            <div class="kw-group-title">🌿 라이프스타일</div>
+            <div class="chips">
+              <div class="chip purple">아침형 인간</div>
+              <div class="chip purple">집순이/집돌이</div>
+              <div class="chip purple">반려동물</div>
+              <div class="chip purple">워라밸</div>
+            </div>
+          </div>
+          <div class="kw-group">
+            <div class="kw-group-title">🎨 취미</div>
+            <div class="chips">
+              <div class="chip green">홈카페</div>
+              <div class="chip green">베이킹</div>
+              <div class="chip green">드로잉</div>
+              <div class="chip green">악기연주</div>
+            </div>
+          </div>
+          <div class="kw-group">
+            <div class="kw-group-title">🗺️ 외부 여가</div>
+            <div class="chips">
+              <div class="chip amber">맛집 탐방</div>
+              <div class="chip amber">카페 투어</div>
+              <div class="chip amber">사진 찍기</div>
+              <div class="chip amber">국내여행</div>
+            </div>
+          </div>
+          <div class="kw-group">
+            <div class="kw-group-title">🎵 음악</div>
+            <div class="chips">
+              <div class="chip neutral">인디음악</div>
+              <div class="chip neutral">시티팝</div>
+              <div class="chip neutral">재즈</div>
+            </div>
+          </div>
+          <div class="kw-group" style="margin-bottom:0">
+            <div class="kw-group-title">✨ 나만의 키워드</div>
+            <div class="chips">
+              <div class="chip purple">#필름카메라</div>
+              <div class="chip purple">#비오는날카페</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 생활 습관 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-lbl"><div class="sec-dot"></div>생활 습관</div>
+        <div class="sec-edit">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          수정
+        </div>
+      </div>
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat-icon a">🍷</div>
+          <div class="stat-content">
+            <div class="stat-label">음주</div>
+            <div class="stat-val">가끔 마심</div>
+            <div class="stat-sub">🍺 맥주 · 🍷 와인</div>
+          </div>
+          <div class="stat-badge a">소셜음주</div>
+        </div>
+        <div class="cdiv"></div>
+        <div class="stat-row">
+          <div class="stat-icon g">🌿</div>
+          <div class="stat-content">
+            <div class="stat-label">흡연</div>
+            <div class="stat-val">비흡연자</div>
+          </div>
+          <div class="stat-badge g">비흡연</div>
+        </div>
+        <div class="cdiv"></div>
+        <div class="stat-row">
+          <div class="stat-icon n">🖊️</div>
+          <div class="stat-content">
+            <div class="stat-label">타투</div>
+            <div class="stat-val">없어요</div>
+          </div>
+          <div class="stat-badge n">없음</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 내 스타일 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-lbl"><div class="sec-dot"></div>내 스타일</div>
+        <div class="sec-edit">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          수정
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-p">
+          <div class="style-grid" style="margin-bottom:14px">
+            <div class="style-item">
+              <div class="style-emoji">💇</div>
+              <div class="style-label">머리 길이</div>
+              <div class="style-val">긴머리</div>
+            </div>
+            <div class="style-item">
+              <div class="style-emoji">👤</div>
+              <div class="style-label">체형</div>
+              <div class="style-val">보통</div>
+            </div>
+            <div class="style-item">
+              <div class="style-emoji">📏</div>
+              <div class="style-label">키</div>
+              <div class="style-val">161~165</div>
+            </div>
+          </div>
+          <!-- 성향 h-chip -->
+          <div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.03em;margin-bottom:8px">성향</div>
+          <div class="h-chips-view">
+            <div class="h-chip-view">온깁</div>
+            <div class="h-chip-view sel">깁선호</div>
+            <div class="h-chip-view">텍선호</div>
+            <div class="h-chip-view">온텍</div>
+            <div class="h-chip-view">플라토닉</div>
+          </div>
+        </div>
+        <div class="cdiv"></div>
+        <!-- MBTI -->
+        <div class="card-p" style="padding-top:14px">
+          <div class="mbti-card">
+            <div class="mbti-eyebrow">MBTI</div>
+            <div class="mbti-type">INFP</div>
+            <div class="mbti-desc">중재자형 · 이상주의자</div>
+            <div class="mbti-emoji-big">🌙</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이상형 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-lbl"><div class="sec-dot"></div>이상형</div>
+        <div class="sec-edit">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          수정
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-p">
+          <!-- 가장 중요한 포인트 -->
+          <div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.03em;margin-bottom:8px">가장 중요한 포인트</div>
+          <div class="chips" style="margin-bottom:16px">
+            <div class="chip purple">🌿 라이프스타일</div>
+            <div class="chip purple">🎨 관심사</div>
+          </div>
+          <!-- 선호 스타일 -->
+          <div class="ideal-list">
+            <div class="ideal-item">
+              <div class="ideal-icon" style="background:var(--pl)">💇</div>
+              <div class="ideal-key">머리 길이</div>
+              <div class="ideal-val">중요하지 않아요</div>
+            </div>
+            <div class="ideal-item">
+              <div class="ideal-icon" style="background:var(--al)">📏</div>
+              <div class="ideal-key">키</div>
+              <div class="ideal-val">171 이상</div>
+            </div>
+            <div class="ideal-item">
+              <div class="ideal-icon" style="background:var(--gl)">👤</div>
+              <div class="ideal-key">체형</div>
+              <div class="ideal-val">중요하지 않아요</div>
+            </div>
+            <div class="ideal-item">
+              <div class="ideal-icon" style="background:var(--pl)">💬</div>
+              <div class="ideal-key">성향</div>
+              <div class="ideal-val">텍선호</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 자기소개 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-lbl"><div class="sec-dot"></div>나에 대해</div>
+        <div class="sec-edit">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          수정
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-p">
+          <div class="bio-text">
+            안녕하세요 👋 서울에서 디자이너로 일하고 있는 지수예요.<br><br>
+            주말엔 <em>홈카페</em> 만들거나 좋아하는 카페 찾아다니는 걸 즐겨요. 요즘은 <em>필름 카메라</em>에 빠져서 동네 골목을 찍고 다니고 있어요 📷<br><br>
+            대화가 잘 통하는 사람이 좋아요. 같이 <em>인디밴드 공연</em> 보러 갈 수 있는 분이면 더 좋겠어요 🎵
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:8px"></div>
+  </div><!-- /scroll -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item off">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="nav-lbl">Notice</div>
+    </div>
+    <div class="nav-item off">
+      <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <div class="nav-lbl">Story</div>
+    </div>
+    <div class="nav-item off">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <div class="nav-lbl">Home</div>
+    </div>
+    <div class="nav-item off">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div class="nav-lbl">Chat</div>
+    </div>
+    <div class="nav-item on">
+      <div class="nav-pip"></div>
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div class="nav-lbl">Profile</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

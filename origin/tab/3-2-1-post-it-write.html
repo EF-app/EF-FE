@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포스트잇 붙이기 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEAE7;
+    --primary: #9686BF;
+    --primary-tint: rgba(150,134,191,0.10);
+    --primary-mid: rgba(150,134,191,0.22);
+    --primary-shadow: rgba(150,134,191,0.18);
+    --divider: #EAE7E3;
+    --text-primary: #1C1A1F;
+    --text-secondary: #6B6670;
+    --text-muted: #ADA8B2;
+    --danger: #BF9696;
+    --amber: #C4885A;
+    --green: #8BBFA8;
+
+    /* 포스트잇 색상 팔레트 */
+    --post-yellow:  #FFF4A3;
+    --post-purple:  #E8E0FF;
+    --post-pink:    #FFE0EF;
+    --post-mint:    #D4F5EC;
+    --post-peach:   #FFE8D6;
+    --post-sky:     #D6EDFF;
+  }
+
+  html, body { width: 100%; min-height: 100vh; }
+
+  body {
+    font-family: 'Nanum Square Neo', sans-serif;
+    background: #16141a;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 0 40px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Phone shell ── */
+  .phone-shell {
+    width: 390px;
+    background: var(--bg);
+    border-radius: 48px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.65);
+    display: flex; flex-direction: column;
+    position: relative;
+    height: 844px;
+  }
+
+  .dynamic-island {
+    position: absolute; top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #000; border-radius: 20px; z-index: 20;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: var(--bg);
+    padding: 56px 24px 0;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .status-time { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+  .status-icons { display: flex; align-items: center; gap: 6px; }
+
+  /* ── Screen ── */
+  .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Top nav ── */
+  .top-nav {
+    padding: 12px 20px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg);
+    border-bottom: 1px solid var(--divider);
+    flex-shrink: 0;
+  }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .nav-back {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--surface-2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .nav-back:active { background: #D6D3CF; }
+  .nav-title { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+  .char-badge {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    background: var(--surface-2); border-radius: 20px; padding: 4px 10px;
+    transition: color 0.15s;
+  }
+  .char-badge.warn { color: var(--amber); }
+  .char-badge.over { color: var(--danger); }
+
+  /* ── Scroll area ── */
+  .scroll-area {
+    flex: 1; overflow-y: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 16px 0;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* ── 내 정보 카드 ── */
+  .sender-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 13px 15px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 3px 12px var(--primary-shadow);
+    margin-bottom: 16px;
+    animation: fadeUp 0.35s ease 0.05s both;
+  }
+  .sender-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+  }
+  .sender-info { flex: 1; min-width: 0; }
+  .sender-nick {
+    font-size: 13.5px; font-weight: 800; color: var(--text-primary);
+    letter-spacing: -0.2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .age-pill {
+    font-size: 10px; font-weight: 700; color: var(--primary);
+    background: var(--primary-tint); border-radius: 20px; padding: 1px 7px;
+  }
+  .sender-loc {
+    font-size: 11px; font-weight: 400; color: var(--text-muted);
+    display: flex; align-items: center; gap: 3px; margin-top: 2px;
+  }
+  .anon-inline { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .anon-label { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+  .toggle-input { display: none; }
+  .toggle-track {
+    width: 36px; height: 20px; border-radius: 10px;
+    background: var(--surface-2); cursor: pointer;
+    position: relative; transition: background 0.25s; flex-shrink: 0;
+  }
+  .toggle-input:checked + .toggle-track { background: var(--primary); }
+  .toggle-thumb {
+    position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    transition: transform 0.25s;
+  }
+  .toggle-input:checked + .toggle-track .toggle-thumb { transform: translateX(16px); }
+
+  /* ══════════════════════════════
+     포스트잇 카드
+  ══════════════════════════════ */
+  .postit-wrap {
+    margin-bottom: 16px;
+    animation: fadeUp 0.35s ease 0.08s both;
+    perspective: 600px;
+  }
+
+  .postit-card {
+    background: var(--post-yellow); /* JS로 바뀜 */
+    border-radius: 2px 18px 18px 18px;
+    position: relative;
+    box-shadow:
+      0 2px 0 rgba(0,0,0,0.06),
+      0 6px 24px rgba(0,0,0,0.10),
+      3px 4px 14px rgba(150,134,191,0.13);
+    transition: background 0.3s ease;
+    overflow: visible;
+  }
+
+  /* 포스트잇 접힌 상단 왼쪽 귀퉁이 */
+  .postit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 24px; height: 24px;
+    background: rgba(0,0,0,0.06);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    border-radius: 2px 0 0 0;
+    z-index: 2;
+  }
+
+  /* 포스트잇 테이프 — 상단 중앙 */
+  .postit-tape {
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    width: 56px; height: 20px;
+    background: rgba(150,134,191,0.28);
+    border-radius: 2px;
+    z-index: 3;
+    backdrop-filter: blur(2px);
+  }
+  .postit-tape::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent, transparent 4px,
+      rgba(255,255,255,0.25) 4px, rgba(255,255,255,0.25) 5px
+    );
+    border-radius: 2px;
+  }
+
+  /* 포스트잇 핀 포인트 */
+  .postit-pin {
+    position: absolute;
+    top: -14px; left: 50%; transform: translateX(-50%);
+    width: 14px; height: 14px;
+    background: var(--primary);
+    border-radius: 50%;
+    z-index: 4;
+    box-shadow: 0 2px 6px rgba(150,134,191,0.5), inset 0 -1px 2px rgba(0,0,0,0.15);
+  }
+  .postit-pin::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 5px; height: 5px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 50%;
+  }
+
+  /* 색상 선택 툴바 */
+  .color-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .color-toolbar-lbl {
+    font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.35);
+    letter-spacing: .04em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .color-dots { display: flex; gap: 6px; }
+  .color-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    cursor: pointer; border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .color-dot:active { transform: scale(0.88); }
+  .color-dot.active { border-color: rgba(0,0,0,0.25); transform: scale(1.15); }
+  .color-dot[data-color="yellow"]  { background: var(--post-yellow); }
+  .color-dot[data-color="purple"]  { background: var(--post-purple); }
+  .color-dot[data-color="pink"]    { background: var(--post-pink); }
+  .color-dot[data-color="mint"]    { background: var(--post-mint); }
+  .color-dot[data-color="peach"]   { background: var(--post-peach); }
+  .color-dot[data-color="sky"]     { background: var(--post-sky); }
+
+  /* 제목 입력 */
+  .postit-title-wrap {
+    padding: 14px 18px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    padding-bottom: 11px;
+  }
+  .postit-title-input {
+    width: 100%; border: none; outline: none; background: transparent;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 15px; font-weight: 800; color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+  .postit-title-input::placeholder { color: rgba(0,0,0,0.25); font-weight: 400; font-size: 14px; }
+
+  /* 본문 — 격자 눈금 배경 */
+  .postit-body-wrap {
+    padding: 12px 18px 16px;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .postit-textarea {
+    width: 100%; border: none; outline: none; background: transparent;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 13.5px; font-weight: 400; color: var(--text-primary);
+    line-height: 24px; resize: none; min-height: 180px;
+  }
+  .postit-textarea::placeholder {
+    color: rgba(0,0,0,0.28);
+    font-size: 13px; line-height: 1.7;
+  }
+
+  /* 서명 */
+  .postit-footer {
+    padding: 10px 18px 14px;
+    display: flex; align-items: center; justify-content: flex-end; gap: 5px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .sign-from { font-size: 11px; font-weight: 400; color: rgba(0,0,0,0.3); font-style: italic; }
+  .sign-nick { font-size: 12px; font-weight: 800; color: var(--primary); }
+
+  /* ── 분위기 태그 ── */
+  .tag-section {
+    margin-bottom: 14px;
+    animation: fadeUp 0.35s ease 0.12s both;
+  }
+  .tag-section-label {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.04em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .tag-scroll {
+    display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px;
+    -ms-overflow-style: none; scrollbar-width: none;
+  }
+  .tag-scroll::-webkit-scrollbar { display: none; }
+  .tag-btn {
+    flex-shrink: 0;
+    padding: 7px 13px; border-radius: 20px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 12px; font-weight: 700;
+    background: var(--surface); color: var(--text-secondary);
+    border: 1.5px solid var(--divider); cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .tag-btn:active { transform: scale(0.95); }
+  .tag-btn.selected {
+    background: var(--primary-tint);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* ── 공개 범위 ── */
+  .scope-section {
+    margin-bottom: 14px;
+    animation: fadeUp 0.35s ease 0.15s both;
+  }
+  .scope-row { display: flex; gap: 8px; }
+  .scope-btn {
+    flex: 1;
+    background: var(--surface); border-radius: 14px;
+    border: 1.5px solid var(--divider); cursor: pointer;
+    padding: 11px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: 'Nanum Square Neo', sans-serif;
+    transition: all 0.15s;
+  }
+  .scope-btn:active { transform: scale(0.97); }
+  .scope-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary-tint);
+  }
+  .scope-icon { font-size: 18px; }
+  .scope-name {
+    font-size: 12px; font-weight: 800; color: var(--text-primary);
+  }
+  .scope-btn.selected .scope-name { color: var(--primary); }
+  .scope-desc {
+    font-size: 10px; font-weight: 400; color: var(--text-muted);
+  }
+
+  /* ── 안내 카드 ── */
+  .notice-card {
+    background: var(--primary-tint);
+    border: 1px solid var(--primary-mid);
+    border-radius: 12px;
+    padding: 10px 13px;
+    display: flex; align-items: flex-start; gap: 8px;
+    margin-bottom: 14px;
+    animation: fadeUp 0.35s ease 0.18s both;
+  }
+  .notice-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--primary-tint); border: 1px solid var(--primary-mid);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .notice-text {
+    font-size: 11px; font-weight: 400; color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .notice-text strong { font-weight: 800; color: var(--primary); }
+
+  .space { height: 20px; }
+
+  /* ── 전송 버튼 바 ── */
+  .send-bar {
+    padding: 10px 16px 8px;
+    background: var(--bg);
+    border-top: 1px solid var(--divider);
+    flex-shrink: 0;
+  }
+  .send-btn {
+    width: 100%; padding: 15px;
+    border-radius: 16px; border: none; cursor: pointer;
+    font-family: 'Nanum Square Neo', sans-serif;
+    font-size: 15px; font-weight: 800;
+    background: var(--surface-2); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .send-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 6px 20px var(--primary-shadow);
+  }
+  .send-btn.active:active { transform: scale(0.98); }
+
+  /* ── 애니메이션 ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes stickyIn {
+    0%   { opacity: 0; transform: translateY(-6px) rotate(-1deg); }
+    60%  { transform: translateY(2px) rotate(0.4deg); }
+    100% { opacity: 1; transform: translateY(0) rotate(0); }
+  }
+  .postit-wrap { animation: stickyIn 0.45s cubic-bezier(.34,1.56,.64,1) 0.08s both; }
+</style>
+</head>
+<body>
+<div class="phone-shell">
+  <div class="dynamic-island"></div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <rect x="0" y="4" width="3" height="8" rx="1" fill="#1C1A1F"/>
+        <rect x="4.5" y="2.5" width="3" height="9.5" rx="1" fill="#1C1A1F"/>
+        <rect x="9" y="0.5" width="3" height="11.5" rx="1" fill="#1C1A1F"/>
+        <rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="#1C1A1F" opacity=".28"/>
+      </svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12">
+        <path d="M8 3C5.5 3 3.3 4 1.7 5.7L0.3 4.3C2.3 2.3 5 1 8 1s5.7 1.3 7.7 3.3L14.3 5.7C12.7 4 10.5 3 8 3Z" fill="#1C1A1F"/>
+        <path d="M8 7C6.7 7 5.5 7.5 4.6 8.4L3.2 7C4.5 5.8 6.2 5 8 5s3.5.8 4.8 2L11.4 8.4C10.5 7.5 9.3 7 8 7Z" fill="#1C1A1F"/>
+        <circle cx="8" cy="11" r="1.5" fill="#1C1A1F"/>
+      </svg>
+      <svg width="25" height="12" fill="none" viewBox="0 0 25 12">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#1C1A1F" stroke-opacity=".35"/>
+        <rect x="2" y="2" width="16" height="8" rx="2" fill="#1C1A1F"/>
+        <path d="M23 4.5v3a1.5 1.5 0 0 0 0-3Z" fill="#1C1A1F" opacity=".4"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="screen">
+    <!-- Top nav -->
+    <div class="top-nav">
+      <div class="nav-left">
+        <button class="nav-back" aria-label="뒤로">
+          <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
+            <path d="M10 13L5.5 8L10 3" stroke="#1C1A1F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="nav-title">📌 포스트잇 붙이기</span>
+      </div>
+      <span class="char-badge" id="char-badge">0 / 200</span>
+    </div>
+
+    <!-- Scroll -->
+    <div class="scroll-area">
+
+      <!-- 내 정보 -->
+      <div class="sender-card">
+        <div class="sender-avatar" id="my-avatar">나</div>
+        <div class="sender-info">
+          <div class="sender-nick">
+            <span id="my-nick">졸린고양이🐱</span>
+            <span class="age-pill">25</span>
+          </div>
+          <div class="sender-loc">
+            <svg width="9" height="11" fill="none" viewBox="0 0 10 12">
+              <path d="M5 1C3.1 1 1.5 2.6 1.5 4.5C1.5 7 5 11 5 11S8.5 7 8.5 4.5C8.5 2.6 6.9 1 5 1Z" stroke="#ADA8B2" stroke-width="1.1"/>
+              <circle cx="5" cy="4.5" r="1.1" fill="#ADA8B2"/>
+            </svg>
+            <span id="my-loc">서울 강남구</span>
+          </div>
+        </div>
+        <div class="anon-inline">
+          <span class="anon-label">익명</span>
+          <input type="checkbox" class="toggle-input" id="anon-toggle" onchange="onAnonChange()">
+          <label class="toggle-track" for="anon-toggle">
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 포스트잇 카드 -->
+      <div class="postit-wrap">
+        <!-- 핀 -->
+        <div class="postit-pin"></div>
+
+        <div class="postit-card" id="postit-card">
+
+          <!-- 색상 선택 툴바 -->
+          <div class="color-toolbar">
+            <span class="color-toolbar-lbl">색상</span>
+            <div class="color-dots">
+              <div class="color-dot active" data-color="yellow"  onclick="pickColor(this)" title="노랑"></div>
+              <div class="color-dot"         data-color="purple" onclick="pickColor(this)" title="보라"></div>
+              <div class="color-dot"         data-color="pink"   onclick="pickColor(this)" title="핑크"></div>
+              <div class="color-dot"         data-color="mint"   onclick="pickColor(this)" title="민트"></div>
+              <div class="color-dot"         data-color="peach"  onclick="pickColor(this)" title="피치"></div>
+              <div class="color-dot"         data-color="sky"    onclick="pickColor(this)" title="하늘"></div>
+            </div>
+          </div>
+
+          <!-- 제목 -->
+          <div class="postit-title-wrap">
+            <input type="text" class="postit-title-input" id="title-input"
+              placeholder="제목 (선택)"
+              maxlength="30"
+              oninput="checkReady()"/>
+          </div>
+
+          <!-- 본문 -->
+          <div class="postit-body-wrap">
+            <textarea class="postit-textarea" id="body-textarea"
+              placeholder="오늘 하루 어땠나요?&#10;짧게라도 마음을 적어 붙여보세요 📌&#10;&#10;이 게시판을 보는 누군가에게&#10;전하고 싶은 한 마디도 좋아요."
+              maxlength="200"
+              oninput="onBodyInput(this)"></textarea>
+          </div>
+
+          <!-- 서명 -->
+          <div class="postit-footer">
+            <span class="sign-from">from.</span>
+            <span class="sign-nick" id="sign-nick">졸린고양이🐱</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 분위기 태그 -->
+      <div class="tag-section">
+        <p class="tag-section-label">분위기 태그</p>
+        <div class="tag-scroll">
+          <button class="tag-btn selected" onclick="selectTag(this)">📌 일상</button>
+          <button class="tag-btn" onclick="selectTag(this)">💛 따뜻해요</button>
+          <button class="tag-btn" onclick="selectTag(this)">🌿 담백해요</button>
+          <button class="tag-btn" onclick="selectTag(this)">🌙 감성적이에요</button>
+          <button class="tag-btn" onclick="selectTag(this)">🤔 고민이에요</button>
+          <button class="tag-btn" onclick="selectTag(this)">🎉 신나요</button>
+          <button class="tag-btn" onclick="selectTag(this)">💜 그냥요</button>
+        </div>
+      </div>
+
+      <!-- 공개 범위 -->
+      <div class="scope-section">
+        <p class="tag-section-label">공개 범위</p>
+        <div class="scope-row">
+          <button class="scope-btn selected" data-scope="동네" onclick="selectScope(this)">
+            <span class="scope-icon">📍</span>
+            <span class="scope-name">내 동네</span>
+            <span class="scope-desc">강남구</span>
+          </button>
+          <button class="scope-btn" data-scope="서울" onclick="selectScope(this)">
+            <span class="scope-icon">🏙️</span>
+            <span class="scope-name">서울</span>
+            <span class="scope-desc">서울 전체</span>
+          </button>
+          <button class="scope-btn" data-scope="전국" onclick="selectScope(this)">
+            <span class="scope-icon">🗺️</span>
+            <span class="scope-name">전국</span>
+            <span class="scope-desc">모든 지역</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 안내 -->
+      <div class="notice-card">
+        <div class="notice-dot">
+          <svg width="9" height="9" fill="none" viewBox="0 0 9 9">
+            <path d="M4.5 2V4.5M4.5 6.5V6.6" stroke="#9686BF" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="notice-text">
+          붙인 포스트잇은 <strong>게시판 벽면</strong>에 공개됩니다.<br>
+          욕설·혐오 표현은 제재될 수 있어요. 누구나 좋아요와 댓글을 달 수 있습니다.
+        </p>
+      </div>
+
+      <div class="space"></div>
+    </div>
+
+    <!-- 전송 버튼 -->
+    <div class="send-bar">
+      <button class="send-btn" id="send-btn" onclick="postSticky()">
+        <svg width="15" height="15" fill="none" viewBox="0 0 15 15">
+          <rect x="1" y="1" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M4 7.5L6.5 10L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+          <path d="M5 4h5M5 7h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        게시판에 붙이기
+      </button>
+    </div>
+  </div>
+
+  <!-- Home indicator -->
+  <div style="background:var(--bg);padding:0 0 10px;display:flex;justify-content:center;flex-shrink:0;">
+    <div style="width:130px;height:4px;background:var(--text-primary);border-radius:3px;opacity:0.15;"></div>
+  </div>
+</div>
+
+<script>
+  const MY_NICK = '졸린고양이🐱';
+  const MY_LOC  = '서울 강남구';
+  let isAnon = false;
+
+  /* 포스트잇 색상 맵 */
+  const COLOR_MAP = {
+    yellow: '#FFF4A3',
+    purple: '#E8E0FF',
+    pink:   '#FFE0EF',
+    mint:   '#D4F5EC',
+    peach:  '#FFE8D6',
+    sky:    '#D6EDFF',
+  };
+
+  /* ── 색상 선택 ── */
+  function pickColor(dot) {
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    dot.classList.add('active');
+    const card = document.getElementById('postit-card');
+    card.style.background = COLOR_MAP[dot.dataset.color];
+
+    /* 보라일 때 포인트 강조 */
+    const signNick = document.getElementById('sign-nick');
+    signNick.style.color = dot.dataset.color === 'purple' ? '#7B66B0' : 'var(--primary)';
+  }
+
+  /* ── 본문 입력 ── */
+  function onBodyInput(el) {
+    const len = el.value.length;
+    const badge = document.getElementById('char-badge');
+    badge.textContent = len + ' / 200';
+    badge.classList.toggle('warn', len >= 160 && len < 185);
+    badge.classList.toggle('over', len >= 185);
+    checkReady();
+  }
+
+  /* ── 게시 버튼 활성화 (본문만 있으면 OK) ── */
+  function checkReady() {
+    const body = document.getElementById('body-textarea').value.trim();
+    const btn  = document.getElementById('send-btn');
+    btn.classList.toggle('active', body.length >= 2);
+  }
+
+  /* ── 익명 토글 ── */
+  function onAnonChange() {
+    isAnon = document.getElementById('anon-toggle').checked;
+    const nick = isAnon ? '익명' : MY_NICK;
+    const loc  = isAnon ? '비공개' : MY_LOC;
+    document.getElementById('sign-nick').textContent = nick;
+    document.getElementById('my-nick').textContent   = nick;
+    document.getElementById('my-loc').textContent    = loc;
+  }
+
+  /* ── 태그 선택 ── */
+  function selectTag(btn) {
+    document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  /* ── 공개 범위 ── */
+  function selectScope(btn) {
+    document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  /* ── 게시 ── */
+  function postSticky() {
+    const btn = document.getElementById('send-btn');
+    if (!btn.classList.contains('active')) return;
+
+    btn.innerHTML = `
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M5 8.5L7.5 11L11 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      붙였어요! 📌`;
+    btn.style.background = '#8BBFA8';
+    btn.classList.remove('active');
+
+    setTimeout(() => {
+      alert('📌 포스트잇이 게시판에 붙었습니다!\n많은 사람들이 볼 수 있어요.');
+    }, 300);
+  }
+</script>
+</body>
+</html>

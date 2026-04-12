@@ -284,6 +284,7 @@ const VIBE_OPTIONS = [
   "온텍",
   "플라토닉",
 ];
+const WORK_OPTION = ["학생", "직장인", "취업준비", "사업", "유학"];
 
 // ─── MBTI 데이터 ──────────────────────────────────────────────────────────────
 const MBTI_AXES = [
@@ -293,27 +294,62 @@ const MBTI_AXES = [
   ["", "P", "J"],
 ];
 const MBTI_NAMES: Record<string, string> = {
-  INTJ: "전략가", INTP: "논리학자", ENTJ: "통솔자", ENTP: "변론가",
-  INFJ: "옹호자", INFP: "중재자", ENFJ: "선도자", ENFP: "활동가",
-  ISTJ: "현실주의자", ISFJ: "수호자", ESTJ: "경영자", ESFJ: "집정관",
-  ISTP: "장인", ISFP: "모험가", ESTP: "사업가", ESFP: "연예인",
+  INTJ: "전략가",
+  INTP: "논리학자",
+  ENTJ: "통솔자",
+  ENTP: "변론가",
+  INFJ: "옹호자",
+  INFP: "중재자",
+  ENFJ: "선도자",
+  ENFP: "활동가",
+  ISTJ: "현실주의자",
+  ISFJ: "수호자",
+  ESTJ: "경영자",
+  ESFJ: "집정관",
+  ISTP: "장인",
+  ISFP: "모험가",
+  ESTP: "사업가",
+  ESFP: "연예인",
 };
 const MBTI_EMOJIS: Record<string, string> = {
-  INTJ: "🦅", INTP: "🔬", ENTJ: "🦁", ENTP: "💡",
-  INFJ: "🌌", INFP: "🌙", ENFJ: "🌟", ENFP: "🎠",
-  ISTJ: "📋", ISFJ: "🛡️", ESTJ: "📊", ESFJ: "🤝",
-  ISTP: "🔧", ISFP: "🎨", ESTP: "⚡", ESFP: "🎉",
+  INTJ: "🦅",
+  INTP: "🔬",
+  ENTJ: "🦁",
+  ENTP: "💡",
+  INFJ: "🌌",
+  INFP: "🌙",
+  ENFJ: "🌟",
+  ENFP: "🎠",
+  ISTJ: "📋",
+  ISFJ: "🛡️",
+  ESTJ: "📊",
+  ESFJ: "🤝",
+  ISTP: "🔧",
+  ISFP: "🎨",
+  ESTP: "⚡",
+  ESFP: "🎉",
 };
 
 // ─── 이상형 데이터 ────────────────────────────────────────────────────────────
 const IDEAL_HAIR = ["중요하지 않아요", "숏컷", "단발~중단발", "긴머리"];
 const IDEAL_BODY = ["중요하지 않아요", "슬림", "보통", "통통", "통통 이상"];
 const IDEAL_HEIGHT = [
-  "중요하지 않아요", "150 이하", "151~155", "156~160",
-  "161~165", "166~170", "171 이상",
+  "중요하지 않아요",
+  "150 이하",
+  "151~155",
+  "156~160",
+  "161~165",
+  "166~170",
+  "171 이상",
 ];
 const IDEAL_VIBE = [
-  "중요하지 않아요", "온깁", "깁선호", "깁텍", "텍선호", "온텍", "플라토닉",
+  "중요하지 않아요",
+  "온깁",
+  "깁선호",
+  "깁텍",
+  "텍선호",
+  "온텍",
+  "플라토닉",
 ];
 const IMPORTANT_POINTS = [
   "🌿 라이프스타일",
@@ -344,13 +380,23 @@ const TopBar: React.FC<{
     <TouchableOpacity
       className="w-[34px] h-[34px] rounded-[10px] bg-ef-surface items-center justify-center"
       style={Platform.select({
-        ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
+        ios: {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 8,
+        },
         android: { elevation: 2 },
       })}
       onPress={onBack}
       activeOpacity={0.7}
     >
-      <Text className="text-[18px] font-bold text-ef-text-sub" style={{ marginTop: -1 }}>‹</Text>
+      <Text
+        className="text-[18px] font-bold text-ef-text-sub"
+        style={{ marginTop: -1 }}
+      >
+        ‹
+      </Text>
     </TouchableOpacity>
     <View className="flex-1">
       <Text className="text-[10px] font-bold text-ef-text-muted mb-[5px] tracking-[0.5px]">
@@ -363,7 +409,9 @@ const TopBar: React.FC<{
         />
       </View>
     </View>
-    <Text className="text-[11px] text-ef-primary font-extrabold">{stepBadge}</Text>
+    <Text className="text-[11px] text-ef-primary font-extrabold">
+      {stepBadge}
+    </Text>
   </View>
 );
 
@@ -379,16 +427,25 @@ const BottomCTA: React.FC<{
 }> = ({ label, disabled, onPress, skipLabel, onSkip }) => (
   <View
     className="px-5 bg-ef-bg border-t border-ef-divider items-center"
-    style={{ paddingTop: 12, paddingBottom: Platform.OS === 'ios' ? 34 : 24 }}
+    style={{ paddingTop: 12, paddingBottom: Platform.OS === "ios" ? 34 : 24 }}
   >
     <TouchableOpacity
       className={`w-full rounded-[14px] py-4 flex-row items-center justify-center gap-2 ${
-        disabled ? 'bg-ef-text-muted' : 'bg-ef-primary'
+        disabled ? "bg-ef-text-muted" : "bg-ef-primary"
       }`}
-      style={!disabled ? Platform.select({
-        ios: { shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 22 },
-        android: { elevation: 8 },
-      }) : undefined}
+      style={
+        !disabled
+          ? Platform.select({
+              ios: {
+                shadowColor: COLORS.primary,
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.3,
+                shadowRadius: 22,
+              },
+              android: { elevation: 8 },
+            })
+          : undefined
+      }
       disabled={disabled}
       onPress={onPress}
       activeOpacity={0.85}
@@ -418,7 +475,10 @@ export default function ProfileCreationScreen() {
   const goStep = useCallback((step: StepKey) => {
     LayoutAnimation.configureNext({
       duration: 280,
-      create: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity },
+      create: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
       update: { type: LayoutAnimation.Types.easeInEaseOut },
     });
     setCurrentStep(step);
@@ -429,7 +489,9 @@ export default function ProfileCreationScreen() {
   const [interestChoice, setInterestChoice] = useState<number | null>(null);
 
   // ─── 키워드 & 커스텀 태그 ────────────────────────────────────────────────
-  const [selectedKeywords, setSelectedKeywords] = useState<Set<string>>(new Set());
+  const [selectedKeywords, setSelectedKeywords] = useState<Set<string>>(
+    new Set(),
+  );
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
 
@@ -461,15 +523,24 @@ export default function ProfileCreationScreen() {
   const [smokeTypes, setSmokeTypes] = useState<Set<string>>(new Set());
   const [tattoo, setTattoo] = useState<number | null>(null);
 
-  const showDrinkTypes = drinkFreq !== null && drinkFreq !== 0 && drinkFreq !== 4;
+  const showDrinkTypes =
+    drinkFreq !== null && drinkFreq !== 0 && drinkFreq !== 4;
   const showSmokeTypes = smokeFreq !== null && smokeFreq !== 0;
   const habitCanProceed = drinkFreq !== null && smokeFreq !== null;
 
   const toggleDrinkType = useCallback((t: string) => {
-    setDrinkTypes((prev) => { const n = new Set(prev); n.has(t) ? n.delete(t) : n.add(t); return n; });
+    setDrinkTypes((prev) => {
+      const n = new Set(prev);
+      n.has(t) ? n.delete(t) : n.add(t);
+      return n;
+    });
   }, []);
   const toggleSmokeType = useCallback((t: string) => {
-    setSmokeTypes((prev) => { const n = new Set(prev); n.has(t) ? n.delete(t) : n.add(t); return n; });
+    setSmokeTypes((prev) => {
+      const n = new Set(prev);
+      n.has(t) ? n.delete(t) : n.add(t);
+      return n;
+    });
   }, []);
 
   // ─── 스타일 ───────────────────────────────────────────────────────────────
@@ -479,11 +550,17 @@ export default function ProfileCreationScreen() {
   const [vibe, setVibe] = useState<number | null>(null);
   const [mbtiSel, setMbtiSel] = useState<number[]>([0, 0, 0, 0]);
 
-  const mbtiType = mbtiSel.map((idx, axis) => MBTI_AXES[axis][idx] || "").join("");
+  const mbtiType = mbtiSel
+    .map((idx, axis) => MBTI_AXES[axis][idx] || "")
+    .join("");
   const mbtiAllSet = mbtiSel.every((s) => s > 0);
 
   const setMbtiAxis = useCallback((axisIdx: number, val: number) => {
-    setMbtiSel((prev) => { const n = [...prev]; n[axisIdx] = val; return n; });
+    setMbtiSel((prev) => {
+      const n = [...prev];
+      n[axisIdx] = val;
+      return n;
+    });
   }, []);
 
   // ─── 이상형 ───────────────────────────────────────────────────────────────
@@ -494,8 +571,15 @@ export default function ProfileCreationScreen() {
   const [importantPoints, setImportantPt] = useState<Set<string>>(new Set());
 
   const toggleIdeal = useCallback(
-    (setter: React.Dispatch<React.SetStateAction<Set<string>>>, val: string) => {
-      setter((prev) => { const n = new Set(prev); n.has(val) ? n.delete(val) : n.add(val); return n; });
+    (
+      setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+      val: string,
+    ) => {
+      setter((prev) => {
+        const n = new Set(prev);
+        n.has(val) ? n.delete(val) : n.add(val);
+        return n;
+      });
     },
     [],
   );
@@ -537,18 +621,28 @@ export default function ProfileCreationScreen() {
               ref={scrollRef}
               style={{ flex: 1 }}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
+              contentContainerStyle={{
+                paddingHorizontal: 20,
+                paddingBottom: 24,
+              }}
             >
               {/* 앱 로고 */}
               <View className="flex-row items-center gap-[10px] pt-[18px] pb-7">
                 <View
                   className="w-[42px] h-[42px] rounded-[14px] bg-ef-primary items-center justify-center"
                   style={Platform.select({
-                    ios: { shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 18 },
+                    ios: {
+                      shadowColor: COLORS.primary,
+                      shadowOffset: { width: 0, height: 6 },
+                      shadowOpacity: 0.35,
+                      shadowRadius: 18,
+                    },
                     android: { elevation: 8 },
                   })}
                 >
-                  <Text className="text-white text-[18px] font-extrabold">✓</Text>
+                  <Text className="text-white text-[18px] font-extrabold">
+                    ✓
+                  </Text>
                 </View>
                 <Text
                   className="text-[22px] font-extrabold text-ef-text"
@@ -572,21 +666,44 @@ export default function ProfileCreationScreen() {
 
               {/* 단계 안내 카드 */}
               {[
-                { num: "1", title: "관심 키워드 선택", sub: "나를 표현할 키워드 입력" },
-                { num: "2", title: "음주 · 흡연 · 타투", sub: "나의 생활습관 정보 입력" },
-                { num: "3", title: "스타일 & 이상형", sub: "나의 모습과 원하는 상대 설정" },
-                { num: "4", title: "사진 & 자기소개", sub: "첫인상을 결정하는 마지막 단계" },
+                {
+                  num: "1",
+                  title: "관심 키워드 선택",
+                  sub: "나를 표현할 키워드 입력",
+                },
+                {
+                  num: "2",
+                  title: "음주 · 흡연 · 타투",
+                  sub: "나의 생활습관 정보 입력",
+                },
+                {
+                  num: "3",
+                  title: "스타일 & 이상형",
+                  sub: "나의 모습과 원하는 상대 설정",
+                },
+                {
+                  num: "4",
+                  title: "사진 & 자기소개",
+                  sub: "첫인상을 결정하는 마지막 단계",
+                },
               ].map((card, i) => (
                 <View
                   key={i}
                   className="flex-row items-center gap-[14px] p-[15px] bg-ef-surface rounded-[16px] mb-[10px]"
                   style={Platform.select({
-                    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
+                    ios: {
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.06,
+                      shadowRadius: 8,
+                    },
                     android: { elevation: 2 },
                   })}
                 >
                   <View className="w-[34px] h-[34px] rounded-[17px] bg-ef-primary-tint border-[1.5px] border-ef-primary-border items-center justify-center shrink-0">
-                    <Text className="text-[16px] text-ef-primary font-extrabold">{card.num}</Text>
+                    <Text className="text-[16px] text-ef-primary font-extrabold">
+                      {card.num}
+                    </Text>
                   </View>
                   <View>
                     <Text
@@ -633,7 +750,8 @@ export default function ProfileCreationScreen() {
                   어디에 더{"\n"}관심 있나요?
                 </Text>
                 <Text className="text-[12.5px] font-sans text-ef-text-muted leading-5 mb-5">
-                  원하는 만남의 방향을 선택해 주세요.{"\n"}나중에 언제든 바꿀 수 있어요.
+                  원하는 만남의 방향을 선택해 주세요.{"\n"}나중에 언제든 바꿀 수
+                  있어요.
                 </Text>
                 <View className="flex-row gap-[10px]">
                   {INTEREST_CHOICES.map((item, idx) => (
@@ -641,16 +759,20 @@ export default function ProfileCreationScreen() {
                       key={idx}
                       className={`flex-1 p-4 items-center rounded-[18px] border-[1.5px] ${
                         interestChoice === idx
-                          ? 'bg-ef-primary-tint border-ef-primary'
-                          : 'bg-ef-surface border-transparent'
+                          ? "bg-ef-primary-tint border-ef-primary"
+                          : "bg-ef-surface border-transparent"
                       }`}
                       onPress={() => setInterestChoice(idx)}
                       activeOpacity={0.7}
                     >
-                      <Text className="text-[28px] mb-[10px]">{item.emoji}</Text>
+                      <Text className="text-[28px] mb-[10px]">
+                        {item.emoji}
+                      </Text>
                       <Text
                         className={`text-[14px] font-extrabold mb-[5px] ${
-                          interestChoice === idx ? 'text-ef-primary' : 'text-ef-text'
+                          interestChoice === idx
+                            ? "text-ef-primary"
+                            : "text-ef-text"
                         }`}
                         style={{ letterSpacing: -0.3 }}
                       >
@@ -662,12 +784,14 @@ export default function ProfileCreationScreen() {
                       <View
                         className={`w-5 h-5 rounded-[10px] border-[1.5px] items-center justify-center mt-3 ${
                           interestChoice === idx
-                            ? 'bg-ef-primary border-ef-primary'
-                            : 'border-ef-primary-border'
+                            ? "bg-ef-primary border-ef-primary"
+                            : "border-ef-primary-border"
                         }`}
                       >
                         {interestChoice === idx && (
-                          <Text className="text-[11px] text-white font-extrabold">✓</Text>
+                          <Text className="text-[11px] text-white font-extrabold">
+                            ✓
+                          </Text>
                         )}
                       </View>
                     </TouchableOpacity>
@@ -707,62 +831,103 @@ export default function ProfileCreationScreen() {
                   관심사 키워드를{"\n"}골라주세요
                 </Text>
                 <Text className="text-[12.5px] font-sans text-ef-text-muted leading-5 mb-5">
-                  여러 개 선택 가능해요. 많이 고를수록{"\n"}더 잘 맞는 사람을 만날 수 있어요!
+                  여러 개 선택 가능해요. 많이 고를수록{"\n"}더 잘 맞는 사람을
+                  만날 수 있어요!
                 </Text>
 
                 <SLabel label="라이프스타일" />
                 <View style={[pillsWrapStyle, { marginBottom: 18 }]}>
                   {INTEREST_DATA.lifestyle.map((kw) => (
-                    <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                    <Pill
+                      key={kw}
+                      label={kw}
+                      selected={selectedKeywords.has(kw)}
+                      onPress={() => toggleKeyword(kw)}
+                    />
                   ))}
                 </View>
 
                 <SLabel label="취미" />
                 <View style={[pillsWrapStyle, { marginBottom: 18 }]}>
                   {INTEREST_DATA.hobby.map((kw) => (
-                    <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                    <Pill
+                      key={kw}
+                      label={kw}
+                      selected={selectedKeywords.has(kw)}
+                      onPress={() => toggleKeyword(kw)}
+                    />
                   ))}
                 </View>
 
                 <SLabel label="외부 여가활동" />
                 <View style={[pillsWrapStyle, { marginBottom: 18 }]}>
                   {INTEREST_DATA.outdoor.map((kw) => (
-                    <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                    <Pill
+                      key={kw}
+                      label={kw}
+                      selected={selectedKeywords.has(kw)}
+                      onPress={() => toggleKeyword(kw)}
+                    />
                   ))}
                 </View>
 
                 <SLabel label="자기계발" />
                 <View style={[pillsWrapStyle, { marginBottom: 18 }]}>
                   {INTEREST_DATA.selfImprove.map((kw) => (
-                    <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                    <Pill
+                      key={kw}
+                      label={kw}
+                      selected={selectedKeywords.has(kw)}
+                      onPress={() => toggleKeyword(kw)}
+                    />
                   ))}
                 </View>
 
                 <ToggleSection emoji="🍜" label="음식">
                   <View style={pillsWrapStyle}>
                     {INTEREST_DATA.food.map((kw) => (
-                      <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                      <Pill
+                        key={kw}
+                        label={kw}
+                        selected={selectedKeywords.has(kw)}
+                        onPress={() => toggleKeyword(kw)}
+                      />
                     ))}
                   </View>
                 </ToggleSection>
                 <ToggleSection emoji="⚽" label="운동">
                   <View style={pillsWrapStyle}>
                     {INTEREST_DATA.sports.map((kw) => (
-                      <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                      <Pill
+                        key={kw}
+                        label={kw}
+                        selected={selectedKeywords.has(kw)}
+                        onPress={() => toggleKeyword(kw)}
+                      />
                     ))}
                   </View>
                 </ToggleSection>
                 <ToggleSection emoji="🎵" label="음악">
                   <View style={pillsWrapStyle}>
                     {INTEREST_DATA.music.map((kw) => (
-                      <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                      <Pill
+                        key={kw}
+                        label={kw}
+                        selected={selectedKeywords.has(kw)}
+                        onPress={() => toggleKeyword(kw)}
+                      />
                     ))}
                   </View>
                 </ToggleSection>
                 <ToggleSection emoji="🎮" label="게임">
                   <View style={[pillsWrapStyle, { marginBottom: 6 }]}>
                     {INTEREST_DATA.game.map((kw) => (
-                      <Pill key={kw} label={kw} selected={selectedKeywords.has(kw)} onPress={() => toggleKeyword(kw)} />
+                      <Pill
+                        key={kw}
+                        label={kw}
+                        selected={selectedKeywords.has(kw)}
+                        onPress={() => toggleKeyword(kw)}
+                      />
                     ))}
                   </View>
                 </ToggleSection>
@@ -783,13 +948,20 @@ export default function ProfileCreationScreen() {
                   <TouchableOpacity
                     className="py-[10px] px-4 rounded-[12px] bg-ef-primary"
                     style={Platform.select({
-                      ios: { shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12 },
+                      ios: {
+                        shadowColor: COLORS.primary,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 12,
+                      },
                       android: { elevation: 4 },
                     })}
                     onPress={addTag}
                     activeOpacity={0.7}
                   >
-                    <Text className="text-[13px] text-white font-bold">추가</Text>
+                    <Text className="text-[13px] text-white font-bold">
+                      추가
+                    </Text>
                   </TouchableOpacity>
                 </View>
                 {customTags.length > 0 && (
@@ -801,10 +973,15 @@ export default function ProfileCreationScreen() {
                         onPress={() => removeTag(i)}
                         activeOpacity={0.7}
                       >
-                        <Text className="text-[12px] text-white font-bold">#{tag}</Text>
+                        <Text className="text-[12px] text-white font-bold">
+                          #{tag}
+                        </Text>
                         <Text
                           className="w-4 h-4 rounded-[8px] text-center text-[10px] text-white font-bold"
-                          style={{ lineHeight: 16, backgroundColor: 'rgba(255,255,255,0.25)' }}
+                          style={{
+                            lineHeight: 16,
+                            backgroundColor: "rgba(255,255,255,0.25)",
+                          }}
                         >
                           ✕
                         </Text>
@@ -854,7 +1031,12 @@ export default function ProfileCreationScreen() {
                 <SLabel label="음주 빈도" />
                 <View className="mb-[14px]">
                   {DRINK_OPTIONS.map((opt, i) => (
-                    <SelectItem key={i} label={opt} selected={drinkFreq === i} onPress={() => setDrinkFreq(i)} />
+                    <SelectItem
+                      key={i}
+                      label={opt}
+                      selected={drinkFreq === i}
+                      onPress={() => setDrinkFreq(i)}
+                    />
                   ))}
                 </View>
 
@@ -863,7 +1045,12 @@ export default function ProfileCreationScreen() {
                     <SLabel label="선호 주종" />
                     <View style={pillsWrapStyle}>
                       {DRINK_TYPES.map((t) => (
-                        <Pill key={t} label={t} selected={drinkTypes.has(t)} onPress={() => toggleDrinkType(t)} />
+                        <Pill
+                          key={t}
+                          label={t}
+                          selected={drinkTypes.has(t)}
+                          onPress={() => toggleDrinkType(t)}
+                        />
                       ))}
                     </View>
                   </View>
@@ -877,7 +1064,12 @@ export default function ProfileCreationScreen() {
                 </Text>
                 <View className="mb-[14px]">
                   {SMOKE_OPTIONS.map((opt, i) => (
-                    <SelectItem key={i} label={opt} selected={smokeFreq === i} onPress={() => setSmokeFreq(i)} />
+                    <SelectItem
+                      key={i}
+                      label={opt}
+                      selected={smokeFreq === i}
+                      onPress={() => setSmokeFreq(i)}
+                    />
                   ))}
                 </View>
 
@@ -886,7 +1078,12 @@ export default function ProfileCreationScreen() {
                     <SLabel label="종류" />
                     <View style={pillsWrapStyle}>
                       {SMOKE_TYPES.map((t) => (
-                        <Pill key={t} label={t} selected={smokeTypes.has(t)} onPress={() => toggleSmokeType(t)} />
+                        <Pill
+                          key={t}
+                          label={t}
+                          selected={smokeTypes.has(t)}
+                          onPress={() => toggleSmokeType(t)}
+                        />
                       ))}
                     </View>
                   </View>
@@ -899,7 +1096,12 @@ export default function ProfileCreationScreen() {
                     취향을 더 잘 맞추기 위한 정보예요 💛
                   </Text>
                   {TATTOO_OPTIONS.map((opt, i) => (
-                    <SelectItem key={i} label={opt} selected={tattoo === i} onPress={() => setTattoo(i)} />
+                    <SelectItem
+                      key={i}
+                      label={opt}
+                      selected={tattoo === i}
+                      onPress={() => setTattoo(i)}
+                    />
                   ))}
                 </ToggleSection>
               </View>
@@ -937,41 +1139,95 @@ export default function ProfileCreationScreen() {
                   내 스타일 정보를{"\n"}추가해볼까요?
                 </Text>
                 <Text className="text-[12.5px] font-sans text-ef-text-muted leading-5 mb-5">
-                  선택 안 해도 되는 항목이에요.{"\n"}자유롭게 업데이트할 수 있어요.
+                  선택 안 해도 되는 항목이에요.{"\n"}자유롭게 업데이트할 수
+                  있어요.
                 </Text>
 
                 <SLabel label="머리 길이" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 18 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 18 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {HAIR_OPTIONS.map((opt, i) => (
-                      <HChip key={i} label={opt} selected={hair === i} onPress={() => setHair(i)} />
+                      <HChip
+                        key={i}
+                        label={opt}
+                        selected={hair === i}
+                        onPress={() => setHair(i)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
                 <SLabel label="체형" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 18 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 18 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {BODY_OPTIONS.map((opt, i) => (
-                      <HChip key={i} label={opt} selected={bodyType === i} onPress={() => setBodyType(i)} />
+                      <HChip
+                        key={i}
+                        label={opt}
+                        selected={bodyType === i}
+                        onPress={() => setBodyType(i)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
                 <SLabel label="키" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 18 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 18 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {HEIGHT_OPTIONS.map((opt, i) => (
-                      <HChip key={i} label={opt} selected={heightRange === i} onPress={() => setHeight(i)} />
+                      <HChip
+                        key={i}
+                        label={opt}
+                        selected={heightRange === i}
+                        onPress={() => setHeight(i)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
                 <SLabel label="성향" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 8 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {VIBE_OPTIONS.map((opt, i) => (
-                      <HChip key={i} label={opt} selected={vibe === i} onPress={() => setVibe(i)} />
+                      <HChip
+                        key={i}
+                        label={opt}
+                        selected={vibe === i}
+                        onPress={() => setVibe(i)}
+                      />
+                    ))}
+                  </View>
+                </ScrollView>
+                <SLabel label="직업" />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 8 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
+                    {WORK_OPTION.map((opt, i) => (
+                      <HChip
+                        key={i}
+                        label={opt}
+                        selected={vibe === i}
+                        onPress={() => setVibe(i)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
@@ -997,13 +1253,15 @@ export default function ProfileCreationScreen() {
                 <View className="mt-[10px] bg-ef-surface rounded-[14px] p-[13px] border-[1.5px] border-ef-divider flex-row items-center justify-between">
                   <View>
                     <Text
-                      className={`text-[24px] font-extrabold ${mbtiAllSet ? 'text-ef-primary' : 'text-ef-text-muted'}`}
+                      className={`text-[24px] font-extrabold ${mbtiAllSet ? "text-ef-primary" : "text-ef-text-muted"}`}
                       style={{ letterSpacing: -0.4 }}
                     >
                       {mbtiType || "_ _ _ _"}
                     </Text>
                     <Text className="text-[12px] font-sans text-ef-text-muted mt-[2px]">
-                      {mbtiAllSet ? (MBTI_NAMES[mbtiType] ?? "") : "선택해주세요"}
+                      {mbtiAllSet
+                        ? (MBTI_NAMES[mbtiType] ?? "")
+                        : "선택해주세요"}
                     </Text>
                   </View>
                   <Text style={{ fontSize: 28 }}>
@@ -1047,41 +1305,78 @@ export default function ProfileCreationScreen() {
                   끌리는 스타일이{"\n"}있다면 선택해볼까요?
                 </Text>
                 <Text className="text-[12.5px] font-sans text-ef-text-muted leading-5 mb-5">
-                  당신의 마음을 움직이는 키워드를 찾아보세요.{"\n"}복수 선택 가능해요!
+                  당신의 마음을 움직이는 키워드를 찾아보세요.{"\n"}복수 선택
+                  가능해요!
                 </Text>
 
                 <SLabel label="머리 길이" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 16 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {IDEAL_HAIR.map((opt) => (
-                      <HChip key={opt} label={opt} selected={idealHair.has(opt)} onPress={() => toggleIdeal(setIdealHair, opt)} />
+                      <HChip
+                        key={opt}
+                        label={opt}
+                        selected={idealHair.has(opt)}
+                        onPress={() => toggleIdeal(setIdealHair, opt)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
                 <SLabel label="체형" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 16 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {IDEAL_BODY.map((opt) => (
-                      <HChip key={opt} label={opt} selected={idealBody.has(opt)} onPress={() => toggleIdeal(setIdealBody, opt)} />
+                      <HChip
+                        key={opt}
+                        label={opt}
+                        selected={idealBody.has(opt)}
+                        onPress={() => toggleIdeal(setIdealBody, opt)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
                 <SLabel label="키" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 16 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {IDEAL_HEIGHT.map((opt) => (
-                      <HChip key={opt} label={opt} selected={idealHeight.has(opt)} onPress={() => toggleIdeal(setIdealHeight, opt)} />
+                      <HChip
+                        key={opt}
+                        label={opt}
+                        selected={idealHeight.has(opt)}
+                        onPress={() => toggleIdeal(setIdealHeight, opt)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
 
                 <SLabel label="성향" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
-                  <View style={{ flexDirection: 'row', gap: 7 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 20 }}
+                >
+                  <View style={{ flexDirection: "row", gap: 7 }}>
                     {IDEAL_VIBE.map((opt) => (
-                      <HChip key={opt} label={opt} selected={idealVibe.has(opt)} onPress={() => toggleIdeal(setIdealVibe, opt)} />
+                      <HChip
+                        key={opt}
+                        label={opt}
+                        selected={idealVibe.has(opt)}
+                        onPress={() => toggleIdeal(setIdealVibe, opt)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
@@ -1138,7 +1433,8 @@ export default function ProfileCreationScreen() {
                   프로필 사진을{"\n"}등록해 주세요
                 </Text>
                 <Text className="text-[12.5px] font-sans text-ef-text-muted leading-5 mb-5">
-                  첫인상이 결정돼요! 밝고 잘 나온 사진일수록{"\n"}매칭 확률이 올라가요.
+                  첫인상이 결정돼요! 밝고 잘 나온 사진일수록{"\n"}매칭 확률이
+                  올라가요.
                 </Text>
 
                 {/* 사진 그리드 */}
@@ -1147,10 +1443,13 @@ export default function ProfileCreationScreen() {
                   <TouchableOpacity
                     className={`flex-1 rounded-[12px] border-2 items-center justify-center overflow-hidden ${
                       mainPhotoFilled
-                        ? 'bg-ef-primary-tint border-transparent'
-                        : 'bg-ef-primary-tint border-ef-primary'
+                        ? "bg-ef-primary-tint border-transparent"
+                        : "bg-ef-primary-tint border-ef-primary"
                     }`}
-                    style={{ aspectRatio: 3 / 4, borderStyle: mainPhotoFilled ? 'solid' : 'dashed' }}
+                    style={{
+                      aspectRatio: 3 / 4,
+                      borderStyle: mainPhotoFilled ? "solid" : "dashed",
+                    }}
                     onPress={() => setMainPhotoFilled(!mainPhotoFilled)}
                     activeOpacity={0.8}
                   >
@@ -1158,13 +1457,19 @@ export default function ProfileCreationScreen() {
                       <>
                         <Text style={{ fontSize: 32 }}>🌸</Text>
                         <View className="absolute top-[7px] left-[7px] bg-ef-primary rounded-[6px] px-2 py-[3px]">
-                          <Text className="text-[10px] text-white font-bold">대표</Text>
+                          <Text className="text-[10px] text-white font-bold">
+                            대표
+                          </Text>
                         </View>
                       </>
                     ) : (
                       <>
-                        <Text className="text-[20px] text-ef-primary mb-1">＋</Text>
-                        <Text className="text-[11px] text-ef-primary font-bold">대표 사진</Text>
+                        <Text className="text-[20px] text-ef-primary mb-1">
+                          ＋
+                        </Text>
+                        <Text className="text-[11px] text-ef-primary font-bold">
+                          대표 사진
+                        </Text>
                       </>
                     )}
                   </TouchableOpacity>
@@ -1174,9 +1479,14 @@ export default function ProfileCreationScreen() {
                     <TouchableOpacity
                       key={i}
                       className={`flex-1 rounded-[12px] border-2 items-center justify-center overflow-hidden ${
-                        filled ? 'bg-ef-surface border-transparent' : 'bg-ef-surface border-ef-divider'
+                        filled
+                          ? "bg-ef-surface border-transparent"
+                          : "bg-ef-surface border-ef-divider"
                       }`}
-                      style={{ aspectRatio: 3 / 4, borderStyle: filled ? 'solid' : 'dashed' }}
+                      style={{
+                        aspectRatio: 3 / 4,
+                        borderStyle: filled ? "solid" : "dashed",
+                      }}
                       onPress={() =>
                         setExtraPhotos((prev) => {
                           const n = [...prev];
@@ -1190,8 +1500,12 @@ export default function ProfileCreationScreen() {
                         <Text style={{ fontSize: 26 }}>🌿</Text>
                       ) : (
                         <>
-                          <Text className="text-[20px] text-ef-text-muted mb-1">＋</Text>
-                          <Text className="text-[11px] text-ef-text-muted font-bold">+ 추가</Text>
+                          <Text className="text-[20px] text-ef-text-muted mb-1">
+                            ＋
+                          </Text>
+                          <Text className="text-[11px] text-ef-text-muted font-bold">
+                            + 추가
+                          </Text>
                         </>
                       )}
                     </TouchableOpacity>
@@ -1202,16 +1516,21 @@ export default function ProfileCreationScreen() {
                 <View className="bg-ef-surface rounded-[12px] p-[14px] mb-[14px] flex-row gap-2 items-start">
                   <Text style={{ fontSize: 15 }}>💡</Text>
                   <View style={{ flex: 1 }}>
-                    <Text className="text-[12px] font-bold text-ef-text mb-1">사진 가이드</Text>
+                    <Text className="text-[12px] font-bold text-ef-text mb-1">
+                      사진 가이드
+                    </Text>
                     <Text className="text-[12px] font-sans text-ef-text-sub leading-5">
-                      ✅ 얼굴이 잘 보이는 정면 사진{"\n"}✅ 밝은 환경에서 찍은 사진{"\n"}❌ 너무 오래된 사진, 단체 사진
+                      ✅ 얼굴이 잘 보이는 정면 사진{"\n"}✅ 밝은 환경에서 찍은
+                      사진{"\n"}❌ 너무 오래된 사진, 단체 사진
                     </Text>
                   </View>
                 </View>
 
                 <View className="h-px bg-ef-divider my-4" />
 
-                <Text style={{ fontSize: 22 }} className="mb-2">✏️</Text>
+                <Text style={{ fontSize: 22 }} className="mb-2">
+                  ✏️
+                </Text>
                 <Text
                   className="text-[19px] font-extrabold text-ef-text mb-[5px]"
                   style={{ letterSpacing: -0.04 * 19, lineHeight: 25 }}
@@ -1219,7 +1538,8 @@ export default function ProfileCreationScreen() {
                   나에 대해{"\n"}더 알려주세요!
                 </Text>
                 <Text className="text-[12.5px] font-sans text-ef-text-muted leading-5 mb-[14px]">
-                  자유롭게 작성해보세요. 어떤 형식이든 좋아요!{"\n"}짧게 적고 나중에 더 추가할 수도 있어요 😊
+                  자유롭게 작성해보세요. 어떤 형식이든 좋아요!{"\n"}짧게 적고
+                  나중에 더 추가할 수도 있어요 😊
                 </Text>
 
                 <TextInput
@@ -1230,7 +1550,7 @@ export default function ProfileCreationScreen() {
                     borderColor: COLORS.divider,
                     padding: 14,
                     minHeight: 130,
-                    fontFamily: 'NanumSquareNeo-bRg',
+                    fontFamily: "NanumSquareNeo-bRg",
                     fontSize: 13.5,
                     color: COLORS.textPrimary,
                     lineHeight: 22,
@@ -1273,11 +1593,18 @@ export default function ProfileCreationScreen() {
                 <View
                   className="w-[88px] h-[88px] rounded-full bg-ef-primary items-center justify-center mb-5"
                   style={Platform.select({
-                    ios: { shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.38, shadowRadius: 32 },
+                    ios: {
+                      shadowColor: COLORS.primary,
+                      shadowOffset: { width: 0, height: 12 },
+                      shadowOpacity: 0.38,
+                      shadowRadius: 32,
+                    },
                     android: { elevation: 12 },
                   })}
                 >
-                  <Text className="text-white text-[28px] font-extrabold">✓</Text>
+                  <Text className="text-white text-[28px] font-extrabold">
+                    ✓
+                  </Text>
                 </View>
 
                 <Text className="text-[11px] font-bold text-ef-text-muted tracking-[1.2px] mb-2">
@@ -1291,19 +1618,27 @@ export default function ProfileCreationScreen() {
                   <Text className="text-ef-primary">완료됐어요!</Text> 🎉
                 </Text>
                 <Text className="text-[13.5px] font-sans text-ef-text-sub leading-[23px] text-center mb-2 max-w-[270px]">
-                  이제 이프에서 새로운 만남을{"\n"}시작해볼까요?{"\n"}딱 맞는 사람을 찾아드릴게요 💜
+                  이제 이프에서 새로운 만남을{"\n"}시작해볼까요?{"\n"}딱 맞는
+                  사람을 찾아드릴게요 💜
                 </Text>
 
                 {/* 프로필 미리보기 카드 */}
                 <View
                   className="w-full mt-6 bg-ef-surface rounded-[18px] p-4 flex-row gap-[14px] items-center"
                   style={Platform.select({
-                    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10 },
+                    ios: {
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.06,
+                      shadowRadius: 10,
+                    },
                     android: { elevation: 3 },
                   })}
                 >
                   <View className="w-[52px] h-[52px] rounded-full bg-ef-primary items-center justify-center shrink-0">
-                    <Text className="text-white text-[16px] font-extrabold">지수</Text>
+                    <Text className="text-white text-[16px] font-extrabold">
+                      지수
+                    </Text>
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text
@@ -1321,7 +1656,9 @@ export default function ProfileCreationScreen() {
                           key={kw}
                           className="px-[9px] py-[3px] rounded-[20px] bg-ef-primary-tint border border-ef-primary-border"
                         >
-                          <Text className="text-[11px] text-ef-primary font-bold">{kw}</Text>
+                          <Text className="text-[11px] text-ef-primary font-bold">
+                            {kw}
+                          </Text>
                         </View>
                       ))}
                     </View>
@@ -1332,13 +1669,22 @@ export default function ProfileCreationScreen() {
                 <View
                   className="w-full mt-3 bg-ef-surface rounded-[18px] p-[15px]"
                   style={Platform.select({
-                    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10 },
+                    ios: {
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.06,
+                      shadowRadius: 10,
+                    },
                     android: { elevation: 3 },
                   })}
                 >
                   <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-[12px] text-ef-text-muted font-bold">프로필 완성도</Text>
-                    <Text className="text-[19px] text-ef-primary font-extrabold">{completionPct}%</Text>
+                    <Text className="text-[12px] text-ef-text-muted font-bold">
+                      프로필 완성도
+                    </Text>
+                    <Text className="text-[19px] text-ef-primary font-extrabold">
+                      {completionPct}%
+                    </Text>
                   </View>
                   <View className="h-[5px] rounded-[3px] bg-ef-divider overflow-hidden mb-[7px]">
                     <View

@@ -25,6 +25,7 @@ export default function OnboardingLayout() {
       <Stack.Screen name="nickname" />
       <Stack.Screen name="region" />
       <Stack.Screen name="profile-creation" />
+      <Stack.Screen name="security-code" />
     </Stack>
   );
 }

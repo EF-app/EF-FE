@@ -23,6 +23,7 @@ export default function AuthLayout() {
       <Stack.Screen name="account-recovery-result" />
       <Stack.Screen name="password-recovery-verify" />
       <Stack.Screen name="password-reset" />
+      <Stack.Screen name="security-code" />
     </Stack>
   );
 }
