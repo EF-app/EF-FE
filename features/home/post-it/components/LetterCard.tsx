@@ -1,6 +1,6 @@
 /**
  * @file features/home/post-it/components/LetterCard.tsx
- * @description 우편함 편지 카드 (봉투 스타일)
+ * @description 포스트잇 메모 카드 — 보드에 붙은 포스트잇 스타일
  */
 
 import React, { useState } from 'react';
@@ -9,176 +9,237 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 import type { Letter } from '@home/post-it/types';
 
+/* ── 포스트잇 색상 팔레트 (보라 계열 + 포인트) ── */
+const NOTE_PALETTE = [
+  { bg: '#EDE7F6', tape: 'rgba(179,157,219,0.60)', fold: 'rgba(150,134,191,0.18)' },
+  { bg: '#E8E0FF', tape: 'rgba(179,157,219,0.55)', fold: 'rgba(149,117,205,0.18)' },
+  { bg: '#F3E5F5', tape: 'rgba(206,147,216,0.50)', fold: 'rgba(171,71,188,0.14)' },
+  { bg: '#EEF0FF', tape: 'rgba(197,202,233,0.65)', fold: 'rgba(121,134,203,0.18)' },
+  { bg: '#FFF9C4', tape: 'rgba(255,224,59,0.55)',  fold: 'rgba(241,196,15,0.18)'  },
+  { bg: '#E8F5F0', tape: 'rgba(128,203,196,0.50)', fold: 'rgba(0,150,136,0.12)'   },
+] as const;
+
+const TAG_EMOJI: Record<string, string> = {
+  '일상': '✉️', '따뜻해요': '💛', '담백해요': '🌿',
+  '감성적이에요': '🌙', '고민이에요': '🤔', '신나요': '🎉', '그냥요': '💜',
+};
+
 const SCOPE_LABEL: Record<Letter['scope'], string> = {
-  동네: '📍 동네',
-  서울: '🏙️ 서울',
-  전국: '🗺️ 전국',
+  동네: '📍 동네', 서울: '🏙️ 서울', 전국: '🗺️ 전국',
 };
 
 interface Props {
   letter: Letter;
+  colorIndex: number;
   onLike: (id: number, currentLiked: boolean) => void;
   onReply: (id: number, nick: string) => void;
 }
 
-const LetterCard: React.FC<Props> = ({ letter, onLike, onReply }) => {
+const LetterCard: React.FC<Props> = ({ letter, colorIndex, onLike, onReply }) => {
   const [expanded, setExpanded] = useState(false);
-  const isLong = letter.body.length > 90;
+  const note = NOTE_PALETTE[colorIndex % NOTE_PALETTE.length];
   const signNick = letter.anon ? '익명' : letter.nick;
+  const isLong = letter.body.length > 80;
+  const tagEmoji = TAG_EMOJI[letter.tag] ?? '📝';
 
   return (
-    <View
-      className="bg-ef-surface rounded-[18px]"
-      style={{
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.13,
-        shadowRadius: 16,
-        elevation: 3,
-      }}
-    >
-      {/* ── 봉투 헤더 ── */}
+    /* 테이프 공간 확보를 위한 외부 래퍼 */
+    <View style={{ paddingTop: 14, marginBottom: 4 }}>
+
+      {/* ── 테이프 ── */}
       <View
-        className="flex-row items-center justify-between px-[14px] py-[10px] rounded-t-[18px]"
-        style={{ backgroundColor: 'rgba(150,134,191,0.18)' }}
+        style={{
+          position: 'absolute',
+          top: 4,
+          left: 0,
+          right: 0,
+          alignItems: 'center',
+          zIndex: 10,
+        }}
       >
-        <View className="flex-row items-center gap-[9px]">
-          {/* Stamp */}
-          <View
-            className="w-[28px] items-center justify-center"
-            style={{
-              height: 34,
-              backgroundColor: COLORS.surface,
-              borderRadius: 3,
-              borderWidth: 1.5,
-              borderColor: 'rgba(150,134,191,0.28)',
-              borderStyle: 'dashed',
-            }}
-          >
-            <Text style={{ fontSize: 14 }}>{letter.stamp}</Text>
-          </View>
-
-          <View>
-            <View className="flex-row items-center gap-[5px]">
-              <Text className="text-[12.5px] font-extrabold text-ef-text">
-                {letter.anon ? '익명' : letter.nick}
-              </Text>
-              {letter.anon ? (
-                <View className="rounded-[20px] px-[6px] py-[1px]" style={{ backgroundColor: 'rgba(0,0,0,0.06)' }}>
-                  <Text className="text-[9px] font-bold text-ef-text-muted">비공개</Text>
-                </View>
-              ) : letter.age ? (
-                <View className="rounded-[20px] px-[6px] py-[1px]" style={{ backgroundColor: 'rgba(150,134,191,0.18)' }}>
-                  <Text className="text-[9px] font-bold" style={{ color: COLORS.primary }}>{letter.age}</Text>
-                </View>
-              ) : null}
-            </View>
-            <View className="flex-row items-center gap-[2px] mt-[1px]">
-              <Ionicons name="location-outline" size={8} color="rgba(150,134,191,0.65)" />
-              <Text className="text-[10px] font-sans" style={{ color: 'rgba(150,134,191,0.65)' }}>
-                {letter.loc}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <Text className="text-[10px] font-sans" style={{ color: 'rgba(150,134,191,0.6)' }}>
-          {letter.time}
-        </Text>
+        <View
+          style={{
+            width: 38,
+            height: 16,
+            borderRadius: 2,
+            backgroundColor: note.tape,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.08,
+            shadowRadius: 2,
+            elevation: 1,
+          }}
+        />
       </View>
 
-      {/* ── 본문 ── */}
-      <View className="px-[16px] pt-[14px] pb-[10px]">
+      {/* ── 포스트잇 본체 ── */}
+      <View
+        style={{
+          backgroundColor: note.bg,
+          borderRadius: 8,
+          paddingHorizontal: 13,
+          paddingTop: 14,
+          paddingBottom: 12,
+          shadowColor: '#6A579A',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.13,
+          shadowRadius: 10,
+          elevation: 4,
+          overflow: 'hidden',
+        }}
+      >
+        {/* ── 스탬프 & 시간 ── */}
+        <View className="flex-row items-center justify-between mb-[8px]">
+          <View
+            className="flex-row items-center gap-[4px] rounded-[12px] px-[7px] py-[2px]"
+            style={{ backgroundColor: 'rgba(255,255,255,0.55)' }}
+          >
+            <Text style={{ fontSize: 11 }}>{tagEmoji}</Text>
+            <Text
+              style={{ fontSize: 10, fontFamily: 'NanumSquareNeocBd', color: COLORS.textSecondary }}
+            >
+              {letter.tag}
+            </Text>
+          </View>
+          <Text style={{ fontSize: 9.5, color: COLORS.textMuted, fontFamily: 'NanumSquareNeoaLt' }}>
+            {letter.time}
+          </Text>
+        </View>
+
+        {/* ── 제목 ── */}
         <Text
-          className="text-[14px] font-extrabold text-ef-text mb-[7px]"
-          style={{ letterSpacing: -0.3 }}
+          numberOfLines={2}
+          style={{
+            fontSize: 13.5,
+            fontFamily: 'NanumSquareneodEb',
+            color: COLORS.textPrimary,
+            letterSpacing: -0.3,
+            lineHeight: 19,
+            marginBottom: 6,
+          }}
         >
           {letter.title}
         </Text>
 
+        {/* ── 본문 ── */}
         <Text
-          className="text-[13px] font-sans text-ef-text-sub"
-          style={{ lineHeight: 22 }}
           numberOfLines={expanded ? undefined : 3}
+          style={{
+            fontSize: 12,
+            fontFamily: 'NanumSquareNeoaLt',
+            color: COLORS.textSecondary,
+            lineHeight: 19,
+          }}
         >
           {letter.body}
         </Text>
 
         {isLong && (
-          <TouchableOpacity onPress={() => setExpanded(e => !e)}>
-            <Text className="text-[11.5px] font-bold mt-[5px]" style={{ color: COLORS.primary }}>
+          <TouchableOpacity onPress={() => setExpanded(e => !e)} activeOpacity={0.7}>
+            <Text
+              style={{
+                fontSize: 10.5,
+                fontFamily: 'NanumSquareNeocBd',
+                color: COLORS.primary,
+                marginTop: 3,
+              }}
+            >
               {expanded ? '접기 ↑' : '더보기 ↓'}
             </Text>
           </TouchableOpacity>
         )}
 
-        <View className="flex-row items-center gap-[5px] mt-[10px] pb-[4px]">
-          <View
-            className="flex-row items-center gap-[3px] rounded-[20px] px-[9px] py-[3px]"
-            style={{ backgroundColor: COLORS.primaryTint }}
-          >
-            <Text style={{ fontSize: 11 }}>{letter.stamp}</Text>
-            <Text className="text-[10.5px] font-bold" style={{ color: COLORS.primary }}>
-              {letter.tag}
+        {/* ── 구분선 ── */}
+        <View
+          style={{
+            height: 1,
+            backgroundColor: 'rgba(150,134,191,0.18)',
+            marginTop: 10,
+            marginBottom: 8,
+          }}
+        />
+
+        {/* ── 하단: 작성자 + 액션 ── */}
+        <View className="flex-row items-center">
+          {/* 작성자 */}
+          <View className="flex-1">
+            <View className="flex-row items-center gap-[4px]">
+              <Text style={{ fontSize: 10, color: COLORS.textMuted, fontFamily: 'NanumSquareNeoaLt' }}>
+                from.
+              </Text>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontFamily: 'NanumSquareNeocBd',
+                  color: COLORS.primaryMid,
+                }}
+                numberOfLines={1}
+              >
+                {signNick}
+              </Text>
+              {!letter.anon && letter.age && (
+                <Text style={{ fontSize: 10, color: COLORS.textMuted }}>{letter.age}</Text>
+              )}
+            </View>
+            <Text style={{ fontSize: 9.5, color: COLORS.textMuted, fontFamily: 'NanumSquareNeoaLt', marginTop: 1 }}>
+              {SCOPE_LABEL[letter.scope]}
             </Text>
           </View>
-        </View>
-      </View>
 
-      {/* ── 서명 ── */}
-      <View
-        className="flex-row items-center justify-end gap-[4px] px-[16px] py-[9px]"
-        style={{ borderTopWidth: 1, borderTopColor: 'rgba(150,134,191,0.2)', borderStyle: 'dashed' }}
-      >
-        <Text className="text-[11px] font-sans text-ef-text-muted">from.</Text>
-        <Text className="text-[12px] font-extrabold" style={{ color: COLORS.primary }}>{signNick}</Text>
-      </View>
-
-      {/* ── 액션바 ── */}
-      <View
-        className="flex-row items-center px-[14px] pb-[11px] pt-[8px] rounded-b-[18px]"
-        style={{ borderTopWidth: 1, borderTopColor: COLORS.divider }}
-      >
-        {/* Scope pill */}
-        <View
-          className="rounded-[10px] px-[9px] py-[3px]"
-          style={{ backgroundColor: COLORS.surface2 }}
-        >
-          <Text className="text-[10px] font-bold text-ef-text-muted">
-            {SCOPE_LABEL[letter.scope]}
-          </Text>
-        </View>
-
-        {/* Like + Reply */}
-        <View className="flex-row items-center gap-[2px] ml-auto">
+          {/* 좋아요 */}
           <TouchableOpacity
-            className="flex-row items-center gap-[5px] rounded-[20px] px-[9px] py-[5px]"
-            style={{ backgroundColor: letter.liked ? COLORS.primaryTint : 'transparent' }}
+            className="flex-row items-center gap-[3px] rounded-[14px] px-[8px] py-[4px]"
+            style={{ backgroundColor: letter.liked ? 'rgba(150,134,191,0.18)' : 'rgba(255,255,255,0.5)' }}
             onPress={() => onLike(letter.id, letter.liked)}
             activeOpacity={0.7}
           >
             <Ionicons
               name={letter.liked ? 'heart' : 'heart-outline'}
-              size={14}
+              size={12}
               color={letter.liked ? COLORS.primary : COLORS.textMuted}
             />
             <Text
-              className="text-[12px] font-bold"
-              style={{ color: letter.liked ? COLORS.primary : COLORS.textMuted }}
+              style={{
+                fontSize: 11,
+                fontFamily: 'NanumSquareNeocBd',
+                color: letter.liked ? COLORS.primary : COLORS.textMuted,
+              }}
             >
               {letter.likes}
             </Text>
           </TouchableOpacity>
 
+          {/* 답장 */}
           <TouchableOpacity
-            className="flex-row items-center gap-[5px] rounded-[20px] px-[9px] py-[5px]"
+            className="flex-row items-center gap-[3px] rounded-[14px] px-[8px] py-[4px]"
+            style={{ backgroundColor: 'rgba(255,255,255,0.5)', marginLeft: 4 }}
             onPress={() => onReply(letter.id, signNick)}
             activeOpacity={0.7}
           >
-            <Ionicons name="mail-outline" size={14} color={COLORS.textMuted} />
-            <Text className="text-[12px] font-bold text-ef-text-muted">{letter.replies}</Text>
+            <Ionicons name="chatbubble-outline" size={12} color={COLORS.textMuted} />
+            <Text
+              style={{ fontSize: 11, fontFamily: 'NanumSquareNeocBd', color: COLORS.textMuted }}
+            >
+              {letter.replies}
+            </Text>
           </TouchableOpacity>
         </View>
+
+        {/* ── 코너 폴드 (우측 하단) ── */}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            width: 0,
+            height: 0,
+            borderStyle: 'solid',
+            borderRightWidth: 20,
+            borderTopWidth: 20,
+            borderRightColor: 'transparent',
+            borderTopColor: note.fold,
+          }}
+        />
       </View>
     </View>
   );

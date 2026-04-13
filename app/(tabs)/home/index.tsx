@@ -1,9 +1,9 @@
 /**
  * @file app/(tabs)/home/index.tsx
- * @description 홈 메인 화면 — 밸런스 게임 + 종이비행기 우체통
+ * @description 홈 메인 화면 — 밸런스 게임 + 포스트잇 보드
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 import BalanceGameCard from '@home/bal-game/components/BalanceGameCard';
 import PostItCard from '@home/post-it/components/PostItCard';
+import WritePostItModal from '@home/post-it/components/WritePostItModal';
 import { useCurrentBalanceGame } from '@home/bal-game/hooks/useBalGame';
 import { useRecentPostIts } from '@home/post-it/hooks/usePostIt';
 
@@ -27,12 +28,23 @@ export default function HomeScreen() {
   const { data: game, isLoading: gameLoading } = useCurrentBalanceGame();
   const { data: postIts, isLoading: postItsLoading } = useRecentPostIts();
 
-  const handleChatPress = useCallback(
-    (id: string) => {
-      router.push(`/(tabs)/home/post-it?replyTo=${id}`);
-    },
-    [router],
-  );
+  const [replyModal, setReplyModal] = useState<{ visible: boolean; targetId: string; targetNick: string }>({
+    visible: false, targetId: '', targetNick: '',
+  });
+
+  const handleChatPress = useCallback((id: string) => {
+    const item = postIts?.find(p => p.id === id);
+    setReplyModal({ visible: true, targetId: id, targetNick: item?.nickname ?? '익명' });
+  }, [postIts]);
+
+  const handleReplyClose = useCallback(() => {
+    setReplyModal(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  const handleReplySubmit = useCallback((message: string, anonymous: boolean) => {
+    console.log('home reply submitted', { targetId: replyModal.targetId, message, anonymous });
+    handleReplyClose();
+  }, [replyModal.targetId, handleReplyClose]);
 
   return (
     <SafeAreaView className="flex-1 bg-ef-bg" edges={['top']}>
@@ -90,7 +102,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* ── 종이비행기 우체통 ── */}
+        {/* ── 포스트잇 보드 ── */}
         <View className="mb-7">
           <View className="flex-row items-center justify-between px-5 mb-3">
             <View className="flex-row items-center gap-[8px]">
@@ -98,12 +110,12 @@ export default function HomeScreen() {
                 className="text-[16px] text-ef-text font-extrabold"
                 style={{ letterSpacing: -0.4 }}
               >
-                종이비행기 우체통
+                📌 포스트잇 보드
               </Text>
               {!postItsLoading && (postIts?.length ?? 0) > 0 && (
                 <View className="bg-ef-primary-soft border border-ef-primary-border px-2 py-[2px] rounded-[10px]">
                   <Text className="text-[9px] text-ef-primary-mid font-extrabold">
-                    ✉ 새 편지 도착!
+                    새 메모!
                   </Text>
                 </View>
               )}
@@ -133,7 +145,7 @@ export default function HomeScreen() {
               ))}
             </ScrollView>
           ) : (
-            <EmptyState message="아직 종이비행기가 없어요" />
+            <EmptyState message="아직 포스트잇이 없어요" />
           )}
         </View>
       </ScrollView>
@@ -158,12 +170,19 @@ export default function HomeScreen() {
           onPress={() => router.push('/(tabs)/home/post-it')}
           activeOpacity={0.85}
         >
-          <Text className="text-[15px]">✈</Text>
+          <Text className="text-[15px]">📝</Text>
           <Text className="text-[14px] text-white font-extrabold" style={{ letterSpacing: -0.3 }}>
-            종이비행기 날리기
+            포스트잇 남기기
           </Text>
         </TouchableOpacity>
       </View>
+      {/* 홈 포스트잇 답장 모달 */}
+      <WritePostItModal
+        visible={replyModal.visible}
+        onClose={handleReplyClose}
+        onSubmit={handleReplySubmit}
+        replyToNick={replyModal.targetNick}
+      />
     </SafeAreaView>
   );
 }

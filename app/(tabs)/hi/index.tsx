@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 import SwipeCard from '@/features/hi/components/SwipeCard';
 import EmptyState from '@/features/hi/components/EmptyState';
-import ChatSheet from '@/features/hi/components/ChatSheet';
+import ChatModal from '@/features/hi/components/ChatModal';
 import { useProfiles } from '@/features/hi/hooks/useHi';
 import { MatchProfile } from '@/features/hi/types';
 
@@ -34,9 +34,14 @@ export default function HiScreen() {
   const [chatTarget, setChatTarget] = useState<MatchProfile | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
 
+  // 패스한 프로필 ID를 세션 동안 영구 보관 (refetch 후에도 유지)
+  const passedIds = useRef<Set<number>>(new Set());
+
   useEffect(() => {
     if (rawProfiles) {
-      setQueue(rawProfiles);
+      // 이미 패스한 프로필은 제외하고 큐 구성
+      const filtered = rawProfiles.filter(p => !passedIds.current.has(p.id));
+      setQueue(filtered);
       setCurIdx(0);
     }
   }, [rawProfiles]);
@@ -95,6 +100,7 @@ export default function HiScreen() {
       setIsSwiping(false);
 
       if (dir === -1 && passed) {
+        passedIds.current.add(passed.id);  // 패스 목록에 등록
         setLastPassed(passed);
         showUndoBar();
       } else {
@@ -128,17 +134,17 @@ export default function HiScreen() {
   ).current;
 
   const doRefresh = useCallback(() => {
-    setCurIdx(0);
-    refetch();
+    refetch(); // useEffect가 새 데이터 수신 후 passedIds 필터링 + setCurIdx(0) 처리
   }, [refetch]);
 
   const doUndo = useCallback(() => {
-    if (curIdx <= 0) return;
+    if (!lastPassed || curIdx <= 0) return;
+    passedIds.current.delete(lastPassed.id); // 되돌리기 시 패스 목록에서 제거
     hideUndoBar();
     pan.setValue({ x: 0, y: 0 });
     setCurIdx(c => c - 1);
     setLastPassed(null);
-  }, [curIdx, hideUndoBar, pan]);
+  }, [lastPassed, curIdx, hideUndoBar, pan]);
 
   const rotate = pan.x.interpolate({
     inputRange: [-SW, 0, SW],
@@ -340,7 +346,7 @@ export default function HiScreen() {
       )}
 
       {/* ── Chat Sheet ── */}
-      <ChatSheet profile={chatTarget} onClose={() => setChatTarget(null)} />
+      <ChatModal profile={chatTarget} onClose={() => setChatTarget(null)} />
     </SafeAreaView>
   );
 }

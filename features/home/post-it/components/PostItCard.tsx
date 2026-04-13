@@ -80,7 +80,7 @@ const PostItCard: React.FC<PostItCardProps> = ({ item, onChatPress }) => {
           onPress={() => onChatPress?.(item.id)}
           activeOpacity={0.75}
         >
-          <Text className="text-[10px]">✈</Text>
+          <Text className="text-[10px]">📝</Text>
           <Text className="text-[10px] text-ef-primary font-extrabold">답장하기</Text>
         </TouchableOpacity>
       </View>

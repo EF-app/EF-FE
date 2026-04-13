@@ -30,7 +30,7 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontSize: 10,
           fontFamily: "NanumSquareNeo-cBd",
-          marginTop: 2,
+          marginTop: 0,
           marginBottom: Platform.OS === "ios" ? 0 : 2,
         },
         tabBarStyle: {
