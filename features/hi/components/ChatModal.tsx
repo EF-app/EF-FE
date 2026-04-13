@@ -174,9 +174,9 @@ const ChatModal: React.FC<Props> = ({ profile, onClose }) => {
   }, [keyboardOffset, sheetH]);
 
   /* ── Snap / Dismiss (ref 패턴) ── */
-  const snapHighRef = useRef<() => void>();
-  const snapLowRef = useRef<() => void>();
-  const dismissRef = useRef<() => void>();
+  const snapHighRef = useRef<(() => void) | undefined>(undefined);
+  const snapLowRef = useRef<(() => void) | undefined>(undefined);
+  const dismissRef = useRef<(() => void) | undefined>(undefined);
 
   snapHighRef.current = () => {
     isExpandedRef.current = true;
