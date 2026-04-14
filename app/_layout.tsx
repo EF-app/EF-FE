@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 
@@ -22,21 +23,23 @@ export default function RootLayout() {
   return (
     // 2. QueryClientProvider로 전체를 감싸줍니다.
     /* Stack은 Expo Router에 내장되어 있어서 추가 설치 없이 바로 쓸 수 있습니다.*/
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        {/* 3. Expo Router의 Stack 네비게이션 */}
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* (tabs) 그룹이나 index 화면을 관리합니다 */}
-          <Stack.Screen
-            name="index"
-            options={{
-              title: "EF 홈",
-              headerShown: true,
-            }}
-          />
-          {/* 나머지 화면 설정들... */}
-        </Stack>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          {/* 3. Expo Router의 Stack 네비게이션 */}
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* (tabs) 그룹이나 index 화면을 관리합니다 */}
+            <Stack.Screen
+              name="index"
+              options={{
+                title: "EF 홈",
+                headerShown: true,
+              }}
+            />
+            {/* 나머지 화면 설정들... */}
+          </Stack>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
