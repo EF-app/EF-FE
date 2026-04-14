@@ -33,6 +33,7 @@ export default function HiScreen() {
   const [lastPassed, setLastPassed] = useState<MatchProfile | null>(null);
   const [chatTarget, setChatTarget] = useState<MatchProfile | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [messagedIds, setMessagedIds] = useState<Set<number>>(new Set());
 
   // 패스한 프로필 ID를 세션 동안 영구 보관 (refetch 후에도 유지)
   const passedIds = useRef<Set<number>>(new Set());
@@ -81,7 +82,7 @@ export default function HiScreen() {
   }, [undoHeight, undoOpacity]);
 
   // Ref-stable flyOut that always sees latest queue/idx
-  const flyOutRef = useRef<(dir: 1 | -1) => void>();
+  const flyOutRef = useRef<((dir: 1 | -1) => void) | null>(null);
   flyOutRef.current = (dir: 1 | -1) => {
     if (swipingRef.current) return;
     swipingRef.current = true;
@@ -305,28 +306,54 @@ export default function HiScreen() {
 
           {/* Message — center primary CTA */}
           <View className="flex-1 max-w-[190px] items-center gap-[6px]">
-            <TouchableOpacity
-              className="w-full h-[58px] rounded-[30px] flex-row items-center justify-center gap-[8px]"
-              style={{
-                backgroundColor: COLORS.primary,
-                shadowColor: COLORS.primary,
-                shadowOffset: { width: 0, height: 6 },
-                shadowOpacity: 0.36,
-                shadowRadius: 20,
-                elevation: 8,
-              }}
-              activeOpacity={0.85}
-              onPress={() => current && setChatTarget(current)}
-              disabled={isEmpty}
-            >
-              <Ionicons name="chatbubble" size={18} color="#fff" />
-              <Text className="text-[15px] font-extrabold text-white" style={{ letterSpacing: -0.3 }}>
-                메시지 보내기
-              </Text>
-            </TouchableOpacity>
-            <Text className="text-[10.5px] font-bold" style={{ color: COLORS.primary }}>
-              대화 시작하기
-            </Text>
+            {current && messagedIds.has(current.id) ? (
+              <>
+                <View
+                  className="w-full h-[58px] rounded-[30px] flex-row items-center justify-center gap-[8px]"
+                  style={{
+                    backgroundColor: COLORS.primaryTint,
+                    borderWidth: 1.5,
+                    borderColor: COLORS.primary,
+                  }}
+                >
+                  <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+                  <Text
+                    className="text-[14.5px] font-extrabold"
+                    style={{ color: COLORS.primary, letterSpacing: -0.3 }}
+                  >
+                    메시지 보냄
+                  </Text>
+                </View>
+                <Text className="text-[10.5px] font-bold text-ef-text-muted">
+                  답장을 기다리는 중이에요
+                </Text>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  className="w-full h-[58px] rounded-[30px] flex-row items-center justify-center gap-[8px]"
+                  style={{
+                    backgroundColor: COLORS.primary,
+                    shadowColor: COLORS.primary,
+                    shadowOffset: { width: 0, height: 6 },
+                    shadowOpacity: 0.36,
+                    shadowRadius: 20,
+                    elevation: 8,
+                  }}
+                  activeOpacity={0.85}
+                  onPress={() => current && setChatTarget(current)}
+                  disabled={isEmpty}
+                >
+                  <Ionicons name="chatbubble" size={18} color="#fff" />
+                  <Text className="text-[15px] font-extrabold text-white" style={{ letterSpacing: -0.3 }}>
+                    메시지 보내기
+                  </Text>
+                </TouchableOpacity>
+                <Text className="text-[10.5px] font-bold" style={{ color: COLORS.primary }}>
+                  대화 시작하기
+                </Text>
+              </>
+            )}
           </View>
 
           {/* Like */}
@@ -346,7 +373,18 @@ export default function HiScreen() {
       )}
 
       {/* ── Chat Sheet ── */}
-      <ChatModal profile={chatTarget} onClose={() => setChatTarget(null)} />
+      <ChatModal
+        profile={chatTarget}
+        onClose={() => setChatTarget(null)}
+        onSend={(id) =>
+          setMessagedIds((prev) => {
+            if (prev.has(id)) return prev;
+            const next = new Set(prev);
+            next.add(id);
+            return next;
+          })
+        }
+      />
     </SafeAreaView>
   );
 }

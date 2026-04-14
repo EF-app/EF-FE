@@ -47,9 +47,10 @@ const SNAP_HIGH = Math.round(SH * 0.88);
 interface Props {
   profile: MatchProfile | null;
   onClose: () => void;
+  onSend?: (profileId: number) => void;
 }
 
-const ChatModal: React.FC<Props> = ({ profile, onClose }) => {
+const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
   const insets = useSafeAreaInsets();
 
   /* ── Animated values ── */
@@ -261,8 +262,9 @@ const ChatModal: React.FC<Props> = ({ profile, onClose }) => {
     if (!text) return;
     setMessages((prev) => [...prev, { id: Date.now(), text, mine: true }]);
     setInput("");
+    if (profile) onSend?.(profile.id);
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
-  }, [input]);
+  }, [input, profile, onSend]);
 
   const pb = Platform.OS === "ios" ? Math.max(insets.bottom, 8) : 12;
 
