@@ -310,7 +310,7 @@ export default function ChatRoomScreen() {
 
               <TextInput
                 className="flex-1 text-[14px] font-bold text-ef-text"
-                style={{ height: 36 }}
+                style={{ height: 36, textAlignVertical: 'center', paddingVertical: 0, lineHeight: 20 }}
                 placeholder="메시지를 입력하세요."
                 placeholderTextColor={COLORS.textMuted}
                 value={input}
