@@ -13,7 +13,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 import SwipeCard from '@/features/hi/components/SwipeCard';
@@ -159,16 +159,18 @@ export default function HiScreen() {
   const remaining = Math.max(0, queue.length - curIdx);
   const isEmpty   = !isLoading && queue.length > 0 && curIdx >= queue.length;
 
+  const insets = useSafeAreaInsets();
+
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-ef-bg items-center justify-center" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-ef-bg items-center justify-center" edges={['top', 'bottom']}>
         <ActivityIndicator size="small" color={COLORS.primary} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-ef-bg" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-ef-bg" edges={['top', 'bottom']}>
       {/* ── 탑바 ── */}
       <View className="flex-row items-center justify-between px-[18px] py-[8px]">
         {/* Logo */}
@@ -289,7 +291,9 @@ export default function HiScreen() {
 
       {/* ── Actions ── */}
       {!isEmpty && (
-        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[10px] pb-[16px] bg-ef-bg">
+        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[10px]"
+          style={{ paddingBottom: 16 + insets.bottom, backgroundColor: COLORS.bg }}
+        >
           {/* Pass */}
           <View className="items-center gap-[6px]">
             <TouchableOpacity

@@ -190,7 +190,7 @@ export default function ChatRoomScreen() {
       {/* ── 채팅 영역 ── */}
       <KeyboardAvoidingView
         className="flex-1"
-        style={{ flex: 1, paddingBottom: keyboardHeight + insets.bottom }}
+        style={{ flex: 1, paddingBottom: keyboardHeight }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 24}
         enabled
@@ -279,7 +279,7 @@ export default function ChatRoomScreen() {
         </ScrollView>
 
         {/* ── 바텀 독 ── */}
-        <View className="border-t border-ef-divider" style={{ backgroundColor: COLORS.bg }}>
+        <View className="border-t border-ef-divider" style={{ backgroundColor: COLORS.bg, paddingBottom: insets.bottom }}>
           {/* Input row */}
           <View className="px-[14px] py-[10px]">
             <View

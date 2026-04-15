@@ -18,14 +18,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function NotiScreen() {
   const { data: notices, isLoading } = useNotices();
   const [selected, setSelected] = useState<Notice | null>(null);
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView className="flex-1 bg-ef-bg" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-ef-bg" edges={["top", "bottom"]}>
       {/* ── 헤더 ── */}
       <View className="flex-row items-center justify-between px-5 py-[14px] border-b border-ef-divider">
         <Text
@@ -98,7 +100,7 @@ export default function NotiScreen() {
       {/* ── 공지 목록 ── */}
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 24 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
