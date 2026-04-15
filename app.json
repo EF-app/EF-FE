@@ -28,7 +28,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "androidNavigationBar": {
+        "backgroundColor": "#EDEAE7",
+        "barStyle": "dark-content"
+      }
     },
     "web": {
       "bundler": "metro",
