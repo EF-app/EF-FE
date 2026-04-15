@@ -8,8 +8,9 @@ import AppHeader from "@components/AppHeader";
 import CtaButton from "@components/CtaButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Linking,
   Platform,
@@ -20,6 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MAX_FAIL = 5;
 
@@ -34,6 +36,8 @@ export default function LoginScreen() {
   const [isLocked, setIsLocked] = useState(false);
   const [inputInvalid, setInputInvalid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const insets = useSafeAreaInsets();
 
   const hasInput = userId.trim().length > 0 && password.length > 0;
   const canLogin = hasInput && !isLocked && !isLoading;
@@ -87,18 +91,37 @@ export default function LoginScreen() {
     }
   }, [canLogin, userId, password, failCount]);
 
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, e => {
+      setKeyboardHeight(e.endCoordinates?.height || 0);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   return (
     <View className="flex-1 bg-ef-bg">
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.bg} />
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1, paddingBottom: keyboardHeight + insets.bottom }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 24}
       >
         <ScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 + keyboardHeight + insets.bottom }}
         >
           <AppHeader />
 

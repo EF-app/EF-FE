@@ -11,11 +11,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 
@@ -68,6 +69,8 @@ export default function ChatRoomScreen() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [trayOpen, setTrayOpen] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const trayHeight  = useRef(new Animated.Value(0)).current;
   const trayOpacity = useRef(new Animated.Value(0)).current;
@@ -78,6 +81,23 @@ export default function ChatRoomScreen() {
       Animated.timing(trayOpacity, { toValue: trayOpen ? 1   : 0, duration: 200, useNativeDriver: false }),
     ]).start();
   }, [trayOpen, trayHeight, trayOpacity]);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, e => {
+      setKeyboardHeight(e.endCoordinates?.height || 0);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const sendMsg = useCallback((text?: string) => {
     const txt = (text ?? input).trim();
@@ -170,14 +190,15 @@ export default function ChatRoomScreen() {
       {/* ── 채팅 영역 ── */}
       <KeyboardAvoidingView
         className="flex-1"
+        style={{ flex: 1, paddingBottom: keyboardHeight + insets.bottom }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 24}
         enabled
       >
         <ScrollView
           ref={scrollRef}
           className="flex-1 bg-ef-bg"
-          contentContainerStyle={{ padding: 14, gap: 10, paddingBottom: 14 }}
+          contentContainerStyle={{ padding: 14, gap: 10, paddingBottom: 14 + keyboardHeight + insets.bottom }}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
           onTouchStart={() => setTrayOpen(false)}

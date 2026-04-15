@@ -58,7 +58,8 @@ const MemoSheet: React.FC<Props> = ({ chat, onClose, onSave }) => {
     <Modal transparent visible={!!chat} onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
         <Animated.View style={{ flex: 1, backgroundColor: 'rgba(20,16,36,0.42)', opacity }}>
           <Pressable style={{ flex: 1 }} onPress={onClose} />
