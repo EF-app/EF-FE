@@ -548,6 +548,7 @@ export default function ProfileCreationScreen() {
   const [bodyType, setBodyType] = useState<number | null>(null);
   const [heightRange, setHeight] = useState<number | null>(null);
   const [vibe, setVibe] = useState<number | null>(null);
+  const [job, setJob] = useState<number | null>(null);
   const [mbtiSel, setMbtiSel] = useState<number[]>([0, 0, 0, 0]);
 
   const mbtiType = mbtiSel
@@ -1225,8 +1226,8 @@ export default function ProfileCreationScreen() {
                       <HChip
                         key={i}
                         label={opt}
-                        selected={vibe === i}
-                        onPress={() => setVibe(i)}
+                        selected={job === i}
+                        onPress={() => setJob(i)}
                       />
                     ))}
                   </View>

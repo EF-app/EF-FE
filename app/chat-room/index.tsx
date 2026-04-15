@@ -170,8 +170,9 @@ export default function ChatRoomScreen() {
       {/* ── 채팅 영역 ── */}
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        enabled
       >
         <ScrollView
           ref={scrollRef}
