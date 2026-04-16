@@ -1,182 +1,130 @@
 /**
  * @file app/(tabs)/home/index.tsx
- * @description 홈 메인 화면 — 밸런스 게임 + 포스트잇 보드
+ * @description 홈 메인 — 인사말 + 오늘의 밸런스 + 포스트잇 보드
  */
 
+import { COLORS } from '@/constants/colors';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
-  Platform,
+  ScrollView,
   StatusBar,
+  Text,
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/constants/colors';
-import BalanceGameCard from '@home/bal-game/components/BalanceGameCard';
-import PostItCard from '@home/post-it/components/PostItCard';
+
+import ApplyBanner from '@home/components/ApplyBanner';
+import BalanceCard from '@home/components/BalanceCard';
+import DashedDivider from '@home/components/DashedDivider';
+import Greeting from '@home/components/Greeting';
+import HomeHeader from '@home/components/HomeHeader';
+import NavButtons from '@home/components/NavButtons';
+import PostitSection from '@home/components/PostitSection';
+import SectionTitle from '@home/components/SectionTitle';
+import { useHomeFeed } from '@home/hooks/useHome';
 import WritePostItModal from '@home/post-it/components/WritePostItModal';
-import { useCurrentBalanceGame } from '@home/bal-game/hooks/useBalGame';
-import { useRecentPostIts } from '@home/post-it/hooks/usePostIt';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { data: game, isLoading: gameLoading } = useCurrentBalanceGame();
-  const { data: postIts, isLoading: postItsLoading } = useRecentPostIts();
+  const { data, isLoading, isError } = useHomeFeed();
 
-  const [replyModal, setReplyModal] = useState<{ visible: boolean; targetId: string; targetNick: string }>({
-    visible: false, targetId: '', targetNick: '',
-  });
+  const [replyModal, setReplyModal] = useState<{
+    visible: boolean;
+    targetNick: string;
+    targetId: string | null;
+  }>({ visible: false, targetNick: '', targetId: null });
 
-  const handleChatPress = useCallback((id: string) => {
-    const item = postIts?.find(p => p.id === id);
-    setReplyModal({ visible: true, targetId: id, targetNick: item?.nickname ?? '익명' });
-  }, [postIts]);
+  const handleReplyPress = useCallback(
+    (id: string) => {
+      const target = data?.postits.find((p) => p.id === id);
+      setReplyModal({
+        visible: true,
+        targetId: id,
+        targetNick: target?.nickname ?? '익명',
+      });
+    },
+    [data?.postits],
+  );
 
   const handleReplyClose = useCallback(() => {
-    setReplyModal(prev => ({ ...prev, visible: false }));
+    setReplyModal((prev) => ({ ...prev, visible: false }));
   }, []);
 
-  const handleReplySubmit = useCallback((message: string, anonymous: boolean) => {
-    console.log('home reply submitted', { targetId: replyModal.targetId, message, anonymous });
-    handleReplyClose();
-  }, [replyModal.targetId, handleReplyClose]);
+  const handleReplySubmit = useCallback(
+    (_message: string, _anonymous: boolean) => {
+      handleReplyClose();
+    },
+    [handleReplyClose],
+  );
+
+  const goToBalGame = useCallback(() => {
+    router.push('/(tabs)/home/bal-game');
+  }, [router]);
+
+  const goToApplyBalGame = useCallback(() => {
+    router.push('/(tabs)/home/bal-game/apply');
+  }, [router]);
+
+  const goToPostItBoard = useCallback(() => {
+    router.push('/(tabs)/home/post-it');
+  }, [router]);
+
+  const goToWritePostIt = useCallback(() => {
+    router.push('/(tabs)/home/post-it/write');
+  }, [router]);
 
   return (
     <SafeAreaView className="flex-1 bg-ef-bg" edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.bg} />
 
-      {/* ── 헤더 ── */}
-      <View className="flex-row items-center justify-between px-5 py-3 bg-ef-bg">
-        <Text
-          className="text-[20px] text-ef-text font-extrabold"
-          style={{ letterSpacing: -0.5 }}
-        >
-          이<Text className="text-ef-primary">프</Text>
-        </Text>
-        <View className="flex-row items-center gap-[16px]">
-          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="search-outline" size={22} color={COLORS.textPrimary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            onPress={() => router.push('/(tabs)/noti')}
-          >
-            <Ionicons name="notifications-outline" size={22} color={COLORS.textPrimary} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <HomeHeader />
 
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
       >
-        {/* ── 인사말 ── */}
-        <View className="px-5 pt-5 pb-6">
-          <Text
-            className="text-[22px] text-ef-text font-extrabold leading-[30px]"
-            style={{ letterSpacing: -0.6 }}
-          >
-            안녕하세요 :){'\n'}
-            오늘의{' '}
-            <Text className="text-ef-primary">밸런스</Text>
-            에{'\n'}
-            참여해볼까요?
-          </Text>
-        </View>
+        <Greeting />
 
-        {/* ── 밸런스 게임 카드 ── */}
-        <View className="mb-7">
-          <SectionHeader title="오늘의 밸런스" />
-          {gameLoading ? (
-            <LoadingSkeleton height={220} />
-          ) : game ? (
-            <BalanceGameCard game={game} />
-          ) : (
-            <EmptyState message="오늘의 밸런스 게임을 불러올 수 없어요" />
-          )}
-        </View>
+        <SectionTitle
+          title="⚖️ 오늘의 밸런스게임"
+          tag="NEW"
+          onMorePress={goToBalGame}
+        />
 
-        {/* ── 포스트잇 보드 ── */}
-        <View className="mb-7">
-          <View className="flex-row items-center justify-between px-5 mb-3">
-            <View className="flex-row items-center gap-[8px]">
-              <Text
-                className="text-[16px] text-ef-text font-extrabold"
-                style={{ letterSpacing: -0.4 }}
-              >
-                📌 포스트잇 보드
-              </Text>
-              {!postItsLoading && (postIts?.length ?? 0) > 0 && (
-                <View className="bg-ef-primary-soft border border-ef-primary-border px-2 py-[2px] rounded-[10px]">
-                  <Text className="text-[9px] text-ef-primary-mid font-extrabold">
-                    새 메모!
-                  </Text>
-                </View>
-              )}
+        {isLoading ? (
+          <LoadingBlock height={380} />
+        ) : isError || !data ? (
+          <ErrorBlock />
+        ) : (
+          <>
+            <BalanceCard game={data.balance} onCommentsPress={goToBalGame} />
+            <View className="px-[18px]">
+              <NavButtons
+                onNextPress={goToBalGame}
+                onPopularPress={goToBalGame}
+              />
+              <ApplyBanner onApplyPress={goToApplyBalGame} />
             </View>
-            <TouchableOpacity
-              onPress={() => router.push('/(tabs)/home/post-it')}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text className="text-[11px] text-ef-primary font-extrabold">전체보기 ›</Text>
-            </TouchableOpacity>
-          </View>
+          </>
+        )}
 
-          {postItsLoading ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="pl-5">
-              {[1, 2, 3].map((i) => (
-                <LoadingSkeleton key={i} height={170} width={200} className="mr-3" />
-              ))}
-            </ScrollView>
-          ) : (postIts?.length ?? 0) > 0 ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingLeft: 20, paddingRight: 8 }}
-            >
-              {postIts!.map((item) => (
-                <PostItCard key={item.id} item={item} onChatPress={handleChatPress} />
-              ))}
-            </ScrollView>
-          ) : (
-            <EmptyState message="아직 포스트잇이 없어요" />
-          )}
-        </View>
+        <DashedDivider />
+
+        {isLoading ? (
+          <LoadingBlock height={260} />
+        ) : isError || !data ? null : (
+          <PostitSection
+            items={data.postits}
+            onViewAllPress={goToPostItBoard}
+            onWritePress={goToWritePostIt}
+            onReplyPress={handleReplyPress}
+          />
+        )}
       </ScrollView>
 
-      {/* ── 플로팅 액션 버튼 ── */}
-      <View
-        className="absolute bottom-0 left-0 right-0 items-center"
-        style={{ paddingBottom: Platform.OS === 'ios' ? 104 : 76 }}
-        pointerEvents="box-none"
-      >
-        <TouchableOpacity
-          className="flex-row items-center gap-[6px] bg-ef-primary rounded-[28px] px-6 py-[13px]"
-          style={Platform.select({
-            ios: {
-              shadowColor: COLORS.primary,
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.4,
-              shadowRadius: 20,
-            },
-            android: { elevation: 10 },
-          })}
-          onPress={() => router.push('/(tabs)/home/post-it')}
-          activeOpacity={0.85}
-        >
-          <Text className="text-[15px]">📝</Text>
-          <Text className="text-[14px] text-white font-extrabold" style={{ letterSpacing: -0.3 }}>
-            포스트잇 남기기
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {/* 홈 포스트잇 답장 모달 */}
       <WritePostItModal
         visible={replyModal.visible}
         onClose={handleReplyClose}
@@ -187,38 +135,16 @@ export default function HomeScreen() {
   );
 }
 
-/* ── 공용 서브 컴포넌트 ────────────────────────────────────────────────────── */
+const LoadingBlock: React.FC<{ height: number }> = ({ height }) => (
+  <View className="mx-[22px] items-center justify-center" style={{ height }}>
+    <ActivityIndicator size="small" color={COLORS.primary} />
+  </View>
+);
 
-const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-  <View className="flex-row items-center justify-between px-5 mb-3">
-    <Text
-      className="text-[16px] text-ef-text font-extrabold"
-      style={{ letterSpacing: -0.4 }}
-    >
-      {title}
+const ErrorBlock: React.FC = () => (
+  <View className="mx-[22px] rounded-[18px] bg-ef-surface py-10 items-center border-[1.5px] border-ef-primary-border">
+    <Text className="text-[13px] text-ef-text-sub font-sans">
+      홈 피드를 불러오지 못했어요
     </Text>
-  </View>
-);
-
-const LoadingSkeleton: React.FC<{
-  height: number;
-  width?: number;
-  className?: string;
-}> = ({ height, width, className: cls }) => (
-  <View
-    className={`bg-ef-surface2 rounded-[16px] ${cls ?? ''}`}
-    style={{ height, width: width ?? undefined, marginHorizontal: width ? 0 : 20 }}
-  >
-    <ActivityIndicator
-      size="small"
-      color={COLORS.primary}
-      style={{ flex: 1 }}
-    />
-  </View>
-);
-
-const EmptyState: React.FC<{ message: string }> = ({ message }) => (
-  <View className="mx-5 rounded-[16px] bg-ef-surface py-8 items-center">
-    <Text className="text-[13px] text-ef-text-muted font-sans">{message}</Text>
   </View>
 );

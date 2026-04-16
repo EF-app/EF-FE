@@ -10,7 +10,7 @@ export default function HomeLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="bal-game/index" />
-      <Stack.Screen name="bal-game/write" />
+      <Stack.Screen name="bal-game/apply" />
       <Stack.Screen name="post-it/index" />
       <Stack.Screen name="post-it/write" />
     </Stack>

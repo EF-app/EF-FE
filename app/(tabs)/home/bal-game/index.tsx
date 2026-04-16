@@ -173,7 +173,7 @@ export default function BalGameCommentsScreen() {
         <TouchableOpacity
           className="flex-row items-center gap-[4px] rounded-[20px] px-[12px] py-[6px]"
           style={{ backgroundColor: COLORS.primaryTint, borderWidth: 1, borderColor: COLORS.primaryBorder }}
-          onPress={() => router.push('/(tabs)/home/bal-game/write')}
+          onPress={() => router.push('/(tabs)/home/bal-game/apply')}
           activeOpacity={0.8}
         >
           <Ionicons name="add" size={12} color={COLORS.primary} />
