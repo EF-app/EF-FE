@@ -13,9 +13,10 @@ interface Props {
   profile: MatchProfile;
   panX?: Animated.Value;
   behind?: 1 | 2;
+  compact?: boolean;
 }
 
-const SwipeCard: React.FC<Props> = ({ profile, panX, behind }) => {
+const SwipeCard: React.FC<Props> = ({ profile, panX, behind, compact = false }) => {
   const meta = TYPE_META[profile.type];
 
   const likeOpacity = panX
@@ -31,6 +32,8 @@ const SwipeCard: React.FC<Props> = ({ profile, panX, behind }) => {
     ? { transform: [{ scale: 0.96 }, { translateY: 7 }], opacity: 0.6 }
     : undefined;
 
+  const photoAreaHeight = compact ? 210 : 262;
+
   return (
     <Animated.View
       className="absolute inset-0 bg-ef-surface rounded-[22px] overflow-hidden"
@@ -40,7 +43,13 @@ const SwipeCard: React.FC<Props> = ({ profile, panX, behind }) => {
       ]}
     >
       {/* ── Photo area ── */}
-      <View className="h-[62%] relative items-center justify-center" style={{ backgroundColor: profile.bgColor, minHeight: 250 }}>
+      <View
+        className="relative items-center justify-center"
+        style={{
+          height: photoAreaHeight,
+          backgroundColor: profile.bgColor,
+        }}
+      >
         <Text style={{ fontSize: 96 }}>{profile.emoji}</Text>
 
         {/* Subtle bottom fade overlay */}

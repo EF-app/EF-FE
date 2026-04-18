@@ -34,6 +34,7 @@ export default function HiScreen() {
   const [chatTarget, setChatTarget] = useState<MatchProfile | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
   const [messagedIds, setMessagedIds] = useState<Set<number>>(new Set());
+  const [isUndoVisible, setIsUndoVisible] = useState(false);
 
   // 패스한 프로필 ID를 세션 동안 영구 보관 (refetch 후에도 유지)
   const passedIds = useRef<Set<number>>(new Set());
@@ -61,6 +62,7 @@ export default function HiScreen() {
 
   const showUndoBar = useCallback(() => {
     if (undoTimer.current) clearTimeout(undoTimer.current);
+    setIsUndoVisible(true);
     Animated.parallel([
       Animated.timing(undoHeight, { toValue: 52, duration: 280, useNativeDriver: false }),
       Animated.timing(undoOpacity, { toValue: 1, duration: 220, useNativeDriver: false }),
@@ -69,7 +71,10 @@ export default function HiScreen() {
       Animated.parallel([
         Animated.timing(undoHeight, { toValue: 0, duration: 220, useNativeDriver: false }),
         Animated.timing(undoOpacity, { toValue: 0, duration: 180, useNativeDriver: false }),
-      ]).start();
+      ]).start(() => {
+        setIsUndoVisible(false);
+        setLastPassed(null);
+      });
     }, 3000);
   }, [undoHeight, undoOpacity]);
 
@@ -78,7 +83,10 @@ export default function HiScreen() {
     Animated.parallel([
       Animated.timing(undoHeight, { toValue: 0, duration: 220, useNativeDriver: false }),
       Animated.timing(undoOpacity, { toValue: 0, duration: 180, useNativeDriver: false }),
-    ]).start();
+    ]).start(() => {
+      setIsUndoVisible(false);
+      setLastPassed(null);
+    });
   }, [undoHeight, undoOpacity]);
 
   // Ref-stable flyOut that always sees latest queue/idx
@@ -216,20 +224,15 @@ export default function HiScreen() {
         </View>
       </View>
 
-      <Animated.View
-        className="flex-1"
-        style={{
-          paddingBottom: !isEmpty
-            ? undoHeight.interpolate({
-                inputRange: [0, 52],
-                outputRange: [92, 152],
-                extrapolate: 'clamp',
-              })
-            : 0,
-        }}
+      <View
+        className="flex-1 relative"
+        style={{ paddingBottom: !isEmpty ? 92 : 0 }}
       >
         {/* ── Card stage ── */}
-        <View className="flex-1 mx-[14px] mt-[10px] mb-[2px] relative" style={{ minHeight: 450 }}>
+        <Animated.View
+          className="flex-1 mx-[14px] mt-[10px] mb-[2px] relative"
+          style={{ minHeight: 0 }}
+        >
           {isEmpty ? (
             <EmptyState onRefresh={doRefresh} />
           ) : (
@@ -242,53 +245,50 @@ export default function HiScreen() {
                   style={{ transform: [{ translateX: pan.x }, { rotate }] }}
                   {...panResponder.panHandlers}
                 >
-                  <SwipeCard profile={current} panX={pan.x} />
+                  <SwipeCard profile={current} panX={pan.x} compact={isUndoVisible} />
                 </Animated.View>
               )}
             </>
           )}
-        </View>
-      </Animated.View>
-
-      {/* ── Undo bar ── */}
-      {!isEmpty && (
-        <Animated.View
-          pointerEvents={lastPassed ? 'auto' : 'none'}
-          className="absolute left-0 right-0"
-          style={{
-            bottom: 82,
-            height: undoHeight,
-            opacity: undoOpacity,
-            overflow: 'hidden',
-            paddingHorizontal: 14,
-            zIndex: 15,
-          }}
-        >
-          <View
-            className="flex-row items-center justify-between rounded-[16px] px-[16px] py-[9px]"
-            style={{ backgroundColor: 'rgba(28,26,31,0.86)' }}
-          >
-            <Text className="text-[12.5px] font-bold" style={{ color: 'rgba(255,255,255,0.82)' }}>
-              <Text className="text-white font-extrabold">{lastPassed?.name}</Text>님을 패스했어요
-            </Text>
-            <TouchableOpacity
-              className="rounded-[12px] px-[14px] py-[6px]"
-              style={{
-                backgroundColor: COLORS.primary,
-                shadowColor: COLORS.primary,
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.4,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
-              activeOpacity={0.85}
-              onPress={doUndo}
-            >
-              <Text className="text-[12px] font-extrabold text-white">되돌리기</Text>
-            </TouchableOpacity>
-          </View>
         </Animated.View>
-      )}
+
+        {/* ── Undo bar ── */}
+        {!isEmpty && (
+          <Animated.View
+            pointerEvents={lastPassed ? 'auto' : 'none'}
+            style={{
+              height: undoHeight,
+              opacity: undoOpacity,
+              overflow: 'hidden',
+              paddingHorizontal: 14,
+              marginBottom: 8,
+            }}
+          >
+            <View
+              className="flex-row items-center justify-between rounded-[16px] px-[16px] py-[9px]"
+              style={{ backgroundColor: 'rgba(28,26,31,0.86)' }}
+            >
+              <Text className="text-[12.5px] font-bold" style={{ color: 'rgba(255,255,255,0.82)' }}>
+                <Text className="text-white font-extrabold">{lastPassed?.name}</Text>님을 패스했어요
+              </Text>
+              <TouchableOpacity
+                className="rounded-[12px] px-[14px] py-[6px]"
+                style={{
+                  backgroundColor: COLORS.primary,
+                  shadowColor: COLORS.primary,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.4,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }}
+                activeOpacity={0.85}
+                onPress={doUndo}
+              >
+                <Text className="text-[12px] font-extrabold text-white">되돌리기</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        )}
 
       {/* ── Actions ── */}
       {!isEmpty && (
@@ -382,6 +382,7 @@ export default function HiScreen() {
           </View>
         </View>
       )}
+    </View>
 
       {/* ── Chat Sheet ── */}
       <ChatModal
