@@ -12,6 +12,7 @@ import {
   PanResponder,
   Dimensions,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -170,7 +171,11 @@ export default function HiScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-ef-bg" edges={['top', 'bottom']}>
+    <SafeAreaView
+      className="flex-1 bg-ef-bg"
+      edges={['top', 'bottom']}
+      style={{ paddingBottom: Platform.OS === 'ios' ? 80 : 60 + insets.bottom }}
+    >
       {/* ── 탑바 ── */}
       <View className="flex-row items-center justify-between px-[18px] py-[12px]">
         {/* Logo */}
@@ -214,9 +219,10 @@ export default function HiScreen() {
         </View>
       </View>
 
-      {/* ── Card stage ── */}
-      <View className="flex-1 mx-[14px] mt-[10px] mb-[4px] relative">
-        {isEmpty ? (
+      <View className="flex-1 justify-between">
+        {/* ── Card stage ── */}
+        <View className="flex-1 mx-[14px] mt-[10px] mb-[2px] relative" style={{ minHeight: 450 }}>
+          {isEmpty ? (
           <EmptyState onRefresh={doRefresh} />
         ) : (
           <>
@@ -291,8 +297,8 @@ export default function HiScreen() {
 
       {/* ── Actions ── */}
       {!isEmpty && (
-        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[14px]"
-          style={{ paddingBottom: 24 + insets.bottom, backgroundColor: COLORS.bg }}
+        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[10px]"
+          style={{ paddingBottom: 50 + insets.bottom, backgroundColor: COLORS.bg }}
         >
           {/* Pass */}
           <View className="items-center gap-[6px]">
@@ -375,6 +381,7 @@ export default function HiScreen() {
           </View>
         </View>
       )}
+    </View>
 
       {/* ── Chat Sheet ── */}
       <ChatModal

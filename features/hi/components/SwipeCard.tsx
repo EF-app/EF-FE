@@ -40,8 +40,8 @@ const SwipeCard: React.FC<Props> = ({ profile, panX, behind }) => {
       ]}
     >
       {/* ── Photo area ── */}
-      <View className="h-[55%] relative items-center justify-center" style={{ backgroundColor: profile.bgColor }}>
-        <Text style={{ fontSize: 80 }}>{profile.emoji}</Text>
+      <View className="h-[62%] relative items-center justify-center" style={{ backgroundColor: profile.bgColor, minHeight: 250 }}>
+        <Text style={{ fontSize: 96 }}>{profile.emoji}</Text>
 
         {/* Subtle bottom fade overlay */}
         <View
