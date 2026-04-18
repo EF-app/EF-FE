@@ -172,7 +172,7 @@ export default function HiScreen() {
   return (
     <SafeAreaView className="flex-1 bg-ef-bg" edges={['top', 'bottom']}>
       {/* ── 탑바 ── */}
-      <View className="flex-row items-center justify-between px-[18px] py-[8px]">
+      <View className="flex-row items-center justify-between px-[18px] py-[12px]">
         {/* Logo */}
         <View className="flex-row items-center gap-[8px]">
           <View
@@ -215,7 +215,7 @@ export default function HiScreen() {
       </View>
 
       {/* ── Card stage ── */}
-      <View className="flex-1 mx-[14px] mb-[4px] relative">
+      <View className="flex-1 mx-[14px] mt-[10px] mb-[4px] relative">
         {isEmpty ? (
           <EmptyState onRefresh={doRefresh} />
         ) : (
@@ -291,8 +291,8 @@ export default function HiScreen() {
 
       {/* ── Actions ── */}
       {!isEmpty && (
-        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[10px]"
-          style={{ paddingBottom: 16 + insets.bottom, backgroundColor: COLORS.bg }}
+        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[14px]"
+          style={{ paddingBottom: 24 + insets.bottom, backgroundColor: COLORS.bg }}
         >
           {/* Pass */}
           <View className="items-center gap-[6px]">
