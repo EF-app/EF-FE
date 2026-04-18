@@ -55,17 +55,19 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
   /* ── Animated values ── */
   const translateY = useRef(new Animated.Value(SH)).current; // native driver
-  const keyboardOffset = useRef(new Animated.Value(0)).current; // native driver
   const opacity = useRef(new Animated.Value(0)).current; // native driver
   const sheetH = useRef(new Animated.Value(SNAP_LOW)).current; // JS driver
 
   /* ── Refs ── */
   const sheetHRef = useRef(SNAP_LOW);
   const isExpandedRef = useRef(false);
+  const preferredSheetHRef = useRef(SNAP_LOW);
   const dragStartH = useRef(SNAP_LOW);
 
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
+  const [keyboardInset, setKeyboardInset] = useState(0);
+  const [composerHeight, setComposerHeight] = useState(60);
   const scrollRef = useRef<ScrollView>(null);
 
   /* JS driver 값 추적 */
@@ -81,6 +83,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
     if (profile) {
       setMessages(INITIAL_MESSAGES);
       setInput("");
+      setKeyboardInset(0);
       sheetH.setValue(SNAP_LOW);
       sheetHRef.current = SNAP_LOW;
       isExpandedRef.current = false;
@@ -125,36 +128,33 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
     const onShow = (e: any) => {
       const kbH = e.endCoordinates.height;
+      const composerLift = Platform.OS === "android"
+        ? Math.max(composerHeight - Math.max(insets.bottom, 14), 0)
+        : 0;
       const safeKeyboardLift = Platform.OS === "android"
-        ? Math.max(kbH - insets.bottom, 0)
+        ? Math.max(kbH - insets.bottom, 0) + composerLift
         : kbH;
       const dur = Platform.OS === "ios" ? e.duration || 250 : 250;
+      setKeyboardInset(safeKeyboardLift);
 
-      // 키보드 등장 후 시트가 화면 안에 머물 수 있는 최대 높이
+      // 키보드가 올라오면 입력창이 보이도록 시트를 가능한 높이까지 확장
       const maxH = SH - safeKeyboardLift - MIN_TOP;
-      if (sheetHRef.current > maxH) {
-        // 시트가 너무 크면 가용 높이로 축소
-        sheetHRef.current = maxH;
-        Animated.timing(sheetH, {
-          toValue: maxH,
-          duration: dur,
-          useNativeDriver: false,
-        }).start();
-      }
-
-      // 시트를 키보드 높이만큼 위로 올림
-      Animated.timing(keyboardOffset, {
-        toValue: -safeKeyboardLift,
+      const keyboardTargetH = Math.min(SNAP_HIGH, maxH);
+      sheetHRef.current = keyboardTargetH;
+      Animated.timing(sheetH, {
+        toValue: keyboardTargetH,
         duration: dur,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start();
+
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
     };
 
     const onHide = (e: any) => {
       const dur = Platform.OS === "ios" ? e.duration || 200 : 200;
 
-      // 원래 스냅 높이로 복원
-      const targetH = isExpandedRef.current ? SNAP_HIGH : SNAP_LOW;
+      // 사용자가 원래 보고 있던 스냅 높이로 복원
+      const targetH = preferredSheetHRef.current;
       sheetHRef.current = targetH;
       Animated.timing(sheetH, {
         toValue: targetH,
@@ -162,11 +162,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
         useNativeDriver: false,
       }).start();
 
-      Animated.timing(keyboardOffset, {
-        toValue: 0,
-        duration: dur,
-        useNativeDriver: true,
-      }).start();
+      setKeyboardInset(0);
     };
 
     const showSub = Keyboard.addListener(showEvt, onShow);
@@ -175,7 +171,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
       showSub.remove();
       hideSub.remove();
     };
-  }, [keyboardOffset, sheetH, insets.bottom]);
+  }, [sheetH, insets.bottom, composerHeight]);
 
   /* ── Snap / Dismiss (ref 패턴) ── */
   const snapHighRef = useRef<(() => void) | undefined>(undefined);
@@ -184,6 +180,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
   snapHighRef.current = () => {
     isExpandedRef.current = true;
+    preferredSheetHRef.current = SNAP_HIGH;
     sheetHRef.current = SNAP_HIGH;
     Animated.spring(sheetH, {
       toValue: SNAP_HIGH,
@@ -195,6 +192,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
   snapLowRef.current = () => {
     isExpandedRef.current = false;
+    preferredSheetHRef.current = SNAP_LOW;
     sheetHRef.current = SNAP_LOW;
     Animated.spring(sheetH, {
       toValue: SNAP_LOW,
@@ -219,7 +217,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
       }),
     ]).start(() => {
       translateY.setValue(SH);
-      keyboardOffset.setValue(0);
+      setKeyboardInset(0);
       onClose();
     });
   };
@@ -288,15 +286,14 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
         {/* ── A: 슬라이드 + 키보드 래퍼 (native driver, transform 전용) ── */}
         <Animated.View
           style={{
-            transform: [
-              { translateY: Animated.add(translateY, keyboardOffset) },
-            ],
+            transform: [{ translateY }],
           }}
         >
           {/* ── B: 시트 높이 (JS driver, height 전용) ── */}
           <Animated.View
             style={{
               height: sheetH,
+              marginBottom: keyboardInset,
               backgroundColor: COLORS.bg,
               borderTopLeftRadius: 26,
               borderTopRightRadius: 26,
@@ -442,6 +439,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
             {/* 입력 바 */}
             <View
+              onLayout={(e) => setComposerHeight(e.nativeEvent.layout.height)}
               style={{
                 flexDirection: "row",
                 alignItems: "flex-end",
@@ -472,6 +470,10 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
                 placeholderTextColor={COLORS.textMuted}
                 value={input}
                 onChangeText={setInput}
+                onFocus={() => {
+                  snapHighRef.current?.();
+                  setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
+                }}
                 onSubmitEditing={sendMsg}
                 returnKeyType="send"
                 multiline
