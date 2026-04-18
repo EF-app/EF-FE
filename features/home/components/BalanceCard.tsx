@@ -20,7 +20,8 @@ interface Props {
 
 const BalanceCard: React.FC<Props> = ({ game, onCommentsPress }) => {
   const { mutate: vote } = useVoteBalance();
-  const [myVote, setMyVote] = useState<VoteSide | null>(null);
+  const [selectedOption, setSelectedOption] = useState<VoteSide | null>(null);
+  const [hasVoted, setHasVoted] = useState(false);
   const [pending, setPending] = useState<VoteSide | null>(null);
   const fillA = useRef(new Animated.Value(0)).current;
   const fillB = useRef(new Animated.Value(0)).current;
@@ -29,9 +30,10 @@ const BalanceCard: React.FC<Props> = ({ game, onCommentsPress }) => {
   const percentA =
     totalVotes > 0 ? Math.round((game.optionA.votes / totalVotes) * 100) : 50;
   const percentB = 100 - percentA;
+  const isFirstSelection = !hasVoted;
 
   useEffect(() => {
-    if (myVote) {
+    if (selectedOption) {
       Animated.parallel([
         Animated.timing(fillA, {
           toValue: percentA,
@@ -47,19 +49,26 @@ const BalanceCard: React.FC<Props> = ({ game, onCommentsPress }) => {
         }),
       ]).start();
     }
-  }, [myVote, percentA, percentB, fillA, fillB]);
+  }, [selectedOption, percentA, percentB, fillA, fillB]);
 
   const handleOpenVote = useCallback(
     (side: VoteSide) => {
-      if (myVote) return;
-      setPending(side);
+      if (isFirstSelection) {
+        setPending(side);
+        return;
+      }
+
+      if (selectedOption === side) return;
+      setSelectedOption(side);
+      vote({ gameId: game.id, side });
     },
-    [myVote],
+    [isFirstSelection, selectedOption, vote, game.id],
   );
 
   const handleConfirm = useCallback(() => {
     if (!pending) return;
-    setMyVote(pending);
+    setSelectedOption(pending);
+    setHasVoted(true);
     vote({ gameId: game.id, side: pending });
     setPending(null);
   }, [pending, vote, game.id]);
@@ -128,7 +137,7 @@ const BalanceCard: React.FC<Props> = ({ game, onCommentsPress }) => {
             option={game.optionA}
             percent={percentA}
             state={
-              myVote === 'a' ? 'voted' : myVote === 'b' ? 'faded' : 'idle'
+              selectedOption === 'a' ? 'voted' : selectedOption === 'b' ? 'faded' : 'idle'
             }
             onPress={() => handleOpenVote('a')}
           />
@@ -153,14 +162,14 @@ const BalanceCard: React.FC<Props> = ({ game, onCommentsPress }) => {
             option={game.optionB}
             percent={percentB}
             state={
-              myVote === 'b' ? 'voted' : myVote === 'a' ? 'faded' : 'idle'
+              selectedOption === 'b' ? 'voted' : selectedOption === 'a' ? 'faded' : 'idle'
             }
             onPress={() => handleOpenVote('b')}
           />
         </View>
 
         {/* 결과 바 */}
-        {myVote && (
+        {selectedOption && (
           <View className="mt-[14px]">
             <View
               className="flex-row h-[8px] rounded-[6px] overflow-hidden"
