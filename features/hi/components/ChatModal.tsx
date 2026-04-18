@@ -125,10 +125,13 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
     const onShow = (e: any) => {
       const kbH = e.endCoordinates.height;
+      const safeKeyboardLift = Platform.OS === "android"
+        ? Math.max(kbH - insets.bottom, 0)
+        : kbH;
       const dur = Platform.OS === "ios" ? e.duration || 250 : 250;
 
       // 키보드 등장 후 시트가 화면 안에 머물 수 있는 최대 높이
-      const maxH = SH - kbH - MIN_TOP;
+      const maxH = SH - safeKeyboardLift - MIN_TOP;
       if (sheetHRef.current > maxH) {
         // 시트가 너무 크면 가용 높이로 축소
         sheetHRef.current = maxH;
@@ -141,7 +144,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
 
       // 시트를 키보드 높이만큼 위로 올림
       Animated.timing(keyboardOffset, {
-        toValue: -kbH,
+        toValue: -safeKeyboardLift,
         duration: dur,
         useNativeDriver: true,
       }).start();
@@ -172,7 +175,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
       showSub.remove();
       hideSub.remove();
     };
-  }, [keyboardOffset, sheetH]);
+  }, [keyboardOffset, sheetH, insets.bottom]);
 
   /* ── Snap / Dismiss (ref 패턴) ── */
   const snapHighRef = useRef<(() => void) | undefined>(undefined);
@@ -266,7 +269,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
   }, [input, profile, onSend]);
 
-  const pb = Platform.OS === "ios" ? Math.max(insets.bottom, 8) : 12;
+  const composerBottomInset = Math.max(insets.bottom, Platform.OS === "android" ? 14 : 8);
 
   return (
     <Modal
@@ -389,7 +392,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
               style={{ flex: 1, paddingHorizontal: 16 }}
               contentContainerStyle={{
                 paddingTop: 20,
-                paddingBottom: 14,
+                paddingBottom: 14 + composerBottomInset,
                 gap: 9,
               }}
               showsVerticalScrollIndicator={false}
@@ -445,7 +448,7 @@ const ChatModal: React.FC<Props> = ({ profile, onClose, onSend }) => {
                 gap: 8,
                 paddingHorizontal: 14,
                 paddingTop: 10,
-                paddingBottom: pb,
+                paddingBottom: composerBottomInset,
                 borderTopWidth: 1,
                 borderTopColor: COLORS.divider,
               }}

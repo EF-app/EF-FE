@@ -198,7 +198,7 @@ export default function ChatRoomScreen() {
         <ScrollView
           ref={scrollRef}
           className="flex-1 bg-ef-bg"
-          contentContainerStyle={{ padding: 14, gap: 10, paddingBottom: 14 + keyboardHeight + insets.bottom }}
+          contentContainerStyle={{ padding: 14, gap: 10, paddingBottom: 14 + keyboardHeight + Math.max(insets.bottom, 12) }}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
           onTouchStart={() => setTrayOpen(false)}
@@ -279,7 +279,10 @@ export default function ChatRoomScreen() {
         </ScrollView>
 
         {/* ── 바텀 독 ── */}
-        <View className="border-t border-ef-divider" style={{ backgroundColor: COLORS.bg, paddingBottom: insets.bottom }}>
+        <View
+          className="border-t border-ef-divider"
+          style={{ backgroundColor: COLORS.bg, paddingBottom: Math.max(insets.bottom, 12) }}
+        >
           {/* Input row */}
           <View className="px-[14px] py-[10px]">
             <View
