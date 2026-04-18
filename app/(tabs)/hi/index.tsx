@@ -12,9 +12,8 @@ import {
   PanResponder,
   Dimensions,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 import SwipeCard from '@/features/hi/components/SwipeCard';
@@ -130,7 +129,7 @@ export default function HiScreen() {
       },
       onPanResponderTerminate: () => {
         pan.flattenOffset();
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: true }).start();
+        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
       },
     }),
   ).current;
@@ -160,7 +159,6 @@ export default function HiScreen() {
   const remaining = Math.max(0, queue.length - curIdx);
   const isEmpty   = !isLoading && queue.length > 0 && curIdx >= queue.length;
 
-  const insets = useSafeAreaInsets();
 
   if (isLoading) {
     return (
@@ -173,8 +171,7 @@ export default function HiScreen() {
   return (
     <SafeAreaView
       className="flex-1 bg-ef-bg"
-      edges={['top', 'bottom']}
-      style={{ paddingBottom: Platform.OS === 'ios' ? 80 : 60 + insets.bottom }}
+      edges={['top']}
     >
       {/* ── 탑바 ── */}
       <View className="flex-row items-center justify-between px-[18px] py-[12px]">
@@ -219,89 +216,93 @@ export default function HiScreen() {
         </View>
       </View>
 
-      <View className="flex-1 justify-between">
+      <Animated.View
+        className="flex-1"
+        style={{
+          paddingBottom: !isEmpty
+            ? undoHeight.interpolate({
+                inputRange: [0, 52],
+                outputRange: [92, 152],
+                extrapolate: 'clamp',
+              })
+            : 0,
+        }}
+      >
         {/* ── Card stage ── */}
         <View className="flex-1 mx-[14px] mt-[10px] mb-[2px] relative" style={{ minHeight: 450 }}>
           {isEmpty ? (
-          <EmptyState onRefresh={doRefresh} />
-        ) : (
-          <>
-            {/* Behind card 2 */}
-            {next2 && (
-              <SwipeCard profile={next2} behind={2} />
-            )}
-            {/* Behind card 1 */}
-            {next && (
-              <SwipeCard profile={next} behind={1} />
-            )}
-            {/* Current swipe card */}
-            {current && (
-              <Animated.View
-                className="absolute inset-0"
-                style={{ transform: [{ translateX: pan.x }, { rotate }] }}
-                {...panResponder.panHandlers}
-              >
-                <SwipeCard
-                  profile={current}
-                  panX={pan.x}
-                />
-              </Animated.View>
-            )}
-          </>
-        )}
-      </View>
-
-      {/* ── Undo bar ── */}
-      <Animated.View
-        style={{ height: undoHeight, opacity: undoOpacity, overflow: 'hidden', paddingHorizontal: 14 }}
-      >
-        <View
-          className="flex-row items-center justify-between rounded-[16px] px-[16px] py-[9px]"
-          style={{ backgroundColor: 'rgba(28,26,31,0.86)' }}
-        >
-          <Text className="text-[12.5px] font-bold" style={{ color: 'rgba(255,255,255,0.82)' }}>
-            <Text className="text-white font-extrabold">{lastPassed?.name}</Text>님을 패스했어요
-          </Text>
-          <TouchableOpacity
-            className="rounded-[12px] px-[14px] py-[6px]"
-            style={{
-              backgroundColor: COLORS.primary,
-              shadowColor: COLORS.primary,
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.4,
-              shadowRadius: 8,
-              elevation: 4,
-            }}
-            activeOpacity={0.85}
-            onPress={doUndo}
-          >
-            <Text className="text-[12px] font-extrabold text-white">되돌리기</Text>
-          </TouchableOpacity>
+            <EmptyState onRefresh={doRefresh} />
+          ) : (
+            <>
+              {next2 && <SwipeCard profile={next2} behind={2} />}
+              {next && <SwipeCard profile={next} behind={1} />}
+              {current && (
+                <Animated.View
+                  className="absolute inset-0"
+                  style={{ transform: [{ translateX: pan.x }, { rotate }] }}
+                  {...panResponder.panHandlers}
+                >
+                  <SwipeCard profile={current} panX={pan.x} />
+                </Animated.View>
+              )}
+            </>
+          )}
         </View>
       </Animated.View>
 
-      {/* ── 스와이프 힌트 ── */}
+      {/* ── Undo bar ── */}
       {!isEmpty && (
-        <View className="flex-row items-center justify-between px-[22px] pt-[4px]">
-          <View className="flex-row items-center gap-[3px]">
-            <Ionicons name="chevron-back" size={11} color={COLORS.textMuted} />
-            <Text className="text-[11px] font-bold text-ef-text-muted">패스</Text>
+        <Animated.View
+          pointerEvents={lastPassed ? 'auto' : 'none'}
+          className="absolute left-0 right-0"
+          style={{
+            bottom: 82,
+            height: undoHeight,
+            opacity: undoOpacity,
+            overflow: 'hidden',
+            paddingHorizontal: 14,
+            zIndex: 15,
+          }}
+        >
+          <View
+            className="flex-row items-center justify-between rounded-[16px] px-[16px] py-[9px]"
+            style={{ backgroundColor: 'rgba(28,26,31,0.86)' }}
+          >
+            <Text className="text-[12.5px] font-bold" style={{ color: 'rgba(255,255,255,0.82)' }}>
+              <Text className="text-white font-extrabold">{lastPassed?.name}</Text>님을 패스했어요
+            </Text>
+            <TouchableOpacity
+              className="rounded-[12px] px-[14px] py-[6px]"
+              style={{
+                backgroundColor: COLORS.primary,
+                shadowColor: COLORS.primary,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.4,
+                shadowRadius: 8,
+                elevation: 4,
+              }}
+              activeOpacity={0.85}
+              onPress={doUndo}
+            >
+              <Text className="text-[12px] font-extrabold text-white">되돌리기</Text>
+            </TouchableOpacity>
           </View>
-          <Text className="text-[10.5px] font-sans text-ef-text-muted">어디서든 스와이프 가능해요</Text>
-          <View className="flex-row items-center gap-[3px]">
-            <Text className="text-[11px] font-bold text-ef-text-muted">좋아요</Text>
-            <Ionicons name="chevron-forward" size={11} color={COLORS.textMuted} />
-          </View>
-        </View>
+        </Animated.View>
       )}
 
       {/* ── Actions ── */}
       {!isEmpty && (
-        <View className="flex-row items-center justify-center gap-[12px] px-[20px] pt-[10px]"
-          style={{ paddingBottom: 50 + insets.bottom, backgroundColor: COLORS.bg }}
+        <View
+          className="absolute left-0 right-0 bottom-0 flex-row items-center justify-center gap-[12px] px-[20px] pt-[8px]"
+          style={{
+            bottom: 8,
+            paddingBottom: 0,
+            backgroundColor: COLORS.bg,
+            zIndex: 20,
+          }}
         >
           {/* Pass */}
-          <View className="items-center gap-[6px]">
+          <View className="items-center gap-[4px]">
             <TouchableOpacity
               className="w-[58px] h-[58px] rounded-full items-center justify-center"
               style={{ borderWidth: 2, borderColor: COLORS.red }}
@@ -315,7 +316,7 @@ export default function HiScreen() {
           </View>
 
           {/* Message — center primary CTA */}
-          <View className="flex-1 max-w-[190px] items-center gap-[6px]">
+          <View className="flex-1 max-w-[190px] items-center gap-[4px]">
             {current && messagedIds.has(current.id) ? (
               <>
                 <View
@@ -367,7 +368,7 @@ export default function HiScreen() {
           </View>
 
           {/* Like */}
-          <View className="items-center gap-[6px]">
+          <View className="items-center gap-[4px]">
             <TouchableOpacity
               className="w-[58px] h-[58px] rounded-full items-center justify-center"
               style={{ borderWidth: 2, borderColor: COLORS.primary }}
@@ -381,7 +382,6 @@ export default function HiScreen() {
           </View>
         </View>
       )}
-    </View>
 
       {/* ── Chat Sheet ── */}
       <ChatModal
