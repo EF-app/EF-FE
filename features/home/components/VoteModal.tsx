@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -33,6 +34,7 @@ const VoteModal: React.FC<Props> = ({
   onConfirm,
   onClose,
 }) => {
+  const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -86,7 +88,7 @@ const VoteModal: React.FC<Props> = ({
             borderTopRightRadius: 28,
             paddingHorizontal: 24,
             paddingTop: 16,
-            paddingBottom: 40,
+            paddingBottom: Math.max(insets.bottom, 12) + 20,
             borderTopWidth: 1.5,
             borderLeftWidth: 1.5,
             borderRightWidth: 1.5,
