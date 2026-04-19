@@ -28,15 +28,16 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Notice, NoticeTag } from "../types";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-// 시트의 최대 확장 높이 = 화면의 80%
-const SHEET_HEIGHT = SCREEN_HEIGHT * 0.8;
+// 시트의 최대 확장 높이 = 화면의 86%
+const SHEET_HEIGHT = SCREEN_HEIGHT * 0.86;
 
-// 핸들 영역(핸들 바 + py-3 여백) 대략 높이
-const HANDLE_AREA = 28;
+// 핸들 영역을 조금 넓혀서 위로 끌어올리기 쉽게 조정
+const HANDLE_AREA = 40;
 
 // 고정 스냅 포인트
 const SNAP_FULL = 0; // 완전히 확장 (화면 80%)
@@ -64,6 +65,7 @@ interface Props {
 }
 
 const NoticeDetailSheet: React.FC<Props> = ({ notice, onClose }) => {
+  const insets = useSafeAreaInsets();
   const translateY = useSharedValue(SNAP_CLOSED);
   const startY = useSharedValue(SNAP_CLOSED);
 
@@ -203,7 +205,10 @@ const NoticeDetailSheet: React.FC<Props> = ({ notice, onClose }) => {
           </GestureDetector>
 
           <ScrollView
-            className="px-[22px] pb-2"
+            contentContainerStyle={{
+              paddingHorizontal: 22,
+              paddingBottom: Math.max(insets.bottom, 16) + 24,
+            }}
             showsVerticalScrollIndicator={false}
             bounces={false}
             onContentSizeChange={handleContentSize}
