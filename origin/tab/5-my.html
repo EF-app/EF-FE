@@ -498,6 +498,94 @@
     flex-shrink: 0;
   }
 
+  /* Premium status banner (expiry + ink) */
+  .prem-status {
+    margin: 0 20px 12px;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.38s ease both;
+  }
+
+  .prem-status-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .prem-status-col + .prem-status-col {
+    border-left: 1px solid var(--divider);
+  }
+
+  .prem-status-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .prem-status-value {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .prem-status-value.accent { color: var(--accent); }
+
+  /* Likes banner (3-in-1) */
+  .likes-banner {
+    margin: 0 20px 12px;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 14px 8px;
+    display: flex;
+    align-items: stretch;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.15s;
+    animation: fadeUp 0.38s ease both;
+  }
+  .likes-banner:active { transform: scale(0.98); }
+
+  .likes-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 2px 4px;
+  }
+
+  .likes-col + .likes-col {
+    border-left: 1px solid var(--divider);
+  }
+
+  .likes-icon { font-size: 18px; }
+
+  .likes-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: -0.01em;
+  }
+
+  .likes-num {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
   /* Logout row */
   .logout-row {
     margin: 0 20px 6px;
@@ -655,8 +743,53 @@
         프로필 수정하기
       </div>
 
+      <!-- Premium upsell -->
+      <div class="premium-card">
+        <div class="prem-icon">👑</div>
+        <div class="prem-info">
+          <div class="prem-title">프리미엄 멤버십</div>
+          <div class="prem-sub">광고 없이, 더 많은 혜택을<br>무제한으로 즐기세요</div>
+        </div>
+        <div class="prem-arrow">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Premium status banner -->
+      <div class="prem-status d2">
+        <div class="prem-status-col">
+          <span class="prem-status-label">프리미엄 멤버십</span>
+          <span class="prem-status-value accent">2026.05.24까지</span>
+        </div>
+        <div class="prem-status-col">
+          <span class="prem-status-label">잉크</span>
+          <span class="prem-status-value">💧 12방울</span>
+        </div>
+      </div>
+
+      <!-- Likes banner -->
+      <div class="likes-banner d3">
+        <div class="likes-col">
+          <span class="likes-icon">💜</span>
+          <span class="likes-label">내가 누른 좋아요</span>
+          <span class="likes-num">38</span>
+        </div>
+        <div class="likes-col">
+          <span class="likes-icon">💖</span>
+          <span class="likes-label">받은 좋아요</span>
+          <span class="likes-num">26</span>
+        </div>
+        <div class="likes-col">
+          <span class="likes-icon">💘</span>
+          <span class="likes-label">서로 좋아요</span>
+          <span class="likes-num">7</span>
+        </div>
+      </div>
+
       <!-- Activity strip -->
-      <div class="activity-strip d2">
+      <div class="activity-strip d4">
         <div class="strip-title">내 활동 요약</div>
         <div class="activity-grid">
           <div class="act-item">
@@ -679,20 +812,6 @@
             <span class="act-num">5</span>
             <span class="act-label">배지</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Premium upsell -->
-      <div class="premium-card">
-        <div class="prem-icon">👑</div>
-        <div class="prem-info">
-          <div class="prem-title">프리미엄 멤버십</div>
-          <div class="prem-sub">광고 없이, 더 많은 혜택을<br>무제한으로 즐기세요</div>
-        </div>
-        <div class="prem-arrow">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
         </div>
       </div>
 

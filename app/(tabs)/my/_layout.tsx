@@ -13,6 +13,10 @@ export default function MyLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="premium" />
       <Stack.Screen name="profile/index" />
+      <Stack.Screen name="history/likes-sent" />
+      <Stack.Screen name="history/likes-received" />
+      <Stack.Screen name="history/likes-mutual" />
+      <Stack.Screen name="blocked-users" />
     </Stack>
   );
 }

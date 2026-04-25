@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>포스트잇 신고</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --p: #9686BF; --p-t: rgba(150,134,191,0.10); --p-d: #6B5CA5;
+  --bg: #F5F3F1; --card: #FFFFFF;
+  --t1: #1C1A22; --t2: #6B6680; --t3: #B0ABBE; --div: #EAE7E3;
+  --danger: #E84C7A; --danger-t: rgba(232,76,122,0.08); --danger-d: #C0305A;
+  --postit: #EDE9F7;
+}
+html, body {
+  width: 100%; min-height: 100vh; background: #0f0d13;
+  font-family: 'Nanum Square Neo', sans-serif; -webkit-text-size-adjust: 100%;
+}
+body { display: flex; justify-content: center; align-items: flex-start; padding: 24px 0 40px; }
+
+.phone {
+  width: 390px; height: 844px; background: var(--bg);
+  border-radius: 48px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 40px 100px rgba(0,0,0,.65);
+  display: flex; flex-direction: column; position: relative;
+}
+.island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; background: #000; border-radius: 20px; z-index: 20; pointer-events: none; }
+
+/* 상태바 */
+.sb { padding: 56px 24px 0; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; background: var(--bg); }
+.sb-time { font-size: 15px; font-weight: 800; color: var(--t1); }
+.sb-icons { display: flex; align-items: center; gap: 6px; }
+
+/* 네비 */
+.nav { padding: 12px 20px 0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.nav-back {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--div); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-back svg { width: 16px; height: 16px; stroke: var(--t1); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-title { font-size: 16px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; }
+.nav-ph { width: 36px; }
+
+/* 스크롤 */
+.screen { flex: 1; overflow-y: auto; scrollbar-width: none; padding-bottom: 20px; }
+.screen::-webkit-scrollbar { display: none; }
+
+/* ── 섹션 타이틀 ── */
+.sec-head { padding: 20px 20px 0; }
+.sec-title { font-size: 13px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; margin-bottom: 3px; }
+.sec-sub { font-size: 12px; color: var(--t3); line-height: 1.5; }
+
+/* ════════════════════
+   포스트잇 프리뷰
+════════════════════ */
+.postit-wrap {
+  padding: 16px 20px 0;
+  display: flex; justify-content: center;
+}
+
+.postit {
+  width: 100%;
+  background: #DDD6F0;
+  border-radius: 4px;
+  padding: 16px 16px 14px;
+  position: relative;
+  box-shadow: 3px 6px 18px rgba(150,134,191,0.22), 0 1px 4px rgba(0,0,0,0.06);
+  opacity: 0.9;
+}
+
+/* 신고 대상 워터마크 */
+.postit-report-mark {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(232,76,122,0.15);
+  border: 1px solid rgba(232,76,122,0.3);
+  border-radius: 20px; padding: 3px 9px;
+  font-size: 10px; font-weight: 800; color: var(--danger);
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* 포스트잇 작성자 */
+.postit-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.postit-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(150,134,191,0.22);
+  display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+}
+.postit-nick { font-size: 12px; font-weight: 800; color: #5A5080; }
+.postit-time { font-size: 10px; font-weight: 400; color: #9B96B0; margin-top: 1px; }
+
+/* 포스트잇 본문 */
+.postit-body {
+  font-size: 13.5px; font-weight: 400; color: #3D3560;
+  line-height: 1.7; word-break: keep-all; letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+
+/* ── 신고 사유 ── */
+.reason-sec { padding: 22px 20px 0; }
+.reason-title { font-size: 13px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; margin-bottom: 10px; }
+
+.reason-list { display: flex; flex-direction: column; gap: 7px; }
+.reason-item {
+  background: var(--card); border-radius: 14px;
+  border: 1.5px solid var(--div);
+  padding: 13px 15px;
+  display: flex; align-items: center; gap: 11px;
+  cursor: pointer; transition: all 0.15s;
+}
+.reason-item:active { transform: scale(0.985); }
+.reason-item.selected { border-color: var(--danger); background: var(--danger-t); }
+
+.r-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: #F5F3F1; display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0; transition: background 0.15s;
+}
+.reason-item.selected .r-icon { background: rgba(232,76,122,0.10); }
+
+.r-text { flex: 1; min-width: 0; }
+.r-name { font-size: 13px; font-weight: 700; color: var(--t1); letter-spacing: -0.02em; }
+.r-desc { font-size: 11px; color: var(--t3); margin-top: 2px; line-height: 1.4; }
+.reason-item.selected .r-name { color: var(--danger-d); }
+
+.r-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid var(--div); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.reason-item.selected .r-check { background: var(--danger); border-color: var(--danger); }
+.r-check svg { width: 10px; height: 10px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity 0.15s; }
+.reason-item.selected .r-check svg { opacity: 1; }
+
+/* ── 추가 설명 ── */
+.detail-sec { padding: 20px 20px 0; }
+.detail-lbl {
+  font-size: 13px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.detail-opt { font-size: 11px; font-weight: 400; color: var(--t3); }
+.detail-ta {
+  width: 100%; background: var(--card); border: 1.5px solid var(--div);
+  border-radius: 14px; padding: 13px 15px; resize: none; height: 90px;
+  font-family: 'Nanum Square Neo', sans-serif;
+  font-size: 13px; color: var(--t1); line-height: 1.6; outline: none;
+  transition: border-color 0.15s;
+}
+.detail-ta::placeholder { color: var(--t3); }
+.detail-ta:focus { border-color: var(--p); }
+.detail-cnt { text-align: right; font-size: 11px; color: var(--t3); margin-top: 5px; }
+
+/* ── 익명 안내 ── */
+.anon-row {
+  margin: 16px 20px 0;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--p-t); border-radius: 12px; padding: 11px 14px;
+  border: 1px solid rgba(150,134,191,0.15);
+}
+.anon-icon { font-size: 16px; flex-shrink: 0; }
+.anon-txt { font-size: 12px; font-weight: 600; color: var(--p-d); line-height: 1.5; }
+.anon-txt span { font-weight: 400; color: var(--p); display: block; margin-top: 1px; font-size: 11px; }
+
+/* ── 안내 문구 ── */
+.notice { margin: 14px 20px 0; background: rgba(232,76,122,0.05); border-radius: 12px; padding: 11px 14px; border: 1px solid rgba(232,76,122,0.12); }
+.n-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+.n-row:last-child { margin-bottom: 0; }
+.n-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--danger); flex-shrink: 0; margin-top: 6px; }
+.n-txt { font-size: 11.5px; color: #9A4060; line-height: 1.5; word-break: keep-all; }
+
+/* ── 하단 버튼 ── */
+.bottom {
+  flex-shrink: 0; padding: 12px 20px 24px;
+  background: var(--bg); border-top: 1px solid var(--div);
+}
+.btn-submit {
+  width: 100%; background: var(--danger); color: #fff; border: none;
+  border-radius: 14px; padding: 15px 20px;
+  font-family: 'Nanum Square Neo', sans-serif;
+  font-size: 14px; font-weight: 800; cursor: pointer; letter-spacing: -0.02em;
+  box-shadow: 0 5px 18px rgba(232,76,122,0.28);
+  transition: transform 0.12s, opacity 0.12s; opacity: 0.4;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-submit svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; }
+.btn-submit.on { opacity: 1; }
+.btn-submit:active { transform: scale(0.97); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="island"></div>
+
+  <!-- 상태바 -->
+  <div class="sb">
+    <span class="sb-time">9:41</span>
+    <div class="sb-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1C1A22" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1C1A22" opacity=".5"/><rect x="9" y=".5" width="3" height="11.5" rx="1" fill="#1C1A22" opacity=".75"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#1C1A22"/></svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12"><path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4l1.4 1.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A22"/><path d="M8 6c1.5 0 2.8.6 3.8 1.6L13.2 6.2C11.8 4.8 9.9 4 8 4S4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A22" opacity=".6"/><circle cx="8" cy="10.5" r="1.5" fill="#1C1A22"/></svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#1C1A22" stroke-opacity=".3"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#1C1A22"/><path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A22" opacity=".35"/></svg>
+    </div>
+  </div>
+
+  <!-- 네비 -->
+  <div class="nav">
+    <button class="nav-back"><svg viewBox="0 0 16 16"><path d="M10 13L5.5 8 10 3"/></svg></button>
+    <span class="nav-title">포스트잇 신고</span>
+    <div class="nav-ph"></div>
+  </div>
+
+  <div class="screen">
+
+    <!-- 섹션 타이틀 -->
+    <div class="sec-head">
+      <div class="sec-title">신고할 포스트잇을 확인해 주세요</div>
+      <div class="sec-sub">아래 내용이 신고 접수 시 함께 제출돼요</div>
+    </div>
+
+    <!-- 포스트잇 프리뷰 -->
+    <div class="postit-wrap">
+      <div class="postit">
+        <div class="postit-report-mark">
+          <svg width="9" height="9" fill="none" viewBox="0 0 16 16"><path d="M8 3v5M8 11v1" stroke="#E84C7A" stroke-width="2.2" stroke-linecap="round"/><circle cx="8" cy="8" r="7" stroke="#E84C7A" stroke-width="1.5"/></svg>
+          신고 대상
+        </div>
+        <div class="postit-head">
+          <div class="postit-av">🌙</div>
+          <div>
+            <div class="postit-nick">달빛여행자</div>
+            <div class="postit-time">3분 전</div>
+          </div>
+        </div>
+        <div class="postit-body">
+          오늘 하루도 수고했어요.<br>
+          내일은 분명 더 좋은 일이<br>
+          기다리고 있을 거예요 🌿
+        </div>
+        </div><!-- /postit -->
+    </div>
+
+    <!-- 신고 사유 -->
+    <div class="reason-sec">
+      <div class="reason-title">신고 사유를 선택해 주세요</div>
+      <div class="reason-list" id="reason-list">
+
+        <div class="reason-item" data-id="1">
+          <div class="r-icon">🚫</div>
+          <div class="r-text">
+            <div class="r-name">욕설 · 혐오 표현</div>
+            <div class="r-desc">비하, 혐오, 차별적 언어를 사용했어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="2">
+          <div class="r-icon">🔞</div>
+          <div class="r-text">
+            <div class="r-name">음란 · 성적 표현</div>
+            <div class="r-desc">부적절한 성적 내용이 포함돼 있어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="3">
+          <div class="r-icon">💸</div>
+          <div class="r-text">
+            <div class="r-name">홍보 · 스팸</div>
+            <div class="r-desc">광고, 홍보성 내용이 포함돼 있어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="4">
+          <div class="r-icon">😰</div>
+          <div class="r-text">
+            <div class="r-name">협박 · 위협</div>
+            <div class="r-desc">불안감을 주거나 위협적인 내용이에요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="5">
+          <div class="r-icon">🎭</div>
+          <div class="r-text">
+            <div class="r-name">허위 정보 · 사칭</div>
+            <div class="r-desc">거짓 내용이나 사칭이 의심돼요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="6">
+          <div class="r-icon">📋</div>
+          <div class="r-text">
+            <div class="r-name">기타</div>
+            <div class="r-desc">위에 해당하지 않는 다른 문제가 있어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 추가 설명 -->
+    <div class="detail-sec">
+      <div class="detail-lbl">
+        추가 설명
+        <span class="detail-opt">선택 사항</span>
+      </div>
+      <textarea class="detail-ta" id="ta" placeholder="구체적인 내용을 입력하면 더 빠르게 처리돼요" maxlength="300"></textarea>
+      <div class="detail-cnt"><span id="cc">0</span> / 300</div>
+    </div>
+
+    <!-- 익명 안내 -->
+    <div class="anon-row">
+      <div class="anon-icon">🔒</div>
+      <div class="anon-txt">
+        익명으로 신고돼요
+        <span>신고자 정보는 상대방에게 절대 공개되지 않아요</span>
+      </div>
+    </div>
+
+    <!-- 안내 문구 -->
+    <div class="notice">
+      <div class="n-row"><div class="n-dot"></div><div class="n-txt">허위 신고는 제재 대상이 될 수 있어요</div></div>
+      <div class="n-row"><div class="n-dot"></div><div class="n-txt">신고 접수 후 24시간 이내에 검토가 시작돼요</div></div>
+      <div class="n-row"><div class="n-dot"></div><div class="n-txt">해당 포스트잇은 검토 완료 전까지 정상 노출돼요</div></div>
+    </div>
+
+    <div style="height:12px;"></div>
+  </div>
+
+  <!-- 하단 버튼 -->
+  <div class="bottom">
+    <button class="btn-submit" id="btn-submit">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      신고 접수하기
+    </button>
+  </div>
+</div>
+
+<script>
+var selected = [];
+
+document.querySelectorAll(".reason-item").forEach(function(item) {
+  item.addEventListener("click", function() {
+    var id = item.getAttribute("data-id");
+    item.classList.toggle("selected");
+    var idx = selected.indexOf(id);
+    if (idx === -1) selected.push(id);
+    else selected.splice(idx, 1);
+    document.getElementById("btn-submit").classList.toggle("on", selected.length > 0);
+  });
+});
+
+document.getElementById("ta").addEventListener("input", function() {
+  document.getElementById("cc").textContent = this.value.length;
+});
+
+document.getElementById("btn-submit").addEventListener("click", function() {
+  if (selected.length === 0) return;
+  alert("신고가 접수되었어요.\n검토 후 처리 결과를 알려드릴게요.");
+});
+</script>
+</body>
+</html>

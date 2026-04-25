@@ -12,21 +12,28 @@ import {
   PanResponder,
   Dimensions,
   ActivityIndicator,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/colors';
 import SwipeCard from '@/features/hi/components/SwipeCard';
 import EmptyState from '@/features/hi/components/EmptyState';
 import ChatModal from '@/features/hi/components/ChatModal';
+import MatchResultPopup from '@/features/hi/components/MatchResultPopup';
 import { useProfiles } from '@/features/hi/hooks/useHi';
 import { MatchProfile } from '@/features/hi/types';
+import { MatchSummary } from '@/features/likes/types';
 
 const { width: SW } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 80;
 
 export default function HiScreen() {
+  const router = useRouter();
   const { data: rawProfiles, isLoading, refetch } = useProfiles();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const [queue, setQueue] = useState<MatchProfile[]>([]);
   const [curIdx, setCurIdx] = useState(0);
@@ -35,6 +42,7 @@ export default function HiScreen() {
   const [isSwiping, setIsSwiping] = useState(false);
   const [messagedIds, setMessagedIds] = useState<Set<number>>(new Set());
   const [isUndoVisible, setIsUndoVisible] = useState(false);
+  const [matchedPopup, setMatchedPopup] = useState<MatchSummary | null>(null);
 
   // 패스한 프로필 ID를 세션 동안 영구 보관 (refetch 후에도 유지)
   const passedIds = useRef<Set<number>>(new Set());
@@ -97,6 +105,7 @@ export default function HiScreen() {
     setIsSwiping(true);
 
     const passed = dir === -1 ? queueRef.current[curIdxRef.current] : null;
+    const liked  = dir ===  1 ? queueRef.current[curIdxRef.current] : null;
 
     Animated.timing(pan, {
       toValue: { x: dir * SW * 1.6, y: dir * -50 },
@@ -114,6 +123,28 @@ export default function HiScreen() {
         showUndoBar();
       } else {
         hideUndoBar();
+      }
+
+      // mock — 좋아요 시 30% 확률로 양쪽 매칭 팝업 표시
+      if (dir === 1 && liked && Math.random() < 0.3) {
+        setMatchedPopup({
+          matchId: `mtch_${liked.id}`,
+          chatRoomId: `chat_${liked.id}`,
+          matchedAt: new Date().toISOString(),
+          isFresh: true,
+          matchedUser: {
+            id: `usr_hi_${liked.id}`,
+            nickname: liked.name,
+            age: liked.age,
+            region: liked.loc,
+            mbti: liked.mbti,
+            avatarEmoji: liked.emoji,
+            avatarBgColor: liked.bgColor,
+            tags: liked.tags,
+            matchScore: liked.match,
+            isOnline: true,
+          },
+        });
       }
     });
   };
@@ -220,6 +251,15 @@ export default function HiScreen() {
             onPress={doRefresh}
           >
             <Ionicons name="refresh" size={16} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="w-[34px] h-[34px] rounded-[10px] bg-ef-surface items-center justify-center"
+            style={{ shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 2 }}
+            activeOpacity={0.8}
+            onPress={() => setMoreOpen(true)}
+            disabled={!current}
+          >
+            <Ionicons name="ellipsis-vertical" size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -383,6 +423,121 @@ export default function HiScreen() {
         </View>
       )}
     </View>
+
+      {/* ── More menu (신고 / 차단) ── */}
+      <Modal
+        visible={moreOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMoreOpen(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.18)' }}
+          onPress={() => setMoreOpen(false)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: 56,
+              right: 18,
+              backgroundColor: COLORS.surface,
+              borderRadius: 14,
+              paddingVertical: 6,
+              minWidth: 168,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.18,
+              shadowRadius: 18,
+              elevation: 10,
+              borderWidth: 1,
+              borderColor: COLORS.divider,
+            }}
+          >
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => {
+                setMoreOpen(false);
+                if (!current) return;
+                router.push({
+                  pathname: '/report/balance-game-comment',
+                  params: {
+                    targetUserId: `usr_hi_${current.id}`,
+                    isAnonymous: '0',
+                  },
+                });
+              }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                gap: 10,
+              }}
+            >
+              <Ionicons
+                name="flag-outline"
+                size={16}
+                color={COLORS.red}
+              />
+              <Text
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: '700',
+                  color: COLORS.textPrimary,
+                  letterSpacing: -0.2,
+                }}
+              >
+                신고하기
+              </Text>
+            </TouchableOpacity>
+
+            <View
+              style={{
+                height: 1,
+                backgroundColor: COLORS.divider,
+                marginHorizontal: 12,
+              }}
+            />
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => {
+                setMoreOpen(false);
+                if (!current) return;
+                router.push({
+                  pathname: '/block-profile',
+                  params: { userId: `usr_hi_${current.id}` },
+                });
+              }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                gap: 10,
+              }}
+            >
+              <Ionicons name="ban-outline" size={16} color={COLORS.red} />
+              <Text
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: '700',
+                  color: COLORS.textPrimary,
+                  letterSpacing: -0.2,
+                }}
+              >
+                차단하기
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* ── Match popup ── */}
+      <MatchResultPopup
+        match={matchedPopup}
+        onClose={() => setMatchedPopup(null)}
+      />
 
       {/* ── Chat Sheet ── */}
       <ChatModal

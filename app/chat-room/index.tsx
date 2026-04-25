@@ -14,6 +14,8 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -70,6 +72,7 @@ export default function ChatRoomScreen() {
   const [input, setInput] = useState('');
   const [trayOpen, setTrayOpen] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [moreOpen, setMoreOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const trayHeight  = useRef(new Animated.Value(0)).current;
@@ -152,6 +155,23 @@ export default function ChatRoomScreen() {
           activeOpacity={0.8}
         >
           <Text style={{ fontSize: 20 }}>{MOCK_PROFILE.emoji}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          className="w-[36px] h-[36px] rounded-[12px] items-center justify-center"
+          style={{
+            backgroundColor: 'rgba(150,134,191,0.22)',
+            borderWidth: 1,
+            borderColor: 'rgba(150,134,191,0.3)',
+          }}
+          onPress={() => setMoreOpen(true)}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name="ellipsis-vertical"
+            size={16}
+            color={COLORS.primary}
+          />
         </TouchableOpacity>
       </View>
 
@@ -379,6 +399,109 @@ export default function ChatRoomScreen() {
           </Animated.View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* ── More menu (신고 / 차단) ── */}
+      <Modal
+        visible={moreOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMoreOpen(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.18)' }}
+          onPress={() => setMoreOpen(false)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: 56,
+              right: 18,
+              backgroundColor: COLORS.surface,
+              borderRadius: 14,
+              paddingVertical: 6,
+              minWidth: 168,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.18,
+              shadowRadius: 18,
+              elevation: 10,
+              borderWidth: 1,
+              borderColor: COLORS.divider,
+            }}
+          >
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => {
+                setMoreOpen(false);
+                router.push({
+                  pathname: '/report/balance-game-comment',
+                  params: {
+                    targetUserId: `usr_chat_${id ?? 'unknown'}`,
+                    isAnonymous: '0',
+                  },
+                });
+              }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                gap: 10,
+              }}
+            >
+              <Ionicons name="flag-outline" size={16} color={COLORS.red} />
+              <Text
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: '700',
+                  color: COLORS.textPrimary,
+                  letterSpacing: -0.2,
+                }}
+              >
+                신고하기
+              </Text>
+            </TouchableOpacity>
+
+            <View
+              style={{
+                height: 1,
+                backgroundColor: COLORS.divider,
+                marginHorizontal: 12,
+              }}
+            />
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => {
+                setMoreOpen(false);
+                router.push({
+                  pathname: '/block-profile',
+                  params: { userId: `usr_chat_${id ?? 'unknown'}` },
+                });
+              }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                gap: 10,
+              }}
+            >
+              <Ionicons name="ban-outline" size={16} color={COLORS.red} />
+              <Text
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: '700',
+                  color: COLORS.textPrimary,
+                  letterSpacing: -0.2,
+                }}
+              >
+                차단하기
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

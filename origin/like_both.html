@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>매칭 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --p: #9686BF; --p-t: rgba(150,134,191,0.11); --p-m: rgba(150,134,191,0.22);
+  --p-d: #6B5CA5; --bg: #F5F3F1; --card: #FFFFFF;
+  --t1: #1C1A22; --t2: #6B6680; --t3: #B0ABBE; --div: #EAE7E3;
+  --g: #8BBFA8; --g-t: rgba(139,191,168,0.12);
+  --r: #E84C7A; --r-t: rgba(232,76,122,0.10);
+  --new: #FF6B6B;
+}
+html, body { width: 100%; min-height: 100vh; background: #16141a; font-family: 'Nanum Square Neo', sans-serif; -webkit-text-size-adjust: 100%; }
+body { display: flex; justify-content: center; align-items: flex-start; padding: 24px 0 40px; }
+
+.phone {
+  width: 390px; height: 844px; background: var(--bg);
+  border-radius: 48px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 40px 100px rgba(0,0,0,.65);
+  display: flex; flex-direction: column; position: relative;
+}
+.di { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; background: #000; border-radius: 20px; z-index: 20; pointer-events: none; }
+
+/* ── Status bar ── */
+.sb { padding: 56px 24px 0; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; background: var(--bg); }
+.sb-time { font-size: 15px; font-weight: 800; color: var(--t1); }
+.sb-icons { display: flex; align-items: center; gap: 6px; }
+
+/* ── 헤더 ── */
+.header {
+  padding: 14px 20px 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.header-title {
+  font-size: 26px; font-weight: 800; color: var(--t1);
+  letter-spacing: -0.04em;
+  display: flex; align-items: center; gap: 2px;
+}
+.header-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--p);
+  margin-top: 12px;
+}
+.header-actions { display: flex; gap: 8px; }
+.header-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--card); border: 1px solid var(--div);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.12s, background 0.15s;
+}
+.header-btn:active { transform: scale(0.92); background: var(--div); }
+.header-btn svg { width: 16px; height: 16px; stroke: var(--t1); fill: none; stroke-width: 2; }
+
+/* ── 상단 탭 네비게이션 ── */
+.top-tabs {
+  display: flex; justify-content: space-around;
+  padding: 10px 20px 0;
+  flex-shrink: 0;
+  position: relative;
+}
+.top-tab {
+  font-size: 15px; font-weight: 700; color: var(--t3);
+  padding: 10px 4px;
+  cursor: pointer; position: relative;
+  letter-spacing: -0.02em;
+  transition: color 0.15s;
+}
+.top-tab.on { color: var(--t1); font-weight: 800; }
+.top-tab.on::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 28px; height: 3px; border-radius: 2px;
+  background: var(--t1);
+}
+
+/* ── 서브 탭 (pill) ── */
+.sub-tabs {
+  display: flex; gap: 8px;
+  padding: 14px 20px 10px;
+  flex-shrink: 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.sub-tabs::-webkit-scrollbar { display: none; }
+.sub-tab {
+  flex-shrink: 0;
+  padding: 8px 16px; border-radius: 22px;
+  font-size: 13px; font-weight: 700;
+  background: var(--card); color: var(--t2);
+  border: 1px solid var(--div);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 5px;
+  letter-spacing: -0.02em;
+}
+.sub-tab.on {
+  background: var(--t1); color: #fff; border-color: var(--t1);
+  font-weight: 800;
+}
+.sub-tab-count {
+  font-size: 12px; font-weight: 800;
+  opacity: 0.85;
+}
+.sub-tab:active { transform: scale(0.96); }
+
+/* ── 스크롤 영역 ── */
+.scroll-area { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 6px 0 24px; }
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── 섹션 헤더 ── */
+.sec-head {
+  padding: 10px 20px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sec-title {
+  font-size: 15px; font-weight: 800; color: var(--t1);
+  letter-spacing: -0.025em;
+}
+.sec-title b { color: var(--t1); font-weight: 800; margin-left: 4px; }
+.sec-hint {
+  font-size: 11.5px; font-weight: 600; color: var(--t3);
+  letter-spacing: -0.01em;
+}
+
+/* ── 방금 매칭됐어요 (가로 스크롤) ── */
+.fresh-scroll {
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0 8px;
+}
+.fresh-scroll::-webkit-scrollbar { display: none; }
+.fresh-list { display: flex; gap: 10px; padding: 0 20px; }
+.fresh-item {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  cursor: pointer;
+  animation: mcIn 0.4s ease both;
+}
+.fresh-av-wrap {
+  position: relative;
+  width: 66px; height: 66px;
+}
+.fresh-av {
+  width: 100%; height: 100%;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; color: #fff;
+  box-shadow: 0 3px 12px rgba(150,134,191,0.25);
+  transition: transform 0.15s;
+}
+.fresh-item:active .fresh-av { transform: scale(0.94); }
+.fresh-badge-n {
+  position: absolute; top: -4px; right: -4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--p); color: #fff;
+  font-size: 10px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 6px rgba(150,134,191,0.4);
+}
+.fresh-dot {
+  position: absolute; bottom: 4px; right: 4px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--g);
+  border: 2px solid var(--card);
+}
+.fresh-name {
+  font-size: 11.5px; font-weight: 700; color: var(--t1);
+  letter-spacing: -0.02em;
+}
+
+/* ── 서로 좋아요 한 친구 그리드 ── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 6px 20px 24px;
+  align-items: stretch;
+}
+.gcard {
+  cursor: pointer;
+  animation: mcIn 0.45s ease both;
+  background: var(--card);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 14px rgba(150,134,191,0.1);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex; flex-direction: column;
+  height: 100%;
+}
+.gcard:active { transform: scale(0.98); box-shadow: 0 6px 20px rgba(150,134,191,0.18); }
+@keyframes mcIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* 사진 영역 - 정사각형에 가까움 */
+.gcard-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px; font-weight: 800; color: rgba(255,255,255,0.9);
+  overflow: hidden;
+}
+.gcard-photo > span {
+  position: relative;
+  z-index: 0;
+  letter-spacing: -0.04em;
+}
+
+/* 매칭 타입 배지 - 사진 좌상단 (라일락) */
+.gcard-type {
+  position: absolute; top: 9px; left: 9px;
+  background: rgba(255,255,255,0.75);
+  color: var(--p-d);
+  font-size: 9.5px; font-weight: 800;
+  padding: 3px 7px 3px 6px; border-radius: 20px;
+  letter-spacing: -0.02em;
+  display: inline-flex; align-items: center; gap: 3px;
+  backdrop-filter: blur(6px);
+  z-index: 3;
+}
+.gcard-type-ic { font-size: 9px; line-height: 1; }
+
+/* % 배지 - 사진 우상단 (검은 pill) */
+.gcard-pct {
+  position: absolute; top: 9px; right: 9px;
+  background: rgba(28,26,34,0.9);
+  color: #fff;
+  font-size: 10px; font-weight: 800;
+  padding: 3px 8px; border-radius: 20px;
+  letter-spacing: -0.02em;
+  z-index: 3;
+  backdrop-filter: blur(6px);
+}
+
+/* ON 라벨 - 사진 우하단 */
+.gcard-on {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(255,255,255,0.88);
+  color: var(--g);
+  font-size: 9.5px; font-weight: 800;
+  padding: 3px 7px; border-radius: 20px;
+  letter-spacing: 0.02em;
+  z-index: 3;
+  display: inline-flex; align-items: center; gap: 3px;
+  backdrop-filter: blur(6px);
+}
+.gcard-on::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--g);
+}
+
+/* 카드 본문 */
+.gcard-body {
+  padding: 10px 12px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+
+/* 이름/나이 + 시간 행 */
+.gcard-name-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 6px;
+}
+.gcard-name-wrap { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
+.gcard-name {
+  font-size: 14px; font-weight: 800; color: var(--t1);
+  letter-spacing: -0.025em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.gcard-age {
+  font-size: 12px; font-weight: 700; color: var(--t2);
+}
+.gcard-when {
+  font-size: 10.5px; font-weight: 600; color: var(--t3);
+  flex-shrink: 0;
+}
+
+/* 위치 · MBTI */
+.gcard-loc {
+  font-size: 10.5px; font-weight: 600; color: var(--t3);
+  display: flex; align-items: center; gap: 3px;
+  letter-spacing: -0.01em;
+}
+.gcard-loc svg { width: 9px; height: 9px; stroke: var(--t3); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+/* 진행바 + % */
+.gcard-progress {
+  display: flex; align-items: center; gap: 6px;
+}
+.gcard-bar {
+  flex: 1;
+  height: 5px; border-radius: 10px;
+  background: var(--div);
+  overflow: hidden;
+}
+.gcard-bar-fill {
+  height: 100%; border-radius: 10px;
+  background: linear-gradient(90deg, var(--p) 0%, var(--p-d) 100%);
+}
+.gcard-pct-text {
+  font-size: 10px; font-weight: 800; color: var(--p-d);
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+/* 관심사 태그 */
+.gcard-tags {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.gcard-tag {
+  background: var(--p-t); color: var(--p-d);
+  font-size: 9.5px; font-weight: 700;
+  padding: 3px 7px; border-radius: 20px;
+  letter-spacing: -0.02em;
+}
+
+/* 자기소개 */
+.gcard-bio {
+  font-size: 11px; font-weight: 400; color: var(--t2);
+  line-height: 1.45;
+  word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 액션 버튼 - 항상 카드 맨 아래 고정 */
+.gcard-actions {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.gcard-chat-btn {
+  flex: 1;
+  background: var(--p); color: #fff;
+  border: none; cursor: pointer;
+  padding: 9px 10px; border-radius: 22px;
+  font-size: 11.5px; font-weight: 800;
+  font-family: inherit;
+  letter-spacing: -0.02em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  box-shadow: 0 2px 8px rgba(150,134,191,0.28);
+  transition: transform 0.12s, background 0.15s;
+}
+.gcard-chat-btn:active { transform: scale(0.96); background: var(--p-d); }
+.gcard-chat-btn svg { width: 12px; height: 12px; fill: none; stroke: #fff; stroke-width: 2; }
+.gcard-fav-btn {
+  flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--p-t); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.12s, background 0.15s;
+}
+.gcard-fav-btn:active { transform: scale(0.88); background: var(--p-m); }
+.gcard-fav-btn svg { width: 13px; height: 13px; fill: var(--p); }
+.gcard-fav-btn.on { background: var(--p); }
+.gcard-fav-btn.on svg { fill: #fff; }
+
+/* 섹션 헤더 - "서로 좋아요 10" 스타일 */
+.sec-title-grad {
+  font-size: 15px; font-weight: 800;
+  letter-spacing: -0.025em;
+  background: linear-gradient(90deg, #6B8FE8 0%, #9686BF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sec-sort {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: var(--p-t); color: var(--p-d);
+  font-size: 10.5px; font-weight: 800;
+  padding: 4px 9px; border-radius: 20px;
+  cursor: pointer;
+  letter-spacing: -0.02em;
+  border: none;
+  font-family: inherit;
+}
+.sec-sort svg { width: 10px; height: 10px; stroke: var(--p-d); fill: none; stroke-width: 2.2; }
+
+@keyframes fu { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.fu { animation: fu 0.45s ease both; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="di"></div>
+
+  <!-- status bar -->
+  <div class="sb">
+    <span class="sb-time">9:41</span>
+    <div class="sb-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1C1A22" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1C1A22" opacity=".5"/><rect x="9" y=".5" width="3" height="11.5" rx="1" fill="#1C1A22" opacity=".75"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#1C1A22"/></svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12"><path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4l1.4 1.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A22"/><path d="M8 6c1.5 0 2.8.6 3.8 1.6L13.2 6.2C11.8 4.8 9.9 4 8 4S4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A22" opacity=".6"/><circle cx="8" cy="10.5" r="1.5" fill="#1C1A22"/></svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#1C1A22" stroke-opacity=".3"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#1C1A22"/><path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A22" opacity=".35"/></svg>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <div class="header fu">
+    <div class="header-title">
+      매칭<span class="header-dot"></span>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" aria-label="필터">
+        <svg viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+      </button>
+      <button class="header-btn" aria-label="검색">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 상단 탭 네비게이션 -->
+  <div class="top-tabs fu" style="animation-delay:.05s">
+    <div class="top-tab">홈</div>
+    <div class="top-tab on">매칭</div>
+    <div class="top-tab">대화</div>
+    <div class="top-tab">마이</div>
+  </div>
+
+  <!-- 서브 탭 pill -->
+  <div class="sub-tabs fu" style="animation-delay:.08s">
+    <div class="sub-tab on" onclick="setSubTab(this,'매칭')">매칭 <span class="sub-tab-count">7</span></div>
+    <div class="sub-tab" onclick="setSubTab(this,'내가좋아요')">내가 좋아요 <span class="sub-tab-count">12</span></div>
+    <div class="sub-tab" onclick="setSubTab(this,'받은좋아요')">받은 좋아요 <span class="sub-tab-count">24</span></div>
+  </div>
+
+  <!-- 스크롤 영역 -->
+  <div class="scroll-area">
+    <!-- 방금 매칭됐어요 -->
+    <div class="sec-head fu" style="animation-delay:.12s">
+      <div class="sec-title">방금 매칭됐어요 ✨</div>
+      <div class="sec-hint">지금 대화해보세요</div>
+    </div>
+    <div class="fresh-scroll">
+      <div class="fresh-list" id="fresh-list"></div>
+    </div>
+
+    <!-- 서로 좋아요 -->
+    <div class="sec-head fu" style="animation-delay:.18s">
+      <div class="sec-title-grad">서로 좋아요 <span id="grid-count">10</span></div>
+      <button class="sec-sort" aria-label="정렬">
+        매칭순
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script>
+/* 방금 매칭된 사람들 (가로 스크롤) */
+const FRESH = [
+  { id:1, nick:'지수', av:'지', color:'linear-gradient(135deg,#C8B6E8,#9686BF)', online:true, isNew:true },
+  { id:2, nick:'준서', av:'준', color:'linear-gradient(135deg,#F0D4B8,#D4A882)', online:true, isNew:true },
+  { id:3, nick:'아린', av:'아', color:'linear-gradient(135deg,#E8C4A4,#d4a882)', online:false, isNew:false },
+  { id:4, nick:'하준', av:'하', color:'linear-gradient(135deg,#B8E0C8,#8BBFA8)', online:false, isNew:false },
+  { id:5, nick:'예나', av:'예', color:'linear-gradient(135deg,#F0B8C8,#E8A4B8)', online:true, isNew:false },
+  { id:6, nick:'수호', av:'수', color:'linear-gradient(135deg,#B8D0E8,#A8C4E0)', online:false, isNew:false },
+];
+
+/* 서로 좋아요를 한 친구 (그리드) */
+const MATCHED = [
+  { id:101, nick:'지수', age:26, av:'지',
+    color:'linear-gradient(135deg,#C8B6E8,#9686BF)',
+    pct:78, online:true,
+    loc:'서울 마포구', mbti:'INFP',
+    when:'오늘', fav:false,
+    type:'관심사 매칭', typeIcon:'✨',
+    tags:['홈카페','전시회','인디음악'],
+    bio:'서울에서 디자이너로 일하고 있어요. 주말엔 홈카페…' },
+  { id:102, nick:'준서', age:30, av:'준',
+    color:'linear-gradient(135deg,#F0D4B8,#D4A882)',
+    pct:91, online:true,
+    loc:'서울 용산', mbti:'ENTJ',
+    when:'오늘', fav:true,
+    type:'이상형 매칭', typeIcon:'💜',
+    tags:['러닝','커리어개발','와인'],
+    bio:'목표 있게 살아가는 걸 좋아해요. 함께 성장할 수…' },
+  { id:103, nick:'민재', age:29, av:'민',
+    color:'linear-gradient(135deg,#B8E0C8,#8BBFA8)',
+    pct:88, online:true,
+    loc:'서울 성수', mbti:'ENFP',
+    when:'어제', fav:false,
+    type:'관심사 매칭', typeIcon:'✨',
+    tags:['캠핑','등산','재즈'],
+    bio:'자연과 음악을 사랑해요. 주말에는 캠핑을 자주 가요.' },
+  { id:104, nick:'예나', age:25, av:'예',
+    color:'linear-gradient(135deg,#F0B8C8,#E8A4B8)',
+    pct:85, online:false,
+    loc:'서울 강남', mbti:'ISFJ',
+    when:'어제', fav:true,
+    type:'이상형 매칭', typeIcon:'💜',
+    tags:['베이킹','요가','책'],
+    bio:'차분한 일상을 사랑해요. 따뜻한 사람이 되고 싶어요.' },
+  { id:105, nick:'수호', age:30, av:'수',
+    color:'linear-gradient(135deg,#B8D0E8,#A8C4E0)',
+    pct:82, online:false,
+    loc:'서울 송파', mbti:'INTJ',
+    when:'2일 전', fav:false,
+    type:'관심사 매칭', typeIcon:'✨',
+    tags:['영화','테니스','위스키'],
+    bio:'조용하지만 깊이 있는 대화를 좋아해요.' },
+  { id:106, nick:'지안', age:27, av:'지',
+    color:'linear-gradient(135deg,#D4C0E8,#C8B0E0)',
+    pct:78, online:true,
+    loc:'서울 종로', mbti:'ENFJ',
+    when:'3일 전', fav:true,
+    type:'이상형 매칭', typeIcon:'💜',
+    tags:['사진','여행','맛집탐방'],
+    bio:'새로운 경험을 좋아해요. 같이 여행 갈 사람 찾아요!' },
+];
+
+function renderFresh() {
+  const container = document.getElementById('fresh-list');
+  container.innerHTML = FRESH.map((f, i) => `
+    <div class="fresh-item" style="animation-delay:${0.14 + i*0.04}s" onclick="goProfile(${f.id})">
+      <div class="fresh-av-wrap">
+        <div class="fresh-av" style="background:${f.color}">${f.av}</div>
+        ${f.isNew ? '<div class="fresh-badge-n">N</div>' : ''}
+        ${f.online ? '<div class="fresh-dot"></div>' : ''}
+      </div>
+      <span class="fresh-name">${f.nick}</span>
+    </div>
+  `).join('');
+}
+
+function renderGrid() {
+  const container = document.getElementById('grid');
+  document.getElementById('grid-count').textContent = MATCHED.length;
+  container.innerHTML = MATCHED.map((m, i) => `
+    <div class="gcard" style="animation-delay:${0.2 + i*0.04}s" onclick="goProfile(${m.id})">
+      <div class="gcard-photo" style="background:${m.color}">
+        <div class="gcard-type"><span class="gcard-type-ic">${m.typeIcon}</span>${m.type}</div>
+        <div class="gcard-pct">${m.pct}%</div>
+        <span>${m.av}</span>
+        ${m.online ? '<div class="gcard-on">ON</div>' : ''}
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-name-row">
+          <div class="gcard-name-wrap">
+            <span class="gcard-name">${m.nick}</span>
+            <span class="gcard-age">${m.age}</span>
+          </div>
+          <span class="gcard-when">${m.when}</span>
+        </div>
+        <div class="gcard-loc">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 14 6 14s6-9 6-14c0-3.3-2.7-6-6-6Z"/><circle cx="12" cy="8" r="2"/></svg>
+          ${m.loc} · ${m.mbti}
+        </div>
+        <div class="gcard-progress">
+          <div class="gcard-bar"><div class="gcard-bar-fill" style="width:${m.pct}%"></div></div>
+          <span class="gcard-pct-text">${m.pct}%</span>
+        </div>
+        <div class="gcard-tags">
+          ${m.tags.map(t => `<span class="gcard-tag">#${t}</span>`).join('')}
+        </div>
+        <div class="gcard-bio">${m.bio}</div>
+        <div class="gcard-actions">
+          <button class="gcard-chat-btn" onclick="event.stopPropagation();goChat(${m.id})">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            메시지
+          </button>
+          <button class="gcard-fav-btn ${m.fav ? 'on' : ''}" onclick="event.stopPropagation();toggleFav(this,${m.id})" aria-label="즐겨찾기">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-8.5C.8 9.5 2.5 5 6.5 5c2 0 3.5 1 4.5 2.5C12 6 13.5 5 15.5 5c4 0 5.7 4.5 4 7.5C19 16.65 12 21 12 21z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setSubTab(el, tab) {
+  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  if (tab === '내가좋아요') {
+    alert('내가 좋아요 화면으로 이동 (sent_likes.html)');
+  } else if (tab === '받은좋아요') {
+    alert('받은 좋아요 화면으로 이동 (match_list.html)');
+  }
+}
+
+function goProfile(id) { alert('프로필 상세 화면으로 이동: ID ' + id); }
+function goChat(id)    { alert('대화 시작: ID ' + id); }
+function toggleFav(btn, id) {
+  btn.classList.toggle('on');
+}
+
+renderFresh();
+renderGrid();
+</script>
+</body>
+</html>

@@ -6,8 +6,10 @@
 import { COLORS } from "@/constants/colors";
 import { MENU_SECTIONS } from "@/features/my/api/myApi";
 import ActivityStrip from "@/features/my/components/ActivityStrip";
+import LikesBanner from "@/features/my/components/LikesBanner";
 import MenuSection from "@/features/my/components/MenuSection";
 import PremiumCard from "@/features/my/components/PremiumCard";
+import PremiumStatusBanner from "@/features/my/components/PremiumStatusBanner";
 import ProfileHeroCard from "@/features/my/components/ProfileHeroCard";
 import { useMyProfile } from "@/features/my/hooks/useMy";
 import { Ionicons } from "@expo/vector-icons";
@@ -102,11 +104,17 @@ export default function MyScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Activity strip */}
-            <ActivityStrip activity={profile.activity} />
-
             {/* Premium card */}
             <PremiumCard />
+
+            {/* Premium status banner */}
+            <PremiumStatusBanner />
+
+            {/* Likes banner */}
+            <LikesBanner />
+
+            {/* Activity strip */}
+            <ActivityStrip activity={profile.activity} />
 
             {/* Menu sections */}
             {MENU_SECTIONS.map((section) => (

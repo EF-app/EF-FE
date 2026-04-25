@@ -38,7 +38,7 @@ export const MENU_SECTIONS: MenuSection[] = [
       { icon: '👤', iconBg: 'rgba(150,134,191,0.10)', title: '계정 관리',    sub: '이메일 · 비밀번호 · 연동', rightType: 'chevron' },
       { icon: '🔔', iconBg: 'rgba(91,185,140,0.12)',  title: '알림 설정',    sub: '댓글, 공감, 공지 알림',   rightType: 'badge', rightValue: 'ON', rightBadgeVariant: 'purple' },
       { icon: '🔒', iconBg: 'rgba(196,136,90,0.12)',  title: '개인정보 보호', sub: '공개 범위 · 차단 관리',  rightType: 'chevron' },
-      { icon: '🚫', iconBg: 'rgba(82,160,210,0.12)',  title: '차단한 사용자',                              rightType: 'value', rightValue: '2명' },
+      { icon: '🚫', iconBg: 'rgba(82,160,210,0.12)',  title: '차단한 사용자',                              rightType: 'value', rightValue: '2명', href: '/(tabs)/my/blocked-users' },
     ],
   },
   {

@@ -24,6 +24,8 @@ export interface MenuItem {
   rightValue?: string;
   rightBadgeVariant?: 'purple' | 'green' | 'danger';
   toggleKey?: string;
+  /** Stack route to navigate to on press (e.g., '/(tabs)/my/blocked-users') */
+  href?: string;
 }
 
 export interface MenuSection {

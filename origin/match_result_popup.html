@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>매칭 팝업 — 녹차</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --p: #9686BF; --p-t: rgba(150,134,191,0.12); --p-d: #6B5CA5;
+  --bg: #F5F3F1; --card: #FFFFFF;
+  --t1: #1C1A22; --t2: #6B6680; --t3: #B0ABBE; --div: #EAE7E3;
+  --g: #8BBFA8; --r: #E84C7A;
+}
+html, body {
+  width: 100%; min-height: 100vh; background: #0f0d13;
+  font-family: 'Nanum Square Neo', sans-serif;
+}
+body { display: flex; justify-content: center; align-items: flex-start; padding: 24px 0 40px; }
+
+/* ── 폰 프레임 ── */
+.phone {
+  width: 390px; height: 844px; background: var(--bg);
+  border-radius: 48px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 40px 100px rgba(0,0,0,.65);
+  position: relative; flex-shrink: 0;
+}
+.island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; background: #000; border-radius: 20px; z-index: 30; pointer-events: none; }
+
+/* ══ 배경: 스와이프 화면 ══ */
+.bg { position: absolute; inset: 0; display: flex; flex-direction: column; }
+
+.sb { padding: 56px 24px 0; display: flex; justify-content: space-between; align-items: flex-end; }
+.sb-time { font-size: 15px; font-weight: 800; color: var(--t1); }
+.sb-icons { display: flex; align-items: center; gap: 6px; }
+
+.bg-nav { padding: 12px 20px 10px; display: flex; align-items: center; justify-content: space-between; }
+.bg-rnd { width: 34px; height: 34px; border-radius: 50%; background: #EDEAF6; border: none; display: flex; align-items: center; justify-content: center; }
+.bg-rnd svg { width: 15px; height: 15px; stroke: var(--p-d); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bg-nav-title { font-size: 16px; font-weight: 800; color: var(--t1); }
+
+.bg-kws { padding: 0 20px 12px; display: flex; align-items: center; gap: 8px; }
+.bg-kws-label { font-size: 11px; font-weight: 700; color: var(--t3); flex-shrink: 0; }
+.bg-kws-list { display: flex; gap: 6px; }
+.bg-kw { background: var(--p); color: #fff; border-radius: 20px; padding: 4px 11px; font-size: 11px; font-weight: 700; }
+
+.bg-arena { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 20px; position: relative; }
+.bg-card { width: 100%; max-width: 330px; background: var(--card); border-radius: 26px; box-shadow: 0 8px 32px rgba(150,134,191,0.18); overflow: hidden; position: absolute; }
+.bg-card-back { transform: scale(0.92) translateY(18px); opacity: 0.45; }
+.bg-card-front { z-index: 2; }
+.bg-card-top { background: var(--p-t); padding: 22px 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.bg-av { width: 70px; height: 70px; border-radius: 50%; background: var(--p); display: flex; align-items: center; justify-content: center; font-size: 27px; font-weight: 800; color: #fff; border: 3px solid rgba(255,255,255,0.5); }
+.bg-card-name { font-size: 16px; font-weight: 800; color: var(--t1); }
+.bg-card-loc { font-size: 12px; color: var(--t3); }
+.bg-card-body { padding: 14px 18px 18px; }
+.bg-kw-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.bg-chip { border-radius: 20px; padding: 4px 11px; font-size: 11.5px; font-weight: 700; }
+.bg-chip-m { background: var(--p-t); color: var(--p-d); }
+.bg-chip-o { background: #F5F3F1; color: var(--t2); }
+.bg-bio { font-size: 12.5px; color: var(--t2); line-height: 1.6; border-top: 1px solid var(--div); padding-top: 10px; word-break: keep-all; }
+
+.bg-actions { padding: 12px 20px 20px; display: flex; justify-content: center; gap: 18px; flex-shrink: 0; }
+.bg-act { border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.bg-act-pass { width: 52px; height: 52px; background: var(--card); box-shadow: 0 4px 16px rgba(191,150,150,0.25); }
+.bg-act-like { width: 64px; height: 64px; background: var(--p); box-shadow: 0 6px 20px rgba(150,134,191,0.4); }
+.bg-act-star { width: 52px; height: 52px; background: var(--card); box-shadow: 0 4px 16px rgba(196,136,90,0.22); }
+
+/* ══ 딤 ══ */
+.dim {
+  position: absolute; inset: 0; z-index: 10;
+  background: rgba(18,16,26,0.58);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: dimIn 0.25s ease both;
+}
+@keyframes dimIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════
+   중앙 팝업 카드
+══════════════════════════════ */
+.popup {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  width: calc(100% - 40px);
+  max-width: 330px;
+  background: var(--card);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.28), 0 0 0 1px rgba(150,134,191,0.12);
+  animation: popIn 0.4s cubic-bezier(.34,1.4,.64,1) both;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.82); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 닫기 버튼 */
+.popup-close {
+  position: absolute; top: 12px; right: 12px; z-index: 5;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.06); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.popup-close:hover { background: rgba(0,0,0,0.12); }
+.popup-close svg { width: 14px; height: 14px; stroke: var(--t2); fill: none; stroke-width: 2.2; stroke-linecap: round; }
+
+/* ── 팝업 상단: 축하 히어로 ── */
+.hero {
+  background: linear-gradient(160deg, #EDE8F8 0%, #DDD5F2 50%, #E8E2F7 100%);
+  padding: 28px 20px 22px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0;
+  position: relative; overflow: hidden;
+}
+
+/* 배경 장식 원 */
+.hero::before {
+  content: ''; position: absolute;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(150,134,191,0.12);
+  top: -60px; right: -60px; pointer-events: none;
+}
+.hero::after {
+  content: ''; position: absolute;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(150,134,191,0.08);
+  bottom: -30px; left: -30px; pointer-events: none;
+}
+
+/* 아바타 쌍 */
+.av-pair {
+  display: flex; align-items: center; margin-bottom: 16px;
+  animation: pairIn 0.5s cubic-bezier(.34,1.56,.64,1) 0.1s both;
+  position: relative; z-index: 1;
+}
+@keyframes pairIn { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+
+.avw { position: relative; }
+.avi {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 800; color: #fff;
+  border: 3px solid rgba(255,255,255,0.8);
+  box-shadow: 0 4px 16px rgba(150,134,191,0.35);
+}
+.av-a { background: linear-gradient(135deg, var(--p), #b8a8e0); z-index: 2; }
+.av-b { background: linear-gradient(135deg, var(--g), #6aad90); z-index: 1; margin-left: -16px; }
+
+.hb {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--r); border: 2.5px solid #EDE8F8;
+  display: flex; align-items: center; justify-content: center;
+  animation: hbIn 0.38s cubic-bezier(.34,1.8,.64,1) 0.38s both; z-index: 3;
+}
+.hb svg { width: 11px; height: 11px; fill: white; }
+@keyframes hbIn { from { opacity:0; transform:scale(0); } to { opacity:1; transform:scale(1); } }
+
+/* 파티클 */
+.sp { position: absolute; border-radius: 50%; animation: spOut 0.7s ease-out both; z-index: 1; }
+@keyframes spOut { from { opacity:1; transform:scale(1) translate(0,0); } to { opacity:0; transform:scale(0) var(--to); } }
+.s1 { width:8px; height:8px; top:30px; left:40px; background:var(--p); --to:translate(-22px,-20px); animation-delay:0.28s; }
+.s2 { width:6px; height:6px; top:24px; right:44px; background:var(--r); --to:translate(20px,-22px); animation-delay:0.33s; }
+.s3 { width:7px; height:7px; bottom:32px; left:36px; background:var(--g); --to:translate(-18px,18px); animation-delay:0.36s; }
+.s4 { width:6px; height:6px; bottom:28px; right:40px; background:#F0C060; --to:translate(18px,16px); animation-delay:0.30s; }
+.s5 { width:5px; height:5px; top:44px; right:28px; background:var(--p); --to:translate(24px,-8px); animation-delay:0.40s; }
+.s6 { width:5px; height:5px; top:52px; left:28px; background:var(--r); --to:translate(-24px,6px); animation-delay:0.34s; }
+.s7 { width:4px; height:4px; top:16px; left:56px; background:var(--g); --to:translate(-10px,-24px); animation-delay:0.38s; }
+.s8 { width:4px; height:4px; top:16px; right:58px; background:#F0C060; --to:translate(12px,-22px); animation-delay:0.32s; }
+
+.hero-title {
+  font-size: 22px; font-weight: 800; color: var(--t1);
+  letter-spacing: -0.04em; line-height: 1.2; margin-bottom: 5px;
+  animation: txtIn 0.4s ease 0.26s both;
+  position: relative; z-index: 1;
+}
+.hero-title em { color: var(--p); font-style: normal; }
+.hero-sub {
+  font-size: 12.5px; color: var(--t3); line-height: 1.6; word-break: keep-all;
+  animation: txtIn 0.4s ease 0.32s both;
+  position: relative; z-index: 1;
+}
+@keyframes txtIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* ── 팝업 중단: 프로필 정보 ── */
+.prof {
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--div);
+  animation: fadeUp 0.4s ease 0.35s both;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+.prof-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.prof-av {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--g), #6aad90);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; color: #fff; flex-shrink: 0;
+  border: 2px solid rgba(139,191,168,0.3);
+  box-shadow: 0 3px 10px rgba(139,191,168,0.3);
+}
+.prof-info { flex: 1; min-width: 0; }
+.prof-name-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.prof-name { font-size: 15px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; }
+.prof-age { font-size: 10px; font-weight: 700; color: var(--p); background: var(--p-t); border-radius: 20px; padding: 1px 7px; }
+.prof-loc { font-size: 11px; color: var(--t3); display: flex; align-items: center; gap: 3px; }
+.prof-loc svg { width: 10px; height: 10px; stroke: var(--t3); fill: none; stroke-width: 2; }
+.prof-pct { font-size: 13px; font-weight: 800; color: #fff; background: var(--p); border-radius: 20px; padding: 5px 12px; flex-shrink: 0; }
+
+/* 공통 키워드 */
+.kw-label { font-size: 9.5px; font-weight: 700; color: var(--t3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 7px; }
+.kw-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.kw-chip { background: var(--p-t); color: var(--p-d); border-radius: 20px; padding: 4px 11px; font-size: 11.5px; font-weight: 700; }
+
+/* ── 팝업 하단: 버튼 ── */
+.actions {
+  padding: 14px 16px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+  animation: fadeUp 0.4s ease 0.42s both;
+}
+.btn-chat {
+  width: 100%; background: var(--p); color: #fff; border: none;
+  border-radius: 14px; padding: 14px 20px;
+  font-family: 'Nanum Square Neo', sans-serif;
+  font-size: 14px; font-weight: 800; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 5px 18px rgba(150,134,191,0.38); letter-spacing: -0.02em;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-chat:active { transform: scale(0.97); box-shadow: 0 3px 10px rgba(150,134,191,0.25); }
+.btn-chat svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; }
+.btn-letter {
+  width: 100%; background: #F0EBF8; color: var(--p-d); border: none;
+  border-radius: 14px; padding: 13px 20px;
+  font-family: 'Nanum Square Neo', sans-serif;
+  font-size: 13.5px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  letter-spacing: -0.02em; transition: background 0.12s;
+}
+.btn-letter:active { background: #E4DBF2; }
+.btn-letter svg { width: 15px; height: 15px; stroke: var(--p-d); fill: none; stroke-width: 2; }
+.btn-later {
+  width: 100%; background: none; border: none;
+  font-family: 'Nanum Square Neo', sans-serif;
+  font-size: 12.5px; font-weight: 500; color: var(--t3);
+  padding: 4px; cursor: pointer; letter-spacing: -0.01em;
+  transition: color 0.12s;
+}
+.btn-later:active { color: var(--t2); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="island"></div>
+
+  <!-- ══ 배경 스와이프 화면 ══ -->
+  <div class="bg">
+    <div class="sb">
+      <span class="sb-time">9:41</span>
+      <div class="sb-icons">
+        <svg width="17" height="12" fill="none" viewBox="0 0 17 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1C1A22" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1C1A22" opacity=".5"/><rect x="9" y=".5" width="3" height="11.5" rx="1" fill="#1C1A22" opacity=".75"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#1C1A22"/></svg>
+        <svg width="16" height="12" fill="none" viewBox="0 0 16 12"><path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4l1.4 1.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A22"/><path d="M8 6c1.5 0 2.8.6 3.8 1.6L13.2 6.2C11.8 4.8 9.9 4 8 4S4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A22" opacity=".6"/><circle cx="8" cy="10.5" r="1.5" fill="#1C1A22"/></svg>
+        <svg width="27" height="13" fill="none" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#1C1A22" stroke-opacity=".3"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#1C1A22"/><path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A22" opacity=".35"/></svg>
+      </div>
+    </div>
+    <div class="bg-nav">
+      <button class="bg-rnd"><svg viewBox="0 0 16 16"><path d="M10 13L5.5 8 10 3"/></svg></button>
+      <span class="bg-nav-title">키워드 매칭</span>
+      <button class="bg-rnd"><svg viewBox="0 0 16 16"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
+    </div>
+    <div class="bg-kws">
+      <span class="bg-kws-label">내 키워드</span>
+      <div class="bg-kws-list">
+        <span class="bg-kw">새벽감성🌙</span>
+        <span class="bg-kw">투자공부</span>
+        <span class="bg-kw">산책</span>
+      </div>
+    </div>
+    <div class="bg-arena">
+      <div class="bg-card bg-card-back">
+        <div class="bg-card-top" style="background:rgba(139,191,168,0.15);">
+          <div class="bg-av" style="background:#8BBFA8;">수</div>
+          <div class="bg-card-name">수달친구🦦</div>
+          <div class="bg-card-loc">📍 서울 강남구</div>
+        </div>
+        <div style="height:80px;"></div>
+      </div>
+      <div class="bg-card bg-card-front">
+        <div class="bg-card-top">
+          <div class="bg-av">민</div>
+          <div class="bg-card-name">민들레🌻</div>
+          <div class="bg-card-loc">📍 서울 마포구</div>
+        </div>
+        <div class="bg-card-body">
+          <div class="bg-kw-chips">
+            <span class="bg-chip bg-chip-m">새벽감성🌙</span>
+            <span class="bg-chip bg-chip-m">투자공부</span>
+            <span class="bg-chip bg-chip-o">ETF장기투자</span>
+          </div>
+          <p class="bg-bio">요즘 투자 공부를 시작했는데 같이 정보 나눌 분 찾아요! 새벽에 산책하면서 생각 정리하는 걸 좋아해요 🌿</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-actions">
+      <button class="bg-act bg-act-pass"><svg width="22" height="22" fill="none" viewBox="0 0 22 22"><path d="M6 6L16 16M16 6L6 16" stroke="#BF9696" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button class="bg-act bg-act-like"><svg width="28" height="26" fill="none" viewBox="0 0 28 26"><path d="M14 24S2 16.5 2 9C2 5.7 4.7 3 8 3c1.8 0 3.8 1 5 2.8C14.2 4 16.2 3 18 3c3.3 0 6 2.7 6 6 0 7.5-10 15-10 15Z" fill="white" stroke="white" stroke-width="1.2"/></svg></button>
+      <button class="bg-act bg-act-star"><svg width="22" height="22" fill="none" viewBox="0 0 22 22"><path d="M11 2L13.5 8H20L14.8 12L16.8 18L11 14.5L5.2 18L7.2 12L2 8H8.5L11 2Z" fill="#C4885A" stroke="#C4885A" stroke-width="1" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ══ 딤 ══ -->
+  <div class="dim" id="dim"></div>
+
+  <!-- ══ 중앙 팝업 ══ -->
+  <div class="popup" id="popup">
+
+    <!-- 닫기 -->
+    <button class="popup-close" id="btn-close">
+      <svg viewBox="0 0 16 16"><path d="M12 4L4 12M4 4l8 8"/></svg>
+    </button>
+
+    <!-- 히어로 영역 -->
+    <div class="hero">
+      <!-- 파티클 -->
+      <div class="sp s1"></div><div class="sp s2"></div>
+      <div class="sp s3"></div><div class="sp s4"></div>
+      <div class="sp s5"></div><div class="sp s6"></div>
+      <div class="sp s7"></div><div class="sp s8"></div>
+
+      <!-- 아바타 쌍 -->
+      <div class="av-pair">
+        <div class="avw">
+          <div class="avi av-a">나</div>
+          <div class="hb">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="avw">
+          <div class="avi av-b">수</div>
+        </div>
+      </div>
+
+      <h2 class="hero-title"><em>매칭</em>되었어요! 🎉</h2>
+      <p class="hero-sub">서로 좋아요를 눌렀어요<br>지금 바로 대화해보세요!</p>
+    </div>
+
+    <!-- 프로필 정보 -->
+    <div class="prof">
+      <div class="prof-row">
+        <div class="prof-av">수</div>
+        <div class="prof-info">
+          <div class="prof-name-row">
+            <span class="prof-name">수달친구🦦</span>
+            <span class="prof-age">28</span>
+          </div>
+          <div class="prof-loc">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 14 6 14s6-9 6-14c0-3.3-2.7-6-6-6Z"/><circle cx="12" cy="8" r="2"/></svg>
+            서울 강남구
+          </div>
+        </div>
+        <div class="prof-pct">✨ 75%</div>
+      </div>
+      <div class="kw-label">공통 키워드</div>
+      <div class="kw-chips">
+        <span class="kw-chip">새벽감성🌙</span>
+        <span class="kw-chip">산책</span>
+        <span class="kw-chip">고양이집사🐱</span>
+      </div>
+    </div>
+
+    <!-- 버튼 -->
+    <div class="actions">
+      <button class="btn-chat">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        지금 대화 시작하기
+      </button>
+      <button class="btn-letter">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        편지 보내기
+      </button>
+      <button class="btn-later" id="btn-later">나중에 할게요</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function closePopup() {
+  var popup = document.getElementById("popup");
+  var dim = document.getElementById("dim");
+  popup.style.transition = "transform 0.28s cubic-bezier(.4,0,.6,1), opacity 0.24s";
+  popup.style.transform = "translate(-50%, -50%) scale(0.88)";
+  popup.style.opacity = "0";
+  dim.style.transition = "opacity 0.24s";
+  dim.style.opacity = "0";
+  setTimeout(function() {
+    popup.style.display = "none";
+    dim.style.display = "none";
+  }, 300);
+}
+document.getElementById("btn-close").addEventListener("click", closePopup);
+document.getElementById("btn-later").addEventListener("click", closePopup);
+document.getElementById("dim").addEventListener("click", closePopup);
+</script>
+</body>
+</html>

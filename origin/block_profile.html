@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>녹차 – 차단</title>
+<style>
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'NSN';src:url('https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-dEb.woff2') format('woff2');font-weight:800}
+
+:root{
+  --bg:#F5F3F1;--purple:#9686BF;--pl:rgba(150,134,191,.10);--pm:rgba(150,134,191,.24);
+  --card:#fff;--div:#EAE7E3;
+  --t1:#1C1A1F;--t2:#6B6670;--t3:#ADA8B2;
+  --green:#5BB98C;--amber:#C4885A;--red:#D4655A;
+  --sh:0 2px 14px rgba(150,134,191,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'NSN','Apple SD Gothic Neo',sans-serif;background:#DEDAD5}
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:36px 0 64px}
+
+.phone{
+  width:min(390px,100vw);
+  height:min(844px,calc(100dvh - 72px));
+  background:var(--bg);
+  border-radius:clamp(0px,50px,50px);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+@media(min-width:430px){
+  .phone{box-shadow:0 40px 100px rgba(0,0,0,.24),0 0 0 10px #181818,0 0 0 11px #2C2C2C}
+}
+@media(max-width:429px){
+  body{padding:0}
+  .phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
+}
+
+/* ── Status ── */
+.status{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 4px;font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+.status-r{display:flex;align-items:center;gap:5px}
+.di{width:120px;height:32px;background:#0D0D0D;border-radius:18px;margin:4px auto 0;flex-shrink:0}
+
+/* ── 네비 ── */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 18px 10px;flex-shrink:0;
+}
+.nav-back{
+  width:36px;height:36px;border-radius:12px;
+  background:var(--card);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--sh);transition:transform .14s;
+}
+.nav-back:active{transform:scale(.9)}
+.nav-back svg{width:18px;height:18px;fill:none;stroke:var(--t1);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.nav-title{font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
+.nav-ph{width:36px}
+
+/* ── 스크롤 영역 ── */
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:24px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ══════════════════════════
+   프로필 미니 카드
+══════════════════════════ */
+.profile-card{
+  margin:16px 18px 0;
+  background:var(--card);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:var(--sh);
+}
+
+/* 사진 영역 */
+.pcard-photo{
+  height:148px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.pcard-photo-bg{position:absolute;inset:0}
+.pcard-emoji{position:relative;z-index:1;font-size:56px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.12))}
+.pcard-fade{
+  position:absolute;bottom:0;left:0;right:0;height:64px;
+  background:linear-gradient(to top,var(--card) 0%,transparent 100%);
+  z-index:2;pointer-events:none;
+}
+/* 차단 표시 배지 */
+.block-badge{
+  position:absolute;top:10px;left:10px;z-index:10;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:20px;
+  font-size:11px;font-weight:800;
+  background:rgba(212,101,90,.88);color:#fff;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.score-badge{
+  position:absolute;top:10px;right:10px;z-index:10;
+  background:rgba(0,0,0,.42);backdrop-filter:blur(8px);
+  border-radius:13px;padding:4px 10px;
+  font-size:12px;font-weight:800;color:#fff;
+}
+
+/* 카드 본문 */
+.pcard-body{padding:10px 16px 16px}
+.pcard-name-row{display:flex;align-items:baseline;gap:7px;margin-bottom:3px}
+.pcard-name{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.pcard-age{font-size:14px;font-weight:700;color:var(--t2)}
+.pcard-meta{font-size:11.5px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.pcard-meta svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* 매칭 바 */
+.pcard-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.pcard-bar{flex:1;height:4px;border-radius:2px;background:var(--div);overflow:hidden}
+.pcard-bar-fill{height:100%;width:78%;border-radius:2px;background:linear-gradient(90deg,var(--purple),#C0B0E8)}
+.pcard-score{font-size:12px;font-weight:800;color:var(--purple);flex-shrink:0}
+
+/* 태그 */
+.pcard-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.pcard-tag{
+  padding:3px 9px;border-radius:13px;font-size:11px;font-weight:700;
+  background:var(--pl);color:var(--purple);border:1px solid var(--pm);
+}
+
+/* 한줄 소개 */
+.pcard-bio{font-size:12.5px;color:var(--t2);line-height:1.65;word-break:keep-all}
+
+/* ══════════════════════════
+   차단 사유 섹션
+══════════════════════════ */
+.sec{padding:22px 18px 0}
+.sec-title{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:-.025em;margin-bottom:4px}
+.sec-sub{font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:12px}
+
+.reason-list{display:flex;flex-direction:column;gap:8px}
+.reason-item{
+  background:var(--card);border-radius:14px;
+  border:1.5px solid var(--div);
+  padding:13px 15px;
+  display:flex;align-items:center;gap:11px;
+  cursor:pointer;transition:all .15s;
+}
+.reason-item:active{transform:scale(.985)}
+.reason-item.on{border-color:var(--red);background:rgba(212,101,90,.07)}
+.r-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:#F5F3F1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;transition:background .15s;
+}
+.reason-item.on .r-icon{background:rgba(212,101,90,.12)}
+.r-text{flex:1;min-width:0}
+.r-name{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.02em}
+.r-desc{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4}
+.reason-item.on .r-name{color:#A83428}
+.r-check{
+  width:20px;height:20px;border-radius:50%;
+  border:1.5px solid var(--div);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.reason-item.on .r-check{background:var(--red);border-color:var(--red)}
+.r-check svg{width:10px;height:10px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .15s}
+.reason-item.on .r-check svg{opacity:1}
+
+/* ── 차단 안내 박스 ── */
+.block-notice{
+  margin:20px 18px 0;
+  background:#FEF3F2;border-radius:14px;
+  border:1px solid rgba(212,101,90,.18);
+  padding:14px 16px;
+  display:flex;align-items:flex-start;gap:11px;
+}
+.bnotice-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(212,101,90,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.bnotice-text{}
+.bnotice-title{font-size:12.5px;font-weight:800;color:#A83428;margin-bottom:5px;letter-spacing:-.02em}
+.bnotice-row{display:flex;align-items:flex-start;gap:5px;margin-bottom:3px}
+.bnotice-row:last-child{margin-bottom:0}
+.bnotice-dot{width:4px;height:4px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:6px}
+.bnotice-txt{font-size:11.5px;color:#9A4040;line-height:1.5;word-break:keep-all}
+
+/* ── 하단 버튼 ── */
+.bottom{
+  flex-shrink:0;padding:12px 18px 28px;
+  background:var(--bg);border-top:1px solid var(--div);
+  display:flex;flex-direction:column;gap:9px;
+}
+.btn-block{
+  width:100%;background:var(--red);color:#fff;border:none;
+  border-radius:14px;padding:15px 20px;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:14px;font-weight:800;cursor:pointer;
+  letter-spacing:-.02em;
+  box-shadow:0 5px 18px rgba(212,101,90,.30);
+  transition:transform .12s,opacity .12s;
+  opacity:.38;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-block svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-block.on{opacity:1}
+.btn-block:active{transform:scale(.97)}
+.btn-cancel{
+  width:100%;background:var(--card);color:var(--t2);
+  border:1.5px solid var(--div);border-radius:14px;padding:13px 20px;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:13.5px;font-weight:700;cursor:pointer;
+  letter-spacing:-.02em;transition:background .12s;
+}
+.btn-cancel:active{background:var(--div)}
+
+/* ── 완료 오버레이 ── */
+.done-overlay{
+  display:none;position:absolute;inset:0;z-index:40;
+  background:var(--bg);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;text-align:center;padding:36px;
+  animation:doneIn .35s ease both;
+}
+.done-overlay.show{display:flex}
+@keyframes doneIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.done-emoji{font-size:52px;margin-bottom:4px}
+.done-title{font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.04em;line-height:1.3}
+.done-sub{font-size:13.5px;color:var(--t3);line-height:1.65;word-break:keep-all}
+.done-cta{
+  margin-top:10px;width:100%;
+  background:var(--purple);color:#fff;border:none;
+  border-radius:14px;padding:15px;
+  font-family:'NSN','Apple SD Gothic Neo',sans-serif;
+  font-size:14px;font-weight:800;cursor:pointer;
+  letter-spacing:-.02em;
+  box-shadow:0 6px 20px rgba(150,134,191,.38);
+  transition:transform .12s;
+}
+.done-cta:active{transform:scale(.97)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- 다이내믹 아일랜드 -->
+  <div class="di"></div>
+
+  <!-- 상태바 -->
+  <div class="status">
+    <span>9:41</span>
+    <div class="status-r">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--t1)"><rect x="0" y="8" width="2.5" height="8" rx="1"/><rect x="4.5" y="5.5" width="2.5" height="10.5" rx="1"/><rect x="9" y="3" width="2.5" height="13" rx="1"/><rect x="13.5" y="0" width="2.5" height="16" rx="1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t1)" stroke-width="1.4"><path d="M1 5.5a9.5 9.5 0 0 1 14 0"/><path d="M3.5 8a6.5 6.5 0 0 1 9 0"/><path d="M6 10.5a3.5 3.5 0 0 1 4 0"/><circle cx="8" cy="13" r="1" fill="var(--t1)" stroke="none"/></svg>
+      <svg width="20" height="11" viewBox="0 0 22 12" fill="none" stroke="var(--t1)" stroke-width="1.2"><rect x=".6" y=".6" width="17.8" height="10.8" rx="2.4"/><rect x="1.8" y="1.8" width="13" height="8.4" rx="1.5" fill="var(--t1)" stroke="none"/><path d="M19.5 4v4" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- 네비 -->
+  <div class="nav">
+    <button class="nav-back">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="nav-title">차단하기</span>
+    <div class="nav-ph"></div>
+  </div>
+
+  <div class="scroll">
+
+    <!-- ── 프로필 미니 카드 ── -->
+    <div class="profile-card">
+      <div class="pcard-photo">
+        <!-- 배경 그라데이션 -->
+        <div class="pcard-photo-bg" style="background:linear-gradient(135deg,#EDE0F8 0%,#D4C8F0 100%)"></div>
+        <div class="pcard-emoji">🌸</div>
+        <div class="pcard-fade"></div>
+        <div class="block-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
+          차단 예정
+        </div>
+        <div class="score-badge">78%</div>
+      </div>
+
+      <div class="pcard-body">
+        <div class="pcard-name-row">
+          <div class="pcard-name">지수</div>
+          <div class="pcard-age">26세</div>
+        </div>
+        <div class="pcard-meta">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          서울 마포구 · INFP
+        </div>
+        <div class="pcard-bar-row">
+          <div class="pcard-bar"><div class="pcard-bar-fill"></div></div>
+          <div class="pcard-score">78%</div>
+        </div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">새벽감성🌙</span>
+          <span class="pcard-tag">독서📚</span>
+          <span class="pcard-tag">카페탐방☕</span>
+          <span class="pcard-tag">산책🌿</span>
+        </div>
+        <div class="pcard-bio">조용한 카페에서 책 읽는 걸 좋아해요. 새벽 감성 있는 대화 나눠요 🌙</div>
+      </div>
+    </div>
+
+    <!-- ── 차단 사유 ── -->
+    <div class="sec">
+      <div class="sec-title">차단 사유를 선택해 주세요</div>
+      <div class="sec-sub">선택하지 않아도 차단할 수 있어요</div>
+
+      <div class="reason-list" id="reason-list">
+        <div class="reason-item" data-id="1">
+          <div class="r-icon">😤</div>
+          <div class="r-text">
+            <div class="r-name">불쾌한 대화나 행동</div>
+            <div class="r-desc">메시지나 행동이 불편하거나 무례했어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="2">
+          <div class="r-icon">🚫</div>
+          <div class="r-text">
+            <div class="r-name">욕설 · 혐오 표현</div>
+            <div class="r-desc">비하하거나 혐오적인 언어를 사용했어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="3">
+          <div class="r-icon">👻</div>
+          <div class="r-text">
+            <div class="r-name">더 이상 연락하고 싶지 않아요</div>
+            <div class="r-desc">이유 없이 연락을 끊고 싶어요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="4">
+          <div class="r-icon">🎭</div>
+          <div class="r-text">
+            <div class="r-name">허위 정보 · 사칭 의심</div>
+            <div class="r-desc">프로필이나 정보가 거짓인 것 같아요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+
+        <div class="reason-item" data-id="5">
+          <div class="r-icon">📋</div>
+          <div class="r-text">
+            <div class="r-name">기타</div>
+            <div class="r-desc">위에 해당하지 않는 다른 이유예요</div>
+          </div>
+          <div class="r-check"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 차단 안내 ── -->
+    <div class="block-notice">
+      <div class="bnotice-icon">⚠️</div>
+      <div class="bnotice-text">
+        <div class="bnotice-title">차단하면 이렇게 돼요</div>
+        <div class="bnotice-row"><div class="bnotice-dot"></div><div class="bnotice-txt">지수 님이 내 프로필을 볼 수 없어요</div></div>
+        <div class="bnotice-row"><div class="bnotice-dot"></div><div class="bnotice-txt">서로 메시지를 주고받을 수 없어요</div></div>
+        <div class="bnotice-row"><div class="bnotice-dot"></div><div class="bnotice-txt">설정에서 언제든 차단을 해제할 수 있어요</div></div>
+      </div>
+    </div>
+
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- ── 하단 버튼 ── -->
+  <div class="bottom">
+    <button class="btn-block on" id="btn-block">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
+      지수 님 차단하기
+    </button>
+    <button class="btn-cancel" id="btn-cancel">취소</button>
+  </div>
+
+  <!-- ── 완료 오버레이 ── -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-emoji">🔒</div>
+    <div class="done-title">차단이<br>완료되었어요</div>
+    <div class="done-sub">지수 님이 더 이상<br>내 프로필을 볼 수 없어요</div>
+    <button class="done-cta" id="done-cta">확인</button>
+  </div>
+
+</div>
+
+<script>
+var selected = [];
+
+document.querySelectorAll(".reason-item").forEach(function(item) {
+  item.addEventListener("click", function() {
+    var id = item.getAttribute("data-id");
+    item.classList.toggle("on");
+    var idx = selected.indexOf(id);
+    if (idx === -1) selected.push(id);
+    else selected.splice(idx, 1);
+  });
+});
+
+document.getElementById("btn-block").addEventListener("click", function() {
+  document.getElementById("done-overlay").classList.add("show");
+});
+
+document.getElementById("btn-cancel").addEventListener("click", function() {
+  alert("차단을 취소했어요.");
+});
+
+document.getElementById("done-cta").addEventListener("click", function() {
+  document.getElementById("done-overlay").classList.remove("show");
+});
+</script>
+</body>
+</html>

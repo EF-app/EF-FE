@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>내가 좋아요 — 녹차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Neo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --p: #9686BF; --p-t: rgba(150,134,191,0.11); --p-m: rgba(150,134,191,0.22);
+  --p-d: #6B5CA5; --bg: #F5F3F1; --card: #FFFFFF;
+  --t1: #1C1A22; --t2: #6B6680; --t3: #B0ABBE; --div: #EAE7E3;
+  --g: #8BBFA8; --g-t: rgba(139,191,168,0.12);
+  --r: #E84C7A; --r-t: rgba(232,76,122,0.10);
+  --new: #FF6B6B;
+  --super: #9686BF; --super-t: rgba(150,134,191,0.14);
+}
+html, body { width: 100%; min-height: 100vh; background: #16141a; font-family: 'Nanum Square Neo', sans-serif; -webkit-text-size-adjust: 100%; }
+body { display: flex; justify-content: center; align-items: flex-start; padding: 24px 0 40px; }
+
+.phone {
+  width: 390px; height: 844px; background: var(--bg);
+  border-radius: 48px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 40px 100px rgba(0,0,0,.65);
+  display: flex; flex-direction: column; position: relative;
+}
+.di { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; background: #000; border-radius: 20px; z-index: 20; pointer-events: none; }
+
+/* ── Status bar ── */
+.sb { padding: 56px 24px 0; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; background: var(--bg); }
+.sb-time { font-size: 15px; font-weight: 800; color: var(--t1); }
+.sb-icons { display: flex; align-items: center; gap: 6px; }
+
+/* ── Nav ── */
+.nav {
+  padding: 12px 20px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.nav-back { width: 34px; height: 34px; border-radius: 50%; background: var(--div); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.nav-center { }
+.nav-title { font-size: 16px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; }
+.nav-count { font-size: 11px; font-weight: 600; color: var(--t3); text-align: center; margin-top: 1px; }
+.nav-filter { width: 34px; height: 34px; border-radius: 50%; background: var(--p-t); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.nav-filter svg { width: 16px; height: 16px; stroke: var(--p); fill: none; stroke-width: 2; }
+
+/* ── 필터 탭 ── */
+.filter-tabs { display: flex; gap: 6px; padding: 14px 20px 10px; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+.filter-tabs::-webkit-scrollbar { display: none; }
+.ftab {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  background: var(--card); color: var(--t2);
+  border: 1.5px solid var(--div); transition: all 0.15s;
+}
+.ftab.on { background: var(--p); color: #fff; border-color: var(--p); }
+.ftab:active { transform: scale(0.95); }
+
+/* ── 스크롤 영역 ── */
+.list-area { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 4px 16px 16px; }
+.list-area::-webkit-scrollbar { display: none; }
+
+/* ── 좋아요 배너 ── */
+.likes-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card); border-radius: 16px;
+  border: 1px solid rgba(150,134,191,0.12);
+  padding: 12px 14px; margin-bottom: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(150,134,191,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: mcIn 0.4s ease both;
+}
+.likes-banner:active { transform: scale(0.985); box-shadow: 0 5px 16px rgba(150,134,191,0.14); }
+.likes-banner-ic {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--p-t);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.likes-banner-ic svg { width: 18px; height: 18px; fill: var(--p); }
+.likes-banner-body { flex: 1; min-width: 0; }
+.likes-banner-title { font-size: 13.5px; font-weight: 800; color: var(--t1); letter-spacing: -0.02em; margin-bottom: 2px; }
+.likes-banner-title b { color: var(--p-d); }
+.likes-banner-sub { font-size: 11px; font-weight: 400; color: var(--t3); }
+.likes-banner-arrow { flex-shrink: 0; }
+.likes-banner-arrow svg { width: 14px; height: 14px; stroke: var(--t3); fill: none; stroke-width: 2; }
+
+/* ── 슈퍼좋아요 섹션 ── */
+.super-section {
+  margin-bottom: 18px;
+  animation: mcIn 0.45s ease both;
+}
+.super-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+.super-head-left { display: flex; align-items: center; gap: 7px; }
+.super-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--super-t); color: var(--p-d);
+  font-size: 11px; font-weight: 800; padding: 4px 10px;
+  border-radius: 20px; letter-spacing: -0.01em;
+}
+.super-badge svg { width: 10px; height: 10px; fill: var(--p-d); }
+.super-count { font-size: 12px; font-weight: 800; color: var(--t1); }
+.super-hint { font-size: 10.5px; font-weight: 600; color: var(--t3); }
+
+.super-card {
+  background: var(--card);
+  border-radius: 18px;
+  border: 2px solid var(--p);
+  margin-bottom: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(150,134,191,0.12);
+  animation: mcIn 0.4s ease both;
+  transition: transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  padding: 14px;
+  gap: 14px;
+  align-items: stretch;
+}
+.super-card:active { transform: scale(0.985); box-shadow: 0 6px 20px rgba(150,134,191,0.2); }
+
+/* 좌측 큰 사진 영역 */
+.super-left {
+  flex-shrink: 0;
+  width: 110px;
+  align-self: stretch;
+  position: relative;
+}
+.super-av-wrap {
+  position: relative;
+  width: 100%; height: 100%;
+  min-height: 110px;
+  border-radius: 14px;
+  border: 1.5px dashed rgba(150,134,191,0.55);
+  padding: 4px;
+  background: transparent;
+}
+.super-av {
+  width: 100%; height: 100%;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; font-weight: 800; color: #fff;
+  position: relative;
+}
+.super-av .online-dot {
+  bottom: 4px; right: 4px;
+  border-color: var(--card);
+}
+.super-plus {
+  position: absolute; bottom: -4px; left: -4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--p); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; line-height: 1;
+  border: 2px solid var(--card);
+  box-shadow: 0 2px 6px rgba(150,134,191,0.35);
+}
+
+/* 우측 영역 - 상단 프로필 정보 + 하단 버튼 */
+.super-right {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.super-body { min-width: 0; }
+.super-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.super-name-row { display: flex; align-items: center; gap: 6px; }
+.super-name { font-size: 14px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; }
+.super-age { font-size: 10px; font-weight: 700; color: var(--p); background: var(--p-t); border-radius: 20px; padding: 1px 6px; }
+.super-time { font-size: 10.5px; font-weight: 400; color: var(--t3); white-space: nowrap; flex-shrink: 0; }
+.super-loc { font-size: 11px; font-weight: 400; color: var(--t3); margin-bottom: 6px; display: flex; align-items: center; gap: 3px; }
+.super-loc svg { width: 10px; height: 10px; stroke: var(--t3); fill: none; stroke-width: 2; }
+.super-preview {
+  font-size: 12px; font-weight: 400; color: var(--t2); line-height: 1.45;
+  word-break: keep-all;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  margin-bottom: 6px;
+}
+.super-kws { display: flex; gap: 4px; flex-wrap: nowrap; overflow: hidden; }
+.super-kw { flex-shrink: 0; background: var(--p-t); color: var(--p-d); border-radius: 20px; padding: 2px 7px; font-size: 10px; font-weight: 700; }
+
+/* 보낸 슈퍼좋아요 - 상태 영역 (답장 대기중) */
+.super-status {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--p-t);
+  border-radius: 12px;
+  border: 1px solid rgba(150,134,191,0.18);
+}
+.super-status-left {
+  display: flex; align-items: center; gap: 6px;
+  min-width: 0;
+}
+.super-status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--p);
+  flex-shrink: 0;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.super-status-text {
+  font-size: 11.5px; font-weight: 800; color: var(--p-d);
+  letter-spacing: -0.01em;
+}
+.super-status-time {
+  font-size: 10.5px; font-weight: 600; color: var(--t3);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── 매칭 카드 ── */
+.mcard {
+  background: var(--card); border-radius: 18px;
+  border: 1px solid rgba(150,134,191,0.10);
+  margin-bottom: 10px;
+  display: flex; overflow: hidden; cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 12px rgba(150,134,191,0.08);
+  animation: mcIn 0.4s ease both;
+  position: relative;
+}
+.mcard:active { transform: scale(0.985); box-shadow: 0 6px 20px rgba(150,134,191,0.15); }
+@keyframes mcIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* 아바타 */
+.mcard-left { padding: 14px 0 14px 14px; flex-shrink: 0; }
+.mcard-av {
+  width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800; color: #fff;
+  position: relative;
+}
+/* 온라인 표시 */
+.online-dot { position: absolute; bottom: 1px; right: 1px; width: 11px; height: 11px; border-radius: 50%; background: var(--g); border: 2px solid var(--card); }
+
+/* 본문 */
+.mcard-body { flex: 1; padding: 14px 12px 12px; min-width: 0; }
+.mcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.mcard-name-row { display: flex; align-items: center; gap: 6px; }
+.mcard-name { font-size: 14px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; }
+.mcard-age { font-size: 10px; font-weight: 700; color: var(--p); background: var(--p-t); border-radius: 20px; padding: 1px 6px; }
+.mcard-time { font-size: 10.5px; font-weight: 400; color: var(--t3); white-space: nowrap; flex-shrink: 0; }
+.mcard-loc { font-size: 11px; font-weight: 400; color: var(--t3); margin-bottom: 7px; display: flex; align-items: center; gap: 3px; }
+.mcard-loc svg { width: 10px; height: 10px; stroke: var(--t3); fill: none; stroke-width: 2; }
+.mcard-preview { font-size: 12.5px; font-weight: 400; color: var(--t2); line-height: 1.5; word-break: keep-all; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 9px; }
+.mcard-kws { display: flex; gap: 5px; flex-wrap: nowrap; overflow: hidden; }
+.mcard-kw { flex-shrink: 0; background: var(--p-t); color: var(--p-d); border-radius: 20px; padding: 3px 9px; font-size: 10.5px; font-weight: 700; }
+
+/* 오른쪽 액션 - 보낸 좋아요 (X 버튼만) */
+.mcard-right {
+  padding: 14px 12px 14px 8px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px; flex-shrink: 0;
+}
+.mcard-action-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.12s;
+}
+.mcard-action-btn:active { transform: scale(0.88); }
+.mcard-x-btn {
+  background: var(--div);
+}
+.mcard-x-btn:active { background: #d9d5d0; }
+.mcard-x-btn svg { width: 13px; height: 13px; stroke: var(--t2); stroke-width: 2.2; fill: none; }
+/* 보낸 상태 표시 */
+.mcard-sent-label {
+  font-size: 9.5px; font-weight: 700; color: var(--p);
+  letter-spacing: -0.01em; text-align: center;
+  white-space: nowrap;
+}
+
+/* 새 매칭 뱃지 */
+.new-match-tag {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--new); color: #fff;
+  font-size: 9px; font-weight: 800; border-radius: 20px; padding: 2px 7px;
+  letter-spacing: 0.02em;
+}
+
+/* ── 빈 상태 ── */
+.empty { display: none; flex-direction: column; align-items: center; padding: 48px 24px; text-align: center; gap: 10px; }
+.empty.show { display: flex; }
+.empty-icon { font-size: 44px; }
+.empty-title { font-size: 16px; font-weight: 800; color: var(--t1); }
+.empty-sub { font-size: 13px; color: var(--t3); }
+
+/* 섹션 라벨 (일반 매칭) */
+.section-label {
+  font-size: 11px; font-weight: 800; color: var(--t3);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 4px 4px 10px;
+}
+
+@keyframes fu { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.fu { animation: fu 0.45s ease both; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="di"></div>
+
+  <!-- status bar -->
+  <div class="sb">
+    <span class="sb-time">9:41</span>
+    <div class="sb-icons">
+      <svg width="17" height="12" fill="none" viewBox="0 0 17 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1C1A22" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1C1A22" opacity=".5"/><rect x="9" y=".5" width="3" height="11.5" rx="1" fill="#1C1A22" opacity=".75"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#1C1A22"/></svg>
+      <svg width="16" height="12" fill="none" viewBox="0 0 16 12"><path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4l1.4 1.4C3.8 3.9 5.8 3 8 3Z" fill="#1C1A22"/><path d="M8 6c1.5 0 2.8.6 3.8 1.6L13.2 6.2C11.8 4.8 9.9 4 8 4S4.2 4.8 2.8 6.2L4.2 7.6C5.2 6.6 6.5 6 8 6Z" fill="#1C1A22" opacity=".6"/><circle cx="8" cy="10.5" r="1.5" fill="#1C1A22"/></svg>
+      <svg width="27" height="13" fill="none" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#1C1A22" stroke-opacity=".3"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#1C1A22"/><path d="M24.5 4.5v4C25.6 8 26.5 7.1 26.5 6.5S25.6 5 24.5 4.5Z" fill="#1C1A22" opacity=".35"/></svg>
+    </div>
+  </div>
+
+  <!-- nav -->
+  <div class="nav fu">
+    <button class="nav-back" onclick="history.back()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M10 13L5.5 8 10 3" stroke="#1C1A22" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="nav-center">
+      <div class="nav-title">내가 좋아요</div>
+      <div class="nav-count" id="total-count">총 10명</div>
+    </div>
+    <button class="nav-filter">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+    </button>
+  </div>
+
+  <!-- 필터 탭 -->
+  <div class="filter-tabs fu" style="animation-delay:.05s">
+    <div class="ftab on" onclick="setFilter(this,'전체')">전체</div>
+    <div class="ftab" onclick="setFilter(this,'최근')">🆕 최근</div>
+    <div class="ftab" onclick="setFilter(this,'가까운')">📍 가까운</div>
+    <div class="ftab" onclick="setFilter(this,'높은매칭')">✨ 높은매칭</div>
+  </div>
+
+  <!-- 목록 (스크롤 영역) -->
+  <div class="list-area" id="list-area">
+    <!-- 좋아요 배너 -->
+    <div class="likes-banner fu" style="animation-delay:.08s" onclick="goLikes()">
+      <div class="likes-banner-ic">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </div>
+      <div class="likes-banner-body">
+        <div class="likes-banner-title">내가 보낸 좋아요 <b>10명</b></div>
+        <div class="likes-banner-sub">오늘 2명 · 이번주 8명</div>
+      </div>
+      <div class="likes-banner-arrow">
+        <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <!-- 슈퍼좋아요 섹션 -->
+    <div class="super-section fu" style="animation-delay:.12s">
+      <div class="super-head">
+        <div class="super-head-left">
+          <span class="super-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg>
+            보낸 슈퍼 좋아요
+          </span>
+          <span class="super-count">2명</span>
+        </div>
+        <span class="super-hint">답장을 기다리는 중</span>
+      </div>
+      <div id="super-list"></div>
+    </div>
+
+    <!-- 일반 매칭 리스트 -->
+    <div class="section-label">보낸 좋아요</div>
+    <div id="match-list"></div>
+  </div>
+</div>
+
+<script>
+/* 내가 보낸 슈퍼 좋아요 */
+const SUPERS = [
+  { id:101, nick:'윤슬', age:26, loc:'강남구', av:'윤',
+    color:'linear-gradient(135deg,#9686BF,#b8a8e0)',
+    sentTime:'2시간 전 전송', online:true,
+    preview:'같이 전시 보러 가요',
+    kws:['전시','감성적이에요','차분해요'] },
+  { id:102, nick:'리아', age:28, loc:'성수동', av:'리',
+    color:'linear-gradient(135deg,#E8A4B8,#d08098)',
+    sentTime:'어제 전송', online:false,
+    preview:'카페 투어 같이 해요! ☕',
+    kws:['커피☕','홈카페','일상'] },
+];
+
+/* 내가 보낸 일반 좋아요 프로필 목록 */
+const MATCHES = [
+  { id:1, nick:'수달친구🦦', age:28, loc:'강남구', av:'수', color:'linear-gradient(135deg,#8BBFA8,#6aad90)',
+    pct:75, time:'방금 전 보냄', preview:'오늘 하루도 수고했어요. 같이 산책하면서…', kws:['새벽감성🌙','산책','고양이집사🐱'], online:true, isNew:true },
+  { id:2, nick:'민들레🌻', age:29, loc:'마포구', av:'민', color:'linear-gradient(135deg,#9686BF,#b8a8e0)',
+    pct:68, time:'10분 전 보냄', preview:'ETF 투자 같이 공부할 분 찾아요 🌱', kws:['투자공부','ETF','성장마인드'], online:true, isNew:true },
+  { id:3, nick:'별빛수집가✨', age:26, loc:'서초구', av:'별', color:'linear-gradient(135deg,#A8C4E0,#7aa8d0)',
+    pct:62, time:'1시간 전 보냄', preview:'새벽 감성으로 쓴 오늘의 포스트잇 🌙', kws:['새벽감성🌙','드로잉','음악감상'], online:false, isNew:false },
+  { id:4, nick:'찻잎냄새🍃', age:33, loc:'강남구', av:'찻', color:'linear-gradient(135deg,#9686BF,#7B6EA3)',
+    pct:58, time:'3시간 전 보냄', preview:'강남구 새벽 산책 코스 추천받아요 🌙', kws:['담백해요','산책','고민이에요'], online:false, isNew:false },
+  { id:5, nick:'하품판다🐼', age:28, loc:'용산구', av:'판', color:'linear-gradient(135deg,#8BBFA8,#5a9e80)',
+    pct:55, time:'어제 보냄', preview:'오늘 말차 라떼 처음 만들어봤는데 대성공!', kws:['홈카페','고양이집사🐱','일상'], online:true, isNew:false },
+  { id:6, nick:'토끼귀🐰', age:26, loc:'마포구', av:'토', color:'linear-gradient(135deg,#E8A4B8,#d08098)',
+    pct:52, time:'2일 전 보냄', preview:'봄이 왔어요. 벚꽃 같이 보러 갈 분 🌸', kws:['산책','감성적이에요','드로잉'], online:false, isNew:false },
+  { id:7, nick:'뽀글이🐑', age:31, loc:'강남구', av:'뽀', color:'linear-gradient(135deg,#E8C4A4,#c8a080)',
+    pct:48, time:'3일 전 보냄', preview:'카페라떼 마시면서 보내는 오후 🤍', kws:['커피☕','일상','담백해요'], online:false, isNew:false },
+  { id:8, nick:'구름조각🌤️', age:24, loc:'송파구', av:'구', color:'linear-gradient(135deg,#A8C4E0,#88aac8)',
+    pct:45, time:'5일 전 보냄', preview:'첫 월급 받았어요! 기쁨 나눠요 ✨', kws:['신나요','일상'], online:false, isNew:false },
+];
+
+let currentFilter = '전체';
+
+function renderSupers() {
+  const container = document.getElementById('super-list');
+  container.innerHTML = SUPERS.map((s, i) => `
+    <div class="super-card" style="animation-delay:${0.14 + i*0.04}s" onclick="goProfile(${s.id})">
+      <div class="super-left">
+        <div class="super-av-wrap">
+          <div class="super-av" style="background:${s.color}">
+            ${s.av}
+            ${s.online ? '<div class="online-dot"></div>' : ''}
+          </div>
+          <div class="super-plus">+</div>
+        </div>
+      </div>
+      <div class="super-right">
+        <div class="super-body">
+          <div class="super-top">
+            <div class="super-name-row">
+              <span class="super-name">${s.nick}</span>
+              <span class="super-age">${s.age}</span>
+            </div>
+          </div>
+          <div class="super-loc">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 14 6 14s6-9 6-14c0-3.3-2.7-6-6-6Z"/><circle cx="12" cy="8" r="2"/></svg>
+            서울 ${s.loc}
+          </div>
+          <div class="super-preview">${s.preview}</div>
+          <div class="super-kws">
+            ${s.kws.slice(0,2).map(k => `<span class="super-kw">${k}</span>`).join('')}
+          </div>
+        </div>
+        <div class="super-status">
+          <div class="super-status-left">
+            <span class="super-status-dot"></span>
+            <span class="super-status-text">답장 대기중</span>
+          </div>
+          <span class="super-status-time">${s.sentTime}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderList(filter) {
+  let data = [...MATCHES];
+  if (filter === '최근')     data = data.slice(0, 4);
+  if (filter === '가까운')   data = data.filter(m => m.loc === '강남구' || m.loc === '서초구');
+  if (filter === '높은매칭') data = data.filter(m => m.pct >= 60);
+
+  document.getElementById('total-count').textContent = `총 ${MATCHES.length + SUPERS.length}명`;
+
+  const area = document.getElementById('match-list');
+  if (!data.length) {
+    area.innerHTML = `<div class="empty show"><div class="empty-icon">🔍</div><div class="empty-title">해당 조건의 매칭이 없어요</div><div class="empty-sub">필터를 바꿔보세요</div></div>`;
+    return;
+  }
+
+  area.innerHTML = data.map((m, i) => `
+    <div class="mcard" style="animation-delay:${0.16 + i*0.04}s" onclick="goProfile(${m.id})">
+      <div class="mcard-left">
+        <div class="mcard-av" style="background:${m.color}">
+          ${m.av}
+          ${m.online ? '<div class="online-dot"></div>' : ''}
+        </div>
+      </div>
+      <div class="mcard-body">
+        <div class="mcard-top">
+          <div class="mcard-name-row">
+            <span class="mcard-name">${m.nick}</span>
+            <span class="mcard-age">${m.age}</span>
+          </div>
+          <span class="mcard-time">${m.time}</span>
+        </div>
+        <div class="mcard-loc">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 14 6 14s6-9 6-14c0-3.3-2.7-6-6-6Z"/><circle cx="12" cy="8" r="2"/></svg>
+          서울 ${m.loc}
+        </div>
+        <div class="mcard-preview">${m.preview}</div>
+        <div class="mcard-kws">
+          ${m.kws.slice(0,3).map(k => `<span class="mcard-kw">${k}</span>`).join('')}
+        </div>
+      </div>
+      <div class="mcard-right">
+        <button class="mcard-action-btn mcard-x-btn" onclick="event.stopPropagation();cancelLike(${m.id})" aria-label="좋아요 취소">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+        </button>
+        <span class="mcard-sent-label">취소</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(el, filter) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  currentFilter = filter;
+  renderList(filter);
+}
+
+function goProfile(id)    { alert('프로필 상세 화면으로 이동: ID ' + id); }
+function goLikes()        { alert('내가 보낸 좋아요 전체 보기'); }
+function cancelLike(id)   { alert('좋아요 취소: ID ' + id); }
+
+renderSupers();
+renderList('전체');
+</script>
+</body>
+</html>

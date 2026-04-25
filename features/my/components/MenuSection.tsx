@@ -6,6 +6,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { COLORS } from '@/constants/colors';
 import { MenuSection as MenuSectionType, MenuItem } from '../types';
 
@@ -54,11 +55,19 @@ interface MenuRowProps {
   onToggle: () => void;
 }
 
-const MenuRow: React.FC<MenuRowProps> = ({ item, isFirst, toggleState, onToggle }) => (
+const MenuRow: React.FC<MenuRowProps> = ({ item, isFirst, toggleState, onToggle }) => {
+  const router = useRouter();
+  const onPress =
+    item.rightType === 'toggle'
+      ? onToggle
+      : item.href
+      ? () => router.push(item.href as any)
+      : undefined;
+  return (
   <TouchableOpacity
     className="flex-row items-center px-[18px] py-[15px] gap-[14px] relative"
     activeOpacity={0.7}
-    onPress={item.rightType === 'toggle' ? onToggle : undefined}
+    onPress={onPress}
   >
     {/* Divider (not on first row) */}
     {!isFirst && (
@@ -110,7 +119,8 @@ const MenuRow: React.FC<MenuRowProps> = ({ item, isFirst, toggleState, onToggle 
       )}
     </View>
   </TouchableOpacity>
-);
+  );
+};
 
 interface Props {
   section: MenuSectionType;
